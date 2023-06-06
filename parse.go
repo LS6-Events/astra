@@ -2,6 +2,7 @@ package gengo
 
 import (
 	"errors"
+	"fmt"
 )
 
 func (s *Service) Parse() error {
@@ -17,7 +18,12 @@ func (s *Service) Parse() error {
 	if err != nil {
 		return err
 	}
-	defer cleanupTempDir()
+	defer func() {
+		err := cleanupTempDir()
+		if err != nil {
+			fmt.Printf("error cleaning up temp dir: %s\n", err)
+		}
+	}()
 
 	for _, input := range s.Inputs {
 		err = input.Populate(s)

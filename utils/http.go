@@ -11,7 +11,7 @@ import (
 
 func ConvertStatusCodeTypeToInt(statusCode string) (int, error) {
 	if strings.HasPrefix(statusCode, "http.") {
-		strings.Replace(statusCode, "http.", "", 1)
+		statusCode = strings.Replace(statusCode, "http.", "", 1)
 	}
 
 	cwd, err := os.Getwd()

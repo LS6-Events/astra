@@ -120,20 +120,15 @@ func parseFunction(s *gengo.Service, currRoute *gengo.Route, node *ast.FuncDecl,
 				return true
 			}
 			if ident.Name == ctxName { // If any gin.Context method is called
-				argNo := 2
 				switch fun.Sel.Name {
 				// Return Types Below
 				case "JSON":
-					argNo = 1
 					fallthrough
 				case "XML":
-					argNo = 1
 					fallthrough
 				case "YAML":
-					argNo = 1
 					fallthrough
 				case "ProtoBuf":
-					argNo = 1
 					fallthrough
 				case "Data":
 
@@ -172,6 +167,10 @@ func parseFunction(s *gengo.Service, currRoute *gengo.Route, node *ast.FuncDecl,
 						}
 
 						currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
+					}
+					argNo := 1
+					if fun.Sel.Name == "Data" {
+						argNo = 2
 					}
 
 					err, ok = parseFromCalledFunction(callExpr, argNo, pkgName, pkgPath, imports, onExtract)
