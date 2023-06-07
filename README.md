@@ -122,6 +122,19 @@ func main() {
 	}
 }
 ```
+### Logging
+We use [ZeroLog](https://www.github.com/rs/zerolog) for logging, which is a fast and lightweight logging library. By default we have `info` level logging configured, but to specify `debug`, you can add a configuration option to the `New` function
+```go
+gengo.New(...(previous configuration)..., gengo.WithCustomLogLevel("debug"))
+```
+
+Or if you wanted to set a new logger function:
+```go
+import "github.com/rs/zerolog/log"
+
+logger := log.With().Caller().Logger()
+gengo.New(...(previous configuration)..., gengo.WithCustomLogger(logger))
+```
 
 ## How it works
 
@@ -135,6 +148,7 @@ We have methods to extract types from the following:
 
 ### Upcoming features
 * Extract types from inline functions
+* Allow custom status codes nested inside packages (here we only allow for preset constants (i.e. 200), or the `http.Status*` constants)
 * Extract types from other web frameworks as inputs (e.g. [Echo](https://github.com/labstack/echo), [Fiber](https://github.com/gofiber/fiber), etc.)
 * Add support for more output formats (e.g. TypeScript interfaces/classes etc.)
 * Add unit tests and more documentation

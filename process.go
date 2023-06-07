@@ -13,22 +13,31 @@ func (s *Service) process() error {
 	for newPass {
 		newPass = false
 
+		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Processing flagged types")
 		pkgs, err := s.loadPackages()
 		if err != nil {
+			s.Log.Error().Err(err).Msg("Error loading packages")
 			return err
 		}
+		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Loaded packages")
 
 		s.ToBeProcessed = make([]Processable, 0)
 
 		for _, pkg := range pkgs {
+			s.Log.Debug().Str("pkg", pkg.PkgPath).Msg("Processing package")
 			for _, name := range s.typesByName[pkg.PkgPath] {
+				s.Log.Debug().Str("name", name).Msg("Processing type")
 				targetType := pkg.Types.Scope().Lookup(name)
 				if targetType == nil {
-					return fmt.Errorf("type %s not found in package %s", name, pkg.PkgPath)
+					err := fmt.Errorf("type %s not found in package %s", name, pkg.PkgPath)
+					s.Log.Error().Err(err).Msg("Error processing type")
+					return err
 				}
 
 				if !targetType.Exported() {
-					return fmt.Errorf("type %s is not exported", name)
+					err := fmt.Errorf("type %s is not exported", name)
+					s.Log.Error().Err(err).Msg("Error processing type")
+					return err
 				}
 
 				var resultField Field
@@ -59,6 +68,7 @@ func (s *Service) process() error {
 				resultField.Name = name
 
 				s.ReturnTypes = append(s.ReturnTypes, resultField)
+				s.Log.Debug().Str("name", name).Msg("Processed type")
 			}
 		}
 	}
