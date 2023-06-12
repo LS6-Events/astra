@@ -654,9 +654,11 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 		}
 
 		var res utils.ParseResult
-		res, err, ok = parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
-		if !ok {
+		res, err, isExtractRequired := parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
+		if err != nil {
 			return err, false
+		} else if !isExtractRequired {
+			return nil, false
 		}
 
 		onExtract(utils.ParseResult{
@@ -756,7 +758,7 @@ func parseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.Ass
 			if err != nil {
 				return utils.ParseResult{}, err, false
 			} else {
-				return utils.ParseResult{}, nil, true
+				return utils.ParseResult{}, nil, false
 			}
 		case *ast.Ident: // Bar()
 			funcDecl, ok := fun.Obj.Decl.(*ast.FuncDecl)
@@ -785,6 +787,7 @@ func parseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.Ass
 	default:
 		return utils.ParseResult{}, nil, false
 	}
+
 	return res, nil, true
 }
 
