@@ -581,8 +581,8 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 			return nil, true
 		}
 	case *ast.Ident: // A variable used in the arguments
-		assignStmt, isExtractRequired := argType.Obj.Decl.(*ast.AssignStmt)
-		if !isExtractRequired {
+		assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
+		if !ok {
 			return nil, false
 		}
 
@@ -654,7 +654,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 		}
 
 		var res utils.ParseResult
-		res, err, isExtractRequired = parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
+		res, err, isExtractRequired := parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
 		if err != nil {
 			return err, false
 		} else if !isExtractRequired {
