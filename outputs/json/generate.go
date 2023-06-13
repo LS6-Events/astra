@@ -8,16 +8,16 @@ import (
 )
 
 type JSONOutput struct {
-	Routes []gengo.Route `json:"routes"`
-	Fields []gengo.Field `json:"fields"`
+	Routes     []gengo.Route `json:"routes"`
+	Components []gengo.Field `json:"components"`
 }
 
 func generate(filePath string) gengo.GenerateFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Info().Msg("Generating JSON output")
 		output := JSONOutput{
-			Routes: s.Routes,
-			Fields: s.ReturnTypes,
+			Routes:     s.Routes,
+			Components: s.Components,
 		}
 
 		s.Log.Debug().Msg("Generated JSON output")

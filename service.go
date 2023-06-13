@@ -19,5 +19,5 @@ type Service struct {
 
 	tempMainPackageName string
 
-	ReturnTypes []Field
+	Components []Field
 }

@@ -218,7 +218,7 @@ func generate(filePath string) gengo.GenerateFunction {
 		}
 
 		s.Log.Debug().Msg("Adding components")
-		for _, component := range s.ReturnTypes {
+		for _, component := range s.Components {
 			s.Log.Debug().Str("name", component.Name).Msg("Adding component")
 			var schema Schema
 			if component.Type == "struct" {

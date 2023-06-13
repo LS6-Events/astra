@@ -40,6 +40,7 @@ func (s *Service) process() error {
 					return err
 				}
 
+				var newPassElem bool
 				var resultField Field
 
 				underlyingType := targetType.Type().Underlying()
@@ -52,23 +53,36 @@ func (s *Service) process() error {
 						underlyingType = t.Elem()
 						pointerPass = true
 					case *types.Struct:
-						newPass, resultField = s.processStruct(t, pkg)
+						newPassElem, resultField = s.processStruct(t, pkg)
 					case *types.Map:
-						newPass, resultField = s.processMap(t, pkg)
+						newPassElem, resultField = s.processMap(t, pkg)
 					case *types.Slice:
-						newPass, resultField = s.processSlice(t, pkg)
+						newPassElem, resultField = s.processSlice(t, pkg)
+					//case *types.Basic:
+					//	resultField = Field{
+					//		Package: pkg.PkgPath,
+					//		Type:    t.Name(),
+					//	}
 					default:
+						newPassForType, relativePkg, relativeName := s.processType(t.String(), pkg.PkgPath)
+						if newPassForType {
+							newPassElem = true
+						}
 						resultField = Field{
-							Package: pkg.PkgPath,
-							Type:    targetType.Type().String(),
+							Package: relativePkg,
+							Type:    relativeName,
 						}
 					}
 				}
 
 				resultField.Name = name
 
-				s.ReturnTypes = append(s.ReturnTypes, resultField)
+				s.Components = append(s.Components, resultField)
 				s.Log.Debug().Str("name", name).Msg("Processed type")
+
+				if newPassElem {
+					newPass = true
+				}
 			}
 		}
 	}
@@ -114,34 +128,40 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 			}
 		}
 		switch f.Type().(type) {
-		case *types.Struct:
+		case *types.Basic:
+			// If the field is a basic type, we don't need to add a package
 			fields[name] = Field{
-				Package:    pkg.PkgPath,
 				Name:       f.Id(),
-				Type:       "struct",
-				IsRequired: isRequired,
-			}
-			s.AddToBeProcessed(pkg.PkgPath, f.Id())
-			newPass = true
-		case *types.Map:
-			newPassForMap, mapField := s.processMap(f.Type().Underlying().(*types.Map), pkg)
-			if newPassForMap {
-				newPass = true
-			}
-			mapField.IsRequired = isRequired
-			fields[name] = mapField
-		case *types.Slice:
-			newPassForSlice, sliceField := s.processSlice(f.Type().Underlying().(*types.Slice), pkg)
-			if newPassForSlice {
-				newPass = true
-			}
-			sliceField.IsRequired = isRequired
-			fields[name] = sliceField
-		default:
-			fields[name] = Field{
-				Package:    pkg.PkgPath,
 				Type:       f.Type().String(),
 				IsRequired: isRequired,
+			}
+		case *types.Named:
+			switch f.Type().Underlying().(type) {
+			case *types.Map:
+				newPassForMap, mapField := s.processMap(f.Type().Underlying().(*types.Map), pkg)
+				if newPassForMap {
+					newPass = true
+				}
+				mapField.IsRequired = isRequired
+				fields[name] = mapField
+			case *types.Slice:
+				newPassForSlice, sliceField := s.processSlice(f.Type().Underlying().(*types.Slice), pkg)
+				if newPassForSlice {
+					newPass = true
+				}
+				sliceField.IsRequired = isRequired
+				fields[name] = sliceField
+			default:
+				newPassForType, relativePkg, relativeName := s.processType(f.Type().String(), pkg.PkgPath)
+				if newPassForType {
+					newPass = true
+				}
+				fields[name] = Field{
+					Package:    relativePkg,
+					Type:       relativeName,
+					IsRequired: isRequired,
+					Name:       f.Id(),
+				}
 			}
 		}
 	}
@@ -154,40 +174,47 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 }
 
 func (s *Service) processMap(t *types.Map, pkg *packages.Package) (bool, Field) {
+	newPassKey, relativeKeyPkg, relativeKeyName := s.processType(t.Key().String(), pkg.PkgPath)
+	newPassValue, relativeValuePkg, relativeValueName := s.processType(t.Elem().String(), pkg.PkgPath)
+
 	resultField := Field{
-		Package:  pkg.PkgPath,
-		Type:     "map",
-		MapKey:   t.Key().String(),
-		MapValue: t.Elem().String(),
+		Package:   relativeValuePkg,
+		Type:      "map",
+		MapKeyPkg: relativeKeyPkg,
+		MapKey:    relativeKeyName,
+		MapValue:  relativeValueName,
 	}
 
-	// If map key is not accepted type, then return error
-	if !IsAcceptedType(resultField.MapKey) {
-		s.AddToBeProcessed(pkg.PkgPath, resultField.MapKey)
-		return true, resultField
-	}
-
-	// If map value is custom struct type, then process it
-	if !IsAcceptedType(resultField.MapValue) {
-		s.AddToBeProcessed(pkg.PkgPath, resultField.MapValue)
-		return true, resultField
-	}
-
-	return false, resultField
+	return newPassKey || newPassValue, resultField
 }
 
 func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Field) {
+	newPass, relativePkg, relativeName := s.processType(t.Elem().String(), pkg.PkgPath)
 	resultField := Field{
-		Package:   pkg.PkgPath,
+		Package:   relativePkg,
 		Type:      "slice",
-		SliceType: t.Elem().String(),
+		SliceType: relativeName,
 	}
 
-	// If slice type is not accepted type, then process it
-	if !IsAcceptedType(resultField.SliceType) {
-		s.AddToBeProcessed(pkg.PkgPath, resultField.SliceType)
-		return true, resultField
+	return newPass, resultField
+}
+
+func (s *Service) processType(t string, defaultPkg string) (newPass bool, relativePkg string, relativeName string) {
+	split := strings.Split(t, ".")
+	if len(split) > 1 {
+		relativePkg = split[0]
+		relativeName = split[1]
+	} else {
+		relativePkg = defaultPkg
+		relativeName = split[0]
 	}
 
-	return false, resultField
+	if !IsAcceptedType(relativeName) {
+		// We don't mind the duplicate records here, as we check the existing components before adding to queue
+		newPass = s.HasAddedToBeProcessed(relativePkg, relativeName)
+	} else {
+		newPass = false
+	}
+
+	return
 }

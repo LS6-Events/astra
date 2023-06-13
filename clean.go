@@ -6,8 +6,8 @@ func (s *Service) clean() error {
 		return err
 	}
 
-	for i := 0; i < len(s.ReturnTypes); i++ {
-		f := s.ReturnTypes[i]
+	for i := 0; i < len(s.Components); i++ {
+		f := s.Components[i]
 		if f.Package == mainPkg {
 			f.Package = "main"
 		}
@@ -19,7 +19,7 @@ func (s *Service) clean() error {
 			}
 		}
 
-		s.ReturnTypes[i] = f
+		s.Components[i] = f
 	}
 
 	return nil
