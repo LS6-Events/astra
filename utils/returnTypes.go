@@ -2,14 +2,9 @@ package utils
 
 import (
 	"github.com/ls6-events/gengo"
-	"sync"
 )
 
-var mut sync.Mutex
-
 func AddReturnType(prev []gengo.ReturnType, n ...gengo.ReturnType) []gengo.ReturnType {
-	mut.Lock()
-	defer mut.Unlock()
 	for _, newReturn := range n {
 		if len(prev) == 0 {
 			prev = append(prev, newReturn)
