@@ -166,6 +166,18 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 							s.AddToBeProcessed(result.PkgName, result.VarName)
 							returnType.Field.Package = result.PkgName
 						}
+						if result.SliceType != "" && !gengo.IsAcceptedType(result.SliceType) {
+							s.AddToBeProcessed(result.PkgName, result.SliceType)
+							returnType.Field.Package = result.PkgName
+						}
+						if result.MapKey != "" && !gengo.IsAcceptedType(result.MapKey) {
+							s.AddToBeProcessed(result.MapKeyPkg, result.MapKey)
+							returnType.Field.Package = result.MapKeyPkg
+						}
+						if result.MapVal != "" && !gengo.IsAcceptedType(result.MapVal) {
+							s.AddToBeProcessed(result.MapKeyPkg, result.MapVal)
+							returnType.Field.Package = result.MapKeyPkg
+						}
 
 						currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
 					}
@@ -601,6 +613,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 
 		onExternalPkg := func(funcName, pkgName, pkgPath string) error {
 			// We need all this logic here because we need to check the return type of the function against that package's imports
+
 			nPkgPath := utils.ParseInputPath(imports, pkgName, pkgPath)
 			var pkg *packages.Package
 			pkg, err = loadPackage(nPkgPath)
@@ -793,6 +806,31 @@ func parseFunctionReturnTypes(log zerolog.Logger, node ast.Node, argType *ast.Id
 	switch fieldType := node.(type) {
 	case *ast.StarExpr:
 		return parseFunctionReturnTypes(log, fieldType.X, argType)
+	case *ast.ArrayType:
+		arrayResult, ok := parseFunctionReturnTypes(log, fieldType.Elt, argType)
+		if ok {
+			return utils.ParseResult{
+				VarName:   "slice",
+				PkgName:   arrayResult.PkgName,
+				SliceType: arrayResult.VarName,
+			}, true
+		} else {
+			return utils.ParseResult{}, false
+		}
+	case *ast.MapType:
+		keyResult, keyOk := parseFunctionReturnTypes(log, fieldType.Key, argType)
+		valResult, valOk := parseFunctionReturnTypes(log, fieldType.Value, argType)
+		if keyOk && valOk {
+			return utils.ParseResult{
+				VarName:   "map",
+				MapKey:    keyResult.VarName,
+				MapKeyPkg: keyResult.PkgName,
+				MapVal:    valResult.VarName,
+				PkgName:   valResult.PkgName,
+			}, true
+		} else {
+			return utils.ParseResult{}, false
+		}
 	case *ast.SelectorExpr:
 		return utils.SplitIdentSelectorExpr(fieldType, argType.Name), true
 	case *ast.Ident:
