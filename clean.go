@@ -8,6 +8,9 @@ func (s *Service) clean() error {
 
 	for i := 0; i < len(s.Components); i++ {
 		f := s.Components[i]
+
+		s.handleSpecialType(&f)
+
 		if f.Package == mainPkg {
 			f.Package = "main"
 		}
