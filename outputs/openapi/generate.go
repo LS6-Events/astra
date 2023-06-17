@@ -223,11 +223,18 @@ func generate(filePath string) gengo.GenerateFunction {
 			s.Log.Debug().Str("name", component.Name).Msg("Adding component")
 			var schema Schema
 			if component.Type == "struct" {
+				embeddedProperties := make([]Schema, 0)
 				schema = Schema{
 					Type:       "object",
 					Properties: make(map[string]Schema),
 				}
 				for key, field := range component.StructFields {
+					if field.IsEmbedded {
+						embeddedProperties = append(embeddedProperties, Schema{
+							Ref: makeComponentRef(field.Type, field.Package),
+						})
+						continue
+					}
 					if !gengo.IsAcceptedType(field.Type) {
 						schema.Properties[key] = Schema{
 							Ref: makeComponentRef(field.Type, field.Package),
@@ -237,6 +244,14 @@ func generate(filePath string) gengo.GenerateFunction {
 							Type: mapAcceptedType(field.Type).Type,
 						}
 					}
+				}
+
+				if len(embeddedProperties) > 0 {
+					schema.AllOf = append(embeddedProperties, Schema{
+						Properties: schema.Properties,
+					})
+
+					schema.Properties = nil
 				}
 			} else if component.Type == "slice" {
 				schema = Schema{

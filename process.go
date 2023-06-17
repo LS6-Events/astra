@@ -58,11 +58,6 @@ func (s *Service) process() error {
 						newPassElem, resultField = s.processMap(t, pkg)
 					case *types.Slice:
 						newPassElem, resultField = s.processSlice(t, pkg)
-					//case *types.Basic:
-					//	resultField = Field{
-					//		Package: pkg.PkgPath,
-					//		Type:    t.Name(),
-					//	}
 					default:
 						newPassForType, relativePkg, relativeName := s.processType(t.String(), pkg.PkgPath)
 						if newPassForType {
@@ -93,11 +88,13 @@ func (s *Service) process() error {
 func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, Field) {
 	newPass := false
 	fields := make(map[string]Field)
+
 	for i := 0; i < t.NumFields(); i++ {
 		f := t.Field(i)
 
 		// Get if "binding:required" tag is present and "json" as well
 		isRequired := false
+		isEmbedded := f.Embedded()
 		name := f.Id()
 
 		tag := t.Tag(i)
@@ -127,6 +124,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 				name = strings.Split(json, ",")[0]
 			}
 		}
+
 		switch f.Type().(type) {
 		case *types.Basic:
 			// If the field is a basic type, we don't need to add a package
@@ -134,6 +132,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 				Name:       f.Id(),
 				Type:       f.Type().String(),
 				IsRequired: isRequired,
+				IsEmbedded: isEmbedded,
 			}
 		case *types.Named:
 			switch f.Type().Underlying().(type) {
@@ -143,6 +142,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 					newPass = true
 				}
 				mapField.IsRequired = isRequired
+				mapField.IsEmbedded = isEmbedded
 				fields[name] = mapField
 			case *types.Slice:
 				newPassForSlice, sliceField := s.processSlice(f.Type().Underlying().(*types.Slice), pkg)
@@ -150,6 +150,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 					newPass = true
 				}
 				sliceField.IsRequired = isRequired
+				sliceField.IsEmbedded = isEmbedded
 				fields[name] = sliceField
 			default:
 				newPassForType, relativePkg, relativeName := s.processType(f.Type().String(), pkg.PkgPath)
@@ -160,6 +161,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 					Package:    relativePkg,
 					Type:       relativeName,
 					IsRequired: isRequired,
+					IsEmbedded: isEmbedded,
 					Name:       f.Id(),
 				}
 			}

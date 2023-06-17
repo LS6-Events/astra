@@ -37,12 +37,14 @@ type Field struct {
 	Type    string `json:"type,omitempty"`
 	Name    string `json:"name,omitempty"`
 
+	IsRequired bool `json:"isRequired,omitempty"`
+	IsEmbedded bool `json:"isEmbedded,omitempty"`
+
 	SliceType string `json:"sliceType,omitempty"`
 
 	MapKeyPkg string `json:"mapKeyPkg,omitempty"`
 	MapKey    string `json:"mapKey,omitempty"`
 	MapValue  string `json:"mapValue,omitempty"`
 
-	IsRequired   bool             `json:"isRequired,omitempty"`
 	StructFields map[string]Field `json:"structFields,omitempty"`
 }
