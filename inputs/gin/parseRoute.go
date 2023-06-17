@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/utils"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -11,7 +12,7 @@ import (
 	"strings"
 )
 
-func parseRoute(s *gengo.Service, file string, info gin.RouteInfo) error {
+func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) error {
 	fset := token.NewFileSet()
 
 	log := s.Log.With().Str("path", info.Path).Str("method", info.Method).Str("file", file).Logger()
@@ -62,9 +63,45 @@ func parseRoute(s *gengo.Service, file string, info gin.RouteInfo) error {
 
 	ast.Inspect(node, func(n ast.Node) bool {
 		funcDecl, ok := n.(*ast.FuncDecl)
+
 		if ok && funcDecl.Name.Name == funcName {
 			log.Debug().Str("funcName", funcName).Msg("Found handler function")
-			err = parseFunction(s, log, &baseRoute, funcDecl, node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+
+			startPos := fset.Position(funcDecl.Pos())
+
+			if line != startPos.Line {
+				// This means that the function is set inline in the route definition
+				log.Debug().Str("funcName", funcName).Msg("Function is inline")
+
+				ast.Inspect(funcDecl, func(n ast.Node) bool {
+					funcLit, ok := n.(*ast.FuncLit)
+
+					if ok {
+						inlineStartPos := fset.Position(funcLit.Pos())
+
+						if line == inlineStartPos.Line {
+							log.Debug().Str("funcName", funcName).Msg("Found inline handler function")
+
+							err = parseFunction(s, log, &baseRoute, funcLit, node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+							if err != nil {
+								log.Error().Err(err).Msg("Failed to parse inline function")
+								return false
+							}
+
+							log.Debug().Str("funcName", funcName).Interface("route", baseRoute).Msg("Adding route")
+							s.AddRoute(baseRoute)
+
+							return false
+						}
+					}
+
+					return true
+				})
+
+				return false
+			}
+
+			err = parseFunction(s, log, &baseRoute, utils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to parse function")
 				return false
@@ -72,6 +109,8 @@ func parseRoute(s *gengo.Service, file string, info gin.RouteInfo) error {
 
 			log.Debug().Str("funcName", funcName).Interface("route", baseRoute).Msg("Adding route")
 			s.AddRoute(baseRoute)
+
+			return false
 		}
 
 		return true

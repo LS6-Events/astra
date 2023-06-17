@@ -33,3 +33,10 @@ func SplitIdentSelectorExpr(expr ast.Expr, defaultPkgName string) ParseResult {
 
 	return ParseResult{}
 }
+
+func FuncDeclToFuncLit(expr *ast.FuncDecl) *ast.FuncLit {
+	return &ast.FuncLit{
+		Type: expr.Type,
+		Body: expr.Body,
+	}
+}

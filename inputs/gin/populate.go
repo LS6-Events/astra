@@ -12,14 +12,16 @@ func populate(router *gin.Engine) gengo.PopulateFunction {
 		s.Log.Debug().Msg("Populating service with gin routes")
 		for _, route := range router.Routes() {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")
-			pc := reflect.ValueOf(route.HandlerFunc).Pointer()
-			file, _ := runtime.FuncForPC(pc).FileLine(pc)
-			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Msg("Found route handler")
 
-			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Msg("Parsing route")
-			err := parseRoute(s, file, route)
+			pc := reflect.ValueOf(route.HandlerFunc).Pointer()
+			file, line := runtime.FuncForPC(pc).FileLine(pc)
+
+			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Msg("Found route handler")
+
+			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Msg("Parsing route")
+			err := parseRoute(s, file, line, route)
 			if err != nil {
-				s.Log.Error().Str("path", route.Path).Str("method", route.Method).Str("file", file).Err(err).Msg("Failed to parse route")
+				s.Log.Error().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Err(err).Msg("Failed to parse route")
 				return err
 			}
 		}

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func extractContext(node *ast.FuncDecl) (string, error) {
+func extractContext(node *ast.FuncLit) (string, error) {
 	var ctxName string
 	for _, param := range node.Type.Params.List {
 		if len(param.Names) == 0 {
@@ -98,7 +98,7 @@ func extractStatusCode(status ast.Node) (int, error) {
 	return statusCode, nil
 }
 
-func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route, node *ast.FuncDecl, imports []*ast.ImportSpec, pkgName, pkgPath string, level int) error {
+func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route, node *ast.FuncLit, imports []*ast.ImportSpec, pkgName, pkgPath string, level int) error {
 	// Get the variable name of the context parameter
 	ctxName, err := extractContext(node)
 	if err != nil {
@@ -484,7 +484,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						return true
 					}
 
-					err = parseFunction(s, log, currRoute, funcDecl, nImports, nPkg.Name, nPkgPath, level+1)
+					err = parseFunction(s, log, currRoute, utils.FuncDeclToFuncLit(funcDecl), nImports, nPkg.Name, nPkgPath, level+1)
 					if err != nil {
 						return false
 					}
@@ -543,7 +543,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				}
 
 				nSplitPkg := strings.Split(nPkgPath, "/")
-				err = parseFunction(s, log, currRoute, funcDecl, nImports, nSplitPkg[len(nSplitPkg)-1], strings.Join(nSplitPkg[:len(nSplitPkg)-1], "/"), level+1)
+				err = parseFunction(s, log, currRoute, utils.FuncDeclToFuncLit(funcDecl), nImports, nSplitPkg[len(nSplitPkg)-1], strings.Join(nSplitPkg[:len(nSplitPkg)-1], "/"), level+1)
 				if err != nil {
 					return false
 				}
