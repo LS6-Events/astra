@@ -565,9 +565,25 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 }
 
 func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath string, imports []*ast.ImportSpec, onExtract func(result utils.ParseResult)) (error, bool) {
-	var err error
 	arg := callExpr.Args[argNo]
 	switch argType := arg.(type) {
+	case *ast.UnaryExpr: // A reference to a constant defined in the arguments
+		switch unaryExpr := argType.X.(type) {
+		case *ast.Ident: // A constant defined in this package
+			return parseIdentAndTrace(log, unaryExpr, pkgName, pkgPath, imports, onExtract)
+		case *ast.SelectorExpr: // A constant defined in another package
+			ident, ok := unaryExpr.X.(*ast.Ident)
+			if !ok {
+				return nil, false
+			}
+
+			onExtract(utils.ParseResult{
+				PkgName: utils.ParseInputPath(imports, ident.Name, pkgPath),
+				VarName: unaryExpr.Sel.Name,
+			})
+
+			return nil, true
+		}
 	case *ast.CompositeLit: // A constant defined in the arguments
 		switch compositLit := argType.Type.(type) {
 		case *ast.Ident: // A constant defined in this package
@@ -591,98 +607,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 			return nil, true
 		}
 	case *ast.Ident: // A variable used in the arguments
-		assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
-		if !ok {
-			return nil, false
-		}
-
-		var assignedIndex int
-		for i, expr := range assignStmt.Lhs {
-			if expr.(*ast.Ident).Name == argType.Name {
-				assignedIndex = i
-				break
-			}
-		}
-
-		var assignedExpr ast.Expr
-		if len(assignStmt.Lhs) == len(assignStmt.Rhs) { // If the number of variables and values are the same
-			assignedExpr = assignStmt.Rhs[assignedIndex]
-		} else { // If the number of variables and values are different (i.e. a function call)
-			assignedExpr = assignStmt.Rhs[0]
-		}
-
-		onExternalPkg := func(funcName, pkgName, pkgPath string) error {
-			// We need all this logic here because we need to check the return type of the function against that package's imports
-
-			nPkgPath := utils.ParseInputPath(imports, pkgName, pkgPath)
-			var pkg *packages.Package
-			pkg, err = loadPackage(nPkgPath)
-			if err != nil {
-				return err
-			}
-
-			var pkgImports []*ast.ImportSpec
-			var funcDecl *ast.FuncDecl
-			for _, file := range pkg.Syntax {
-				for _, decl := range file.Decls {
-					if f, ok := decl.(*ast.FuncDecl); ok {
-						if f.Name.Name == funcName {
-							pkgImports = file.Imports
-							funcDecl = f
-							break
-						}
-					}
-				}
-			}
-
-			var funcReturnIndex int
-			for i, field := range assignStmt.Lhs {
-				if f, ok := field.(*ast.Ident); ok {
-					if f.Name == argType.Name {
-						funcReturnIndex = i
-					}
-				}
-			}
-
-			field := funcDecl.Type.Results.List[funcReturnIndex]
-
-			res, ok := parseFunctionReturnTypes(log, field.Type, argType)
-			if !ok {
-				return nil
-			}
-
-			onExtract(utils.ParseResult{
-				PkgName:   utils.ParseInputPath(pkgImports, res.PkgName, nPkgPath),
-				VarName:   res.VarName,
-				Value:     res.Value,
-				MapKeyPkg: res.MapKeyPkg,
-				MapKey:    res.MapKey,
-				MapVal:    res.MapVal,
-				SliceType: res.SliceType,
-			})
-
-			return nil
-		}
-
-		var res utils.ParseResult
-		res, err, isExtractRequired := parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
-		if err != nil {
-			return err, false
-		} else if !isExtractRequired {
-			return nil, false
-		}
-
-		onExtract(utils.ParseResult{
-			VarName:   res.VarName,
-			PkgName:   utils.ParseInputPath(imports, res.PkgName, pkgPath),
-			Value:     res.Value,
-			MapKeyPkg: res.MapKeyPkg,
-			MapKey:    res.MapKey,
-			MapVal:    res.MapVal,
-			SliceType: res.SliceType,
-		})
-
-		return nil, true
+		return parseIdentAndTrace(log, argType, pkgPath, pkgName, imports, onExtract)
 	case *ast.BasicLit: // A literal used in the arguments
 		onExtract(utils.ParseResult{
 			PkgName: pkgName,
@@ -696,6 +621,100 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	}
 
 	return nil, false
+}
+
+func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, pkgName string, imports []*ast.ImportSpec, onExtract func(result utils.ParseResult)) (error, bool) {
+	assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
+	if !ok {
+		return nil, false
+	}
+
+	var assignedIndex int
+	for i, expr := range assignStmt.Lhs {
+		if expr.(*ast.Ident).Name == argType.Name {
+			assignedIndex = i
+			break
+		}
+	}
+
+	var assignedExpr ast.Expr
+	if len(assignStmt.Lhs) == len(assignStmt.Rhs) { // If the number of variables and values are the same
+		assignedExpr = assignStmt.Rhs[assignedIndex]
+	} else { // If the number of variables and values are different (i.e. a function call)
+		assignedExpr = assignStmt.Rhs[0]
+	}
+
+	onExternalPkg := func(funcName, pkgName, pkgPath string) error {
+		// We need all this logic here because we need to check the return type of the function against that package's imports
+
+		nPkgPath := utils.ParseInputPath(imports, pkgName, pkgPath)
+		var pkg *packages.Package
+		pkg, err := loadPackage(nPkgPath)
+		if err != nil {
+			return err
+		}
+
+		var pkgImports []*ast.ImportSpec
+		var funcDecl *ast.FuncDecl
+		for _, file := range pkg.Syntax {
+			for _, decl := range file.Decls {
+				if f, ok := decl.(*ast.FuncDecl); ok {
+					if f.Name.Name == funcName {
+						pkgImports = file.Imports
+						funcDecl = f
+						break
+					}
+				}
+			}
+		}
+
+		var funcReturnIndex int
+		for i, field := range assignStmt.Lhs {
+			if f, ok := field.(*ast.Ident); ok {
+				if f.Name == argType.Name {
+					funcReturnIndex = i
+				}
+			}
+		}
+
+		field := funcDecl.Type.Results.List[funcReturnIndex]
+
+		res, ok := parseFunctionReturnTypes(log, field.Type, argType)
+		if !ok {
+			return nil
+		}
+
+		onExtract(utils.ParseResult{
+			PkgName:   utils.ParseInputPath(pkgImports, res.PkgName, nPkgPath),
+			VarName:   res.VarName,
+			Value:     res.Value,
+			MapKeyPkg: res.MapKeyPkg,
+			MapKey:    res.MapKey,
+			MapVal:    res.MapVal,
+			SliceType: res.SliceType,
+		})
+
+		return nil
+	}
+
+	var res utils.ParseResult
+	res, err, isExtractRequired := parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
+	if err != nil {
+		return err, false
+	} else if !isExtractRequired {
+		return nil, true
+	}
+
+	onExtract(utils.ParseResult{
+		VarName:   res.VarName,
+		PkgName:   utils.ParseInputPath(imports, res.PkgName, pkgPath),
+		Value:     res.Value,
+		MapKeyPkg: res.MapKeyPkg,
+		MapKey:    res.MapKey,
+		MapVal:    res.MapVal,
+		SliceType: res.SliceType,
+	})
+	return nil, true
 }
 
 func parseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.AssignStmt, pkgPath string, pkgName string, imports []*ast.ImportSpec, argType *ast.Ident, onExternalPkg func(funcName, pkgName, pkgPath string) error) (utils.ParseResult, error, bool) {
