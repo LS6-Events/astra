@@ -197,22 +197,20 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
 					return true
 				case "Status": // c.Status
-					if len(currRoute.ReturnTypes) == 0 {
-						var statusCode int
-						statusCode, err = extractStatusCode(callExpr.Args[0])
-						if err != nil {
-							return false
-						}
-
-						returnType := gengo.ReturnType{
-							StatusCode: statusCode,
-							Field: gengo.Field{
-								Type: "nil",
-							},
-						}
-						currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
-						return true
+					var statusCode int
+					statusCode, err = extractStatusCode(callExpr.Args[0])
+					if err != nil {
+						return false
 					}
+
+					returnType := gengo.ReturnType{
+						StatusCode: statusCode,
+						Field: gengo.Field{
+							Type: "nil",
+						},
+					}
+					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
+					return true
 				// Query Param methods
 				case "GetQuery":
 					fallthrough

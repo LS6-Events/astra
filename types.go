@@ -5,7 +5,7 @@ type Route struct {
 	Path        string       `json:"path"`
 	ContentType string       `json:"contentType,omitempty"`
 	BodyType    string       `json:"bodyType,omitempty"`
-	PathParams  []Param      `json:"params,omitempty"`
+	PathParams  []Param      `json:"params,omitempty"` // for now, we use :param in the path to denote a required path param, and *param to denote an optional path param
 	QueryParams []Param      `json:"queryParams,omitempty"`
 	Body        []Param      `json:"body,omitempty"`
 	ReturnTypes []ReturnType `json:"returnTypes,omitempty"`

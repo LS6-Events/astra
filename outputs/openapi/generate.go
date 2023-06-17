@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/utils"
 	"gopkg.in/yaml.v3"
 	"os"
 	"strconv"
@@ -27,6 +28,15 @@ func generate(filePath string) gengo.GenerateFunction {
 		s.Log.Debug().Msg("Adding paths")
 		for _, endpoint := range s.Routes {
 			s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Msg("Generating endpoint")
+
+			endpoint.Path = utils.MapPathParams(endpoint.Path, func(param string) string {
+				if param[0] == ':' {
+					return fmt.Sprintf("{%s}", param[1:])
+				} else {
+					return fmt.Sprintf("{%s*}", param[1:])
+				}
+			})
+
 			operation := Operation{
 				Responses: make(map[string]Response),
 			}
@@ -177,35 +187,26 @@ func generate(filePath string) gengo.GenerateFunction {
 			}
 
 			var path Path
+			if _, ok := paths[endpoint.Path]; !ok {
+				path = Path{}
+			} else {
+				path = paths[endpoint.Path]
+			}
 			switch endpoint.Method {
 			case "GET":
-				path = Path{
-					Get: &operation,
-				}
+				path.Get = &operation
 			case "POST":
-				path = Path{
-					Post: &operation,
-				}
+				path.Post = &operation
 			case "PUT":
-				path = Path{
-					Put: &operation,
-				}
+				path.Put = &operation
 			case "PATCH":
-				path = Path{
-					Patch: &operation,
-				}
+				path.Patch = &operation
 			case "DELETE":
-				path = Path{
-					Delete: &operation,
-				}
+				path.Delete = &operation
 			case "HEAD":
-				path = Path{
-					Head: &operation,
-				}
+				path.Head = &operation
 			case "OPTIONS":
-				path = Path{
-					Options: &operation,
-				}
+				path.Options = &operation
 			}
 
 			paths[endpoint.Path] = path
