@@ -65,9 +65,7 @@ func generate(filePath string) gengo.GenerateFunction {
 						Ref: makeComponentRef(queryParam.Type, queryParam.Package),
 					}
 				} else if queryParam.IsArray {
-					itemSchema := Schema{
-						Type: mapAcceptedType(queryParam.Type).Type,
-					}
+					itemSchema := mapAcceptedType(queryParam.Type)
 					if !gengo.IsAcceptedType(queryParam.Type) {
 						itemSchema = Schema{
 							Ref: makeComponentRef(queryParam.Type, queryParam.Package),
@@ -82,7 +80,7 @@ func generate(filePath string) gengo.GenerateFunction {
 					if !gengo.IsAcceptedType(queryParam.Type) {
 						additionalProperties.Ref = makeComponentRef(queryParam.Type, queryParam.Package)
 					} else {
-						additionalProperties.Type = mapAcceptedType(queryParam.Type).Type
+						additionalProperties = mapAcceptedType(queryParam.Type)
 					}
 					parameter.Schema = Schema{
 						Type:                 "object",
@@ -105,9 +103,7 @@ func generate(filePath string) gengo.GenerateFunction {
 						Ref: makeComponentRef(bodyParam.Type, bodyParam.Package),
 					}
 				} else if bodyParam.IsArray {
-					itemSchema := Schema{
-						Type: mapAcceptedType(bodyParam.Type).Type,
-					}
+					itemSchema := mapAcceptedType(bodyParam.Type)
 					if !gengo.IsAcceptedType(bodyParam.Type) {
 						itemSchema = Schema{
 							Ref: makeComponentRef(bodyParam.Type, bodyParam.Package),
@@ -122,16 +118,14 @@ func generate(filePath string) gengo.GenerateFunction {
 					if !gengo.IsAcceptedType(bodyParam.Type) {
 						additionalProperties.Ref = makeComponentRef(bodyParam.Type, bodyParam.Package)
 					} else {
-						additionalProperties.Type = mapAcceptedType(bodyParam.Type).Type
+						additionalProperties = mapAcceptedType(bodyParam.Type)
 					}
 					mediaType.Schema = Schema{
 						Type:                 "object",
 						AdditionalProperties: &additionalProperties,
 					}
 				} else {
-					mediaType.Schema = Schema{
-						Type: mapAcceptedType(bodyParam.Type).Type,
-					}
+					mediaType.Schema = mapAcceptedType(bodyParam.Type)
 				}
 
 				operation.RequestBody = &RequestBody{
@@ -149,9 +143,7 @@ func generate(filePath string) gengo.GenerateFunction {
 						Ref: makeComponentRef(returnType.Field.Type, returnType.Field.Package),
 					}
 				} else {
-					mediaType.Schema = Schema{
-						Type: mapAcceptedType(returnType.Field.Type).Type,
-					}
+					mediaType.Schema = mapAcceptedType(returnType.Field.Type)
 					if returnType.Field.Type == "slice" {
 						itemSchema := Schema{
 							Type: mapAcceptedType(returnType.Field.SliceType).Type,
@@ -167,7 +159,7 @@ func generate(filePath string) gengo.GenerateFunction {
 						if !gengo.IsAcceptedType(returnType.Field.MapValue) {
 							additionalProperties.Ref = makeComponentRef(returnType.Field.MapValue, returnType.Field.Package)
 						} else {
-							additionalProperties.Type = mapAcceptedType(returnType.Field.MapValue).Type
+							additionalProperties = mapAcceptedType(returnType.Field.MapValue)
 						}
 						mediaType.Schema = Schema{
 							Type:                 "object",
@@ -176,13 +168,20 @@ func generate(filePath string) gengo.GenerateFunction {
 					}
 				}
 
+				var content map[string]MediaType
+				if mediaType.Schema.Type != "" || mediaType.Schema.Ref != "" {
+					content = map[string]MediaType{
+						endpoint.ContentType: mediaType,
+					}
+				} else {
+					content = nil
+				}
+
 				operation.Responses[strconv.Itoa(returnType.StatusCode)] = Response{
 					Description: "",
 					Headers:     nil,
-					Content: map[string]MediaType{
-						endpoint.ContentType: mediaType,
-					},
-					Links: nil,
+					Content:     content,
+					Links:       nil,
 				}
 			}
 
@@ -240,25 +239,26 @@ func generate(filePath string) gengo.GenerateFunction {
 							Ref: makeComponentRef(field.Type, field.Package),
 						}
 					} else {
-						schema.Properties[key] = Schema{
-							Type: mapAcceptedType(field.Type).Type,
-						}
+						schema.Properties[key] = mapAcceptedType(field.Type)
 					}
 				}
 
 				if len(embeddedProperties) > 0 {
-					schema.AllOf = append(embeddedProperties, Schema{
-						Properties: schema.Properties,
-					})
+					if len(schema.Properties) == 0 {
+						schema.AllOf = embeddedProperties
+					} else {
+						schema.AllOf = append(embeddedProperties, Schema{
+							Properties: schema.Properties,
+						})
 
-					schema.Properties = nil
+						schema.Properties = nil
+					}
 				}
 			} else if component.Type == "slice" {
+				itemSchema := mapAcceptedType(component.SliceType)
 				schema = Schema{
-					Type: "array",
-					Items: &Schema{
-						Type: mapAcceptedType(component.SliceType).Type,
-					},
+					Type:  "array",
+					Items: &itemSchema,
 				}
 				if !gengo.IsAcceptedType(component.SliceType) {
 					schema.Items = &Schema{
@@ -271,7 +271,7 @@ func generate(filePath string) gengo.GenerateFunction {
 				if !gengo.IsAcceptedType(component.MapValue) {
 					additionalProperties.Ref = makeComponentRef(component.MapValue, component.Package)
 				} else {
-					additionalProperties.Type = mapAcceptedType(component.MapValue).Type
+					additionalProperties = mapAcceptedType(component.MapValue)
 				}
 
 				schema = Schema{
@@ -279,9 +279,7 @@ func generate(filePath string) gengo.GenerateFunction {
 					AdditionalProperties: &additionalProperties,
 				}
 			} else {
-				schema = Schema{
-					Type: mapAcceptedType(component.Type).Type,
-				}
+				schema = mapAcceptedType(component.Type)
 			}
 			components.Schemas[makeComponentRefName(component.Name, component.Package)] = schema
 		}
