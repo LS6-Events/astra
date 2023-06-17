@@ -5,31 +5,6 @@ type openAPIJSONType struct {
 	Format string
 }
 
-var AcceptedTypes = []string{
-	"nil",
-	"string",
-	"int",
-	"int8",
-	"int16",
-	"int32",
-	"int64",
-	"uint",
-	"uint8",
-	"uint16",
-	"uint32",
-	"uint64",
-	"float",
-	"float32",
-	"float64",
-	"bool",
-	"byte",
-	"rune",
-	"struct",
-	"map",
-	"slice",
-	"any",
-}
-
 var acceptedTypeMap = map[string]openAPIJSONType{
 	"string": openAPIJSONType{
 		Type: "string",
@@ -110,14 +85,19 @@ var acceptedTypeMap = map[string]openAPIJSONType{
 		Type: "",
 	},
 	"nil": openAPIJSONType{
-		Type: "null",
+		Type: "",
 	},
 }
 
-func mapAcceptedType(acceptedType string) openAPIJSONType {
+func mapAcceptedType(acceptedType string) Schema {
 	if acceptedType, ok := acceptedTypeMap[acceptedType]; ok {
-		return acceptedType
+		if acceptedType.Type == "" {
+			return Schema{}
+		}
+		return Schema{
+			Type: acceptedType.Type,
+		}
 	}
 
-	return openAPIJSONType{}
+	return Schema{}
 }

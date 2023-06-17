@@ -19,7 +19,7 @@ func New(cfgs ...Option) *Service {
 
 	s.Routes = make([]Route, 0)
 	s.ToBeProcessed = make([]Processable, 0)
-	s.ReturnTypes = make([]Field, 0)
+	s.Components = make([]Field, 0)
 
 	s.Log.Debug().Msg("Service created")
 
