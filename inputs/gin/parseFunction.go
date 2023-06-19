@@ -371,7 +371,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					}
 					nPkgPath := astUtils.ParseInputPath(imports, ident.Name, pkgPath)
 					var nPkg *packages.Package
-					nPkg, err = loadPackage(nPkgPath)
+					nPkg, err = astUtils.LoadPackage(nPkgPath)
 					if err != nil {
 						return false
 					}
@@ -428,7 +428,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				}
 
 				var nPkg *packages.Package
-				nPkg, err = loadPackage(nPkgPath)
+				nPkg, err = astUtils.LoadPackage(nPkgPath)
 				if err != nil {
 					return false
 				}
@@ -562,7 +562,7 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 
 		nPkgPath := astUtils.ParseInputPath(imports, pkgName, pkgPath)
 		var pkg *packages.Package
-		pkg, err := loadPackage(nPkgPath)
+		pkg, err := astUtils.LoadPackage(nPkgPath)
 		if err != nil {
 			return err
 		}
