@@ -52,6 +52,12 @@ func main() {
 	r.POST("/posts", CreatePost)
 	r.PUT("/posts/:id", UpdatePost)
 	r.DELETE("/posts/:id", DeletePost)
+	
+	r.GET("/health", func(c *gin.Context) {
+        c.JSON(200, gin.H{
+            "status": "ok",
+        })
+    })
 
 	// We need to pass in the gin.Engine instance to the input, this needs to be done before Parse()
 	// We also need an output instance, in this case we are using JSON
@@ -90,6 +96,12 @@ func main() {
 	r.POST("/posts", CreatePost)
 	r.PUT("/posts/:id", UpdatePost)
 	r.DELETE("/posts/:id", DeletePost)
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+		})
+	})
 	
 	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.yaml"))
 
@@ -145,9 +157,9 @@ We have methods to extract types from the following:
 * Functions in the dependency tree
 * Functions in the `main` package
 * Anywhere that utilises the `gin.Context` type
+* Functions from inline functions (_but it has to be set inside the function where you specify your routes_)
 
 ### Upcoming features
-* Extract types from inline functions
 * Allow custom status codes nested inside packages (here we only allow for preset constants (i.e. 200), or the `http.Status*` constants)
 * Extract types from other web frameworks as inputs (e.g. [Echo](https://github.com/labstack/echo), [Fiber](https://github.com/gofiber/fiber), etc.)
 * Add support for more output formats (e.g. TypeScript interfaces/classes etc.)
