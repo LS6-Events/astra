@@ -38,6 +38,8 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 	log.Debug().Str("pkgName", pkgName).Str("funcName", funcName).Msg("Found handler name")
 
 	baseRoute := gengo.Route{
+		File:        file,
+		LineNo:      line,
 		Path:        info.Path,
 		Method:      info.Method,
 		PathParams:  make([]gengo.Param, 0),

@@ -2,6 +2,7 @@ package gengo
 
 type Route struct {
 	File        string       `json:"file"`
+	LineNo      int          `json:"lineNo"`
 	Method      string       `json:"method"`
 	Path        string       `json:"path"`
 	ContentType string       `json:"contentType,omitempty"`

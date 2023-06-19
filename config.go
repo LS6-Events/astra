@@ -1,27 +1,27 @@
 package gengo
 
 type Config struct {
-	Title       string
-	Description string
-	Version     string
-	Contact     Contact
-	License     License
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Version     string  `json:"version"`
+	Contact     Contact `json:"contact"`
+	License     License `json:"license"`
 
-	Secure   bool
-	Host     string
-	BasePath string
-	Port     int
+	Secure   bool   `json:"secure"`
+	Host     string `json:"host"`
+	BasePath string `json:"basePath"`
+	Port     int    `json:"port"`
 }
 
 type Contact struct {
-	Name  string
-	URL   string
-	Email string
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	Email string `json:"email"`
 }
 
 type License struct {
-	Name string
-	URL  string
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 func (c *Config) Validate() error {
