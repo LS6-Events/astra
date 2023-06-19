@@ -3,9 +3,8 @@ package gengo
 type GenerateFunction func(service *Service) error
 
 type Output struct {
-	Mode OutputMode
-
-	Generate GenerateFunction
+	Mode     OutputMode       `json:"mode"`
+	Generate GenerateFunction `json:"-"`
 }
 
 type OutputMode string

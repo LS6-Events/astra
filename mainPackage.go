@@ -8,7 +8,7 @@ import (
 )
 
 const mainPackageReplacement = "gengomain"
-const mainPackageReplacementPath = tempDir + "/" + mainPackageReplacement
+const mainPackageReplacementPath = gengoDir + "/" + mainPackageReplacement
 
 func (s *Service) setupTempMainPackage() error {
 	cwd, err := os.Getwd()
@@ -18,7 +18,13 @@ func (s *Service) setupTempMainPackage() error {
 
 	var pkgName string
 
-	newMainPkgPath := path.Join(getTempDirPath(), mainPackageReplacement)
+	newMainPkgPath := path.Join(getGenGoDirPath(), mainPackageReplacement)
+	if _, err := os.Stat(newMainPkgPath); err == nil {
+		err := os.RemoveAll(newMainPkgPath)
+		if err != nil {
+			return err
+		}
+	}
 	err = os.Mkdir(newMainPkgPath, 0755)
 	if err != nil {
 		return err
@@ -60,6 +66,17 @@ func (s *Service) setupTempMainPackage() error {
 
 	s.tempMainPackageName = newMainPkg
 
+	return nil
+}
+
+func (s *Service) cleanupTempMainPackage() error {
+	newMainPkgPath := path.Join(getGenGoDirPath(), mainPackageReplacement)
+	if _, err := os.Stat(newMainPkgPath); err == nil {
+		err := os.RemoveAll(newMainPkgPath)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

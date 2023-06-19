@@ -9,7 +9,7 @@ GenGo is a tool that extracts types from web services and outputs them in variou
 * Follow through different functions to extract types
 * Extract types from any packages from the dependency tree
 * Adapt to different coding styles
-* Read the entirety of the `main` package (by extracting to a temporary directory `$GOPATH/.gengo_temp/gengomain`) to extract types
+* Read the entirety of the `main` package (by extracting to a temporary directory `$GOPATH/.gengo/gengomain`) to extract types
 * Support for different input and output formats
 
 ## Supported Formats

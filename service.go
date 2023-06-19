@@ -5,19 +5,21 @@ import "github.com/rs/zerolog"
 type Option func(*Service)
 
 type Service struct {
-	Inputs  []Input
-	Outputs []Output
+	Inputs  []Input  `json:"inputs"`
+	Outputs []Output `json:"outputs"`
 
-	Log zerolog.Logger
+	Log zerolog.Logger `json:"-"`
 
-	Config *Config
+	Config *Config `json:"config"`
 
-	Routes []Route
+	Routes []Route `json:"routes"`
 
-	ToBeProcessed []Processable
+	ToBeProcessed []Processable `json:"-"`
 	typesByName   map[string][]string
 
 	tempMainPackageName string
 
-	Components []Field
+	cacheEnabled bool
+
+	Components []Field `json:"components"`
 }

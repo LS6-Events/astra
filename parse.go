@@ -20,19 +20,30 @@ func (s *Service) Parse() error {
 	}
 
 	s.Log.Info().Msg("Creating temp dir")
-	err := setupTempDir()
+	err := setupGenGoDir()
 	if err != nil {
 		s.Log.Error().Err(err).Msg("Error creating temp dir")
 		return err
 	}
 	defer func() {
-		s.Log.Info().Msg("Cleaning up temp dir")
-		err := cleanupTempDir()
-		if err != nil {
-			s.Log.Error().Err(err).Msg("Error cleaning up temp dir")
+		if !s.cacheEnabled {
+			s.Log.Info().Msg("Cleaning up temp dir")
+			err := cleanupGenGoDir()
+			if err != nil {
+				s.Log.Error().Err(err).Msg("Error cleaning up temp dir")
+			} else {
+				s.Log.Info().Msg("Cleaning up temp dir complete")
+			}
 		} else {
-			s.Log.Info().Msg("Cleaning up temp dir complete")
+			s.Log.Info().Msg("Leaving temp dir but cleaning up main package")
+			err := s.cleanupTempMainPackage()
+			if err != nil {
+				s.Log.Error().Err(err).Msg("Error cleaning up main package")
+			} else {
+				s.Log.Info().Msg("Cleaning up main package complete")
+			}
 		}
+
 	}()
 	s.Log.Info().Msg("Creating temp dir complete")
 
@@ -48,6 +59,14 @@ func (s *Service) Parse() error {
 	}
 	s.Log.Info().Msg("Populating inputs complete")
 
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
+	}
+
 	s.Log.Info().Msg("Processing found types")
 	err = s.process()
 	if err != nil {
@@ -56,6 +75,14 @@ func (s *Service) Parse() error {
 	}
 	s.Log.Info().Msg("Processing found types complete")
 
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
+	}
+
 	s.Log.Info().Msg("Cleaning up structs")
 	err = s.clean()
 	if err != nil {
@@ -63,6 +90,14 @@ func (s *Service) Parse() error {
 		return err
 	}
 	s.Log.Info().Msg("Cleaning up structs complete")
+
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
+	}
 
 	s.Log.Info().Msg("Generating outputs")
 	for _, output := range s.Outputs {
@@ -75,6 +110,14 @@ func (s *Service) Parse() error {
 		s.Log.Info().Str("mode", string(output.Mode)).Msg("Generating output complete")
 	}
 	s.Log.Info().Msg("Generating outputs complete")
+
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
+	}
 
 	s.Log.Info().Msg("Parsing complete")
 

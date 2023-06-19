@@ -3,8 +3,8 @@ package gengo
 type PopulateFunction func(service *Service) error
 
 type Input struct {
-	Mode     InputMode
-	Populate PopulateFunction
+	Mode     InputMode        `json:"mode"`
+	Populate PopulateFunction `json:"-"`
 }
 
 type InputMode string
