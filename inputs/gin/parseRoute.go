@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/utils"
+	"github.com/ls6-events/gengo/utils/astUtils"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -103,7 +103,7 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 				return false
 			}
 
-			err = parseFunction(s, log, &baseRoute, utils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+			err = parseFunction(s, log, &baseRoute, astUtils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to parse function")
 				return false

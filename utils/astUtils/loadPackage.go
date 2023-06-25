@@ -1,4 +1,4 @@
-package gin
+package astUtils
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 var cachedPackages = make(map[string]*packages.Package)
 
-func loadPackage(pkgPath string) (*packages.Package, error) {
+func LoadPackage(pkgPath string) (*packages.Package, error) {
 	if pkg, ok := cachedPackages[pkgPath]; ok {
 		return pkg, nil
 	}

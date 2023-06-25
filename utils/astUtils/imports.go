@@ -1,4 +1,4 @@
-package utils
+package astUtils
 
 import (
 	"go/ast"
