@@ -1,21 +1,6 @@
-package utils
+package astUtils
 
-import (
-	"go/ast"
-)
-
-type ParseResult struct {
-	VarName string
-	PkgName string
-
-	Value string
-
-	MapKeyPkg string
-	MapKey    string
-	MapVal    string
-
-	SliceType string
-}
+import "go/ast"
 
 func SplitIdentSelectorExpr(expr ast.Expr, defaultPkgName string) ParseResult {
 	switch e := expr.(type) {

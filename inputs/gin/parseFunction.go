@@ -4,103 +4,16 @@ import (
 	"errors"
 	"github.com/ls6-events/gengo"
 	"github.com/ls6-events/gengo/utils"
+	"github.com/ls6-events/gengo/utils/astUtils"
 	"github.com/rs/zerolog"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
-	"strconv"
 	"strings"
 )
 
-func extractContext(node *ast.FuncLit) (string, error) {
-	var ctxName string
-	for _, param := range node.Type.Params.List {
-		if len(param.Names) == 0 {
-			continue
-		}
-
-		starExpr, ok := param.Type.(*ast.StarExpr)
-		if !ok {
-			continue
-		}
-
-		selectorExpr, ok := starExpr.X.(*ast.SelectorExpr)
-		if !ok {
-			continue
-		}
-
-		ident, ok := selectorExpr.X.(*ast.Ident)
-		if !ok || ident.Name != "gin" {
-			continue
-		}
-
-		if selectorExpr.Sel.Name == "Context" {
-			ctxName = param.Names[0].Name
-			break
-		}
-	}
-
-	if ctxName == "" {
-		return "", errors.New("context parameter not found")
-	}
-
-	return ctxName, nil
-}
-
-func extractStatusCode(status ast.Node) (int, error) {
-	var statusCode int
-	var err error
-
-	switch statusType := status.(type) {
-	case *ast.BasicLit: // A constant status code is used (e.g. 200)
-		statusCode, err = strconv.Atoi(statusType.Value)
-		if err != nil {
-			return 0, err
-		}
-	case *ast.Ident: // A constant defined in this package
-		assignStmt, ok := statusType.Obj.Decl.(*ast.AssignStmt)
-		if !ok {
-			return 0, errors.New("status code is not a constant")
-		}
-
-		// Get the index of the status code constant
-		var statementIndex int
-		for i, expr := range assignStmt.Lhs {
-			if expr.(*ast.Ident).Name == statusType.Name {
-				statementIndex = i
-				break
-			}
-		}
-
-		switch rhs := assignStmt.Rhs[statementIndex].(type) {
-		case *ast.BasicLit: // A constant status code is used (e.g. 200)
-			// Get the value of the constant
-			statusCode, err = strconv.Atoi(rhs.Value)
-			if err != nil {
-				return 0, err
-			}
-		case *ast.SelectorExpr: // A constant defined in another package
-			// TODO Account for other constants in other packages (atm we just net/http (cheating I know))
-			statusCode, err = utils.ConvertStatusCodeTypeToInt(rhs.Sel.Name)
-			if err != nil {
-				return 0, err
-			}
-		}
-	case *ast.SelectorExpr: // A constant defined in another package
-		// TODO Account for other constants in other packages (atm we just net/http (cheating I know))
-		statusCode, err = utils.ConvertStatusCodeTypeToInt(statusType.Sel.Name)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	// TODO DRY Cleanup
-
-	return statusCode, nil
-}
-
 func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route, node *ast.FuncLit, imports []*ast.ImportSpec, pkgName, pkgPath string, level int) error {
 	// Get the variable name of the context parameter
-	ctxName, err := extractContext(node)
+	ctxName, err := astUtils.ExtractContext("github.com/gin-gonic/gin", "*Context", node, imports)
 	if err != nil {
 		return err
 	}
@@ -146,12 +59,12 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					// Get the status code
 					var statusCode int
-					statusCode, err = extractStatusCode(callExpr.Args[0])
+					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args[0])
 					if err != nil {
 						return true
 					}
 
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						returnType := gengo.ReturnType{
 							StatusCode: statusCode,
 							Field: gengo.Field{
@@ -195,7 +108,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					currRoute.ContentType = "text/plain"
 
 					var statusCode int
-					statusCode, err = extractStatusCode(callExpr.Args[0])
+					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args[0])
 					if err != nil {
 						return false
 					}
@@ -210,7 +123,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					return true
 				case "Status": // c.Status
 					var statusCode int
-					statusCode, err = extractStatusCode(callExpr.Args[0])
+					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args[0])
 					if err != nil {
 						return false
 					}
@@ -227,7 +140,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetQuery":
 					fallthrough
 				case "Query":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.QueryParams = append(currRoute.QueryParams, gengo.Param{
 							Name: strings.ReplaceAll(result.Value, "\"", ""),
 							Type: result.VarName,
@@ -242,7 +155,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetQueryArray":
 					fallthrough
 				case "QueryArray":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.QueryParams = append(currRoute.QueryParams, gengo.Param{
 							Name:    strings.ReplaceAll(result.Value, "\"", ""),
 							Type:    result.VarName,
@@ -258,7 +171,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetQueryMap":
 					fallthrough
 				case "QueryMap":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.QueryParams = append(currRoute.QueryParams, gengo.Param{
 							Name:  strings.ReplaceAll(result.Value, "\"", ""),
 							Type:  result.VarName,
@@ -274,7 +187,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "ShouldBindQuery":
 					fallthrough
 				case "BindQuery":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						queryParam := gengo.Param{
 							IsBound: true,
 							Type:    result.VarName,
@@ -296,7 +209,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "ShouldBind":
 					fallthrough
 				case "Bind":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						bodyParam := gengo.Param{
 							IsBound: true,
 							Type:    result.VarName,
@@ -319,7 +232,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "ShouldBindJSON":
 					fallthrough
 				case "BindJSON":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						bodyParam := gengo.Param{
 							IsBound: true,
 							Type:    result.VarName,
@@ -342,7 +255,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "ShouldBindXML":
 					fallthrough
 				case "BindXML":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						bodyParam := gengo.Param{
 							IsBound: true,
 							Type:    result.VarName,
@@ -365,7 +278,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "ShouldBindYAML":
 					fallthrough
 				case "BindYAML":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						bodyParam := gengo.Param{
 							IsBound: true,
 							Type:    result.VarName,
@@ -388,7 +301,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.Body = append(currRoute.Body, gengo.Param{
 							Name: strings.ReplaceAll(result.Value, "\"", ""),
 							Type: result.VarName,
@@ -405,7 +318,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetPostFormArray":
 					fallthrough
 				case "PostFormArray":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.Body = append(currRoute.Body, gengo.Param{
 							Name:    strings.ReplaceAll(result.Value, "\"", ""),
 							Type:    result.VarName,
@@ -423,7 +336,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				case "GetPostFormMap":
 					fallthrough
 				case "PostFormMap":
-					onExtract := func(result utils.ParseResult) {
+					onExtract := func(result astUtils.ParseResult) {
 						currRoute.Body = append(currRoute.Body, gengo.Param{
 							Name:  strings.ReplaceAll(result.Value, "\"", ""),
 							Type:  result.VarName,
@@ -456,9 +369,9 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					if pkgPath == "" {
 						pkgPath = pkgName
 					}
-					nPkgPath := utils.ParseInputPath(imports, ident.Name, pkgPath)
+					nPkgPath := astUtils.ParseInputPath(imports, ident.Name, pkgPath)
 					var nPkg *packages.Package
-					nPkg, err = loadPackage(nPkgPath)
+					nPkg, err = astUtils.LoadPackage(nPkgPath)
 					if err != nil {
 						return false
 					}
@@ -484,7 +397,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						return true
 					}
 
-					err = parseFunction(s, log, currRoute, utils.FuncDeclToFuncLit(funcDecl), nImports, nPkg.Name, nPkgPath, level+1)
+					err = parseFunction(s, log, currRoute, astUtils.FuncDeclToFuncLit(funcDecl), nImports, nPkg.Name, nPkgPath, level+1)
 					if err != nil {
 						return false
 					}
@@ -505,7 +418,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				if pkgPath == "" {
 					pkgPath = pkgName
 				}
-				nPkgPath := utils.ParseInputPath(imports, pkgName, pkgPath)
+				nPkgPath := astUtils.ParseInputPath(imports, pkgName, pkgPath)
 
 				if nPkgPath == "main" {
 					nPkgPath, err = s.GetMainPackageName()
@@ -515,7 +428,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				}
 
 				var nPkg *packages.Package
-				nPkg, err = loadPackage(nPkgPath)
+				nPkg, err = astUtils.LoadPackage(nPkgPath)
 				if err != nil {
 					return false
 				}
@@ -543,7 +456,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				}
 
 				nSplitPkg := strings.Split(nPkgPath, "/")
-				err = parseFunction(s, log, currRoute, utils.FuncDeclToFuncLit(funcDecl), nImports, nSplitPkg[len(nSplitPkg)-1], strings.Join(nSplitPkg[:len(nSplitPkg)-1], "/"), level+1)
+				err = parseFunction(s, log, currRoute, astUtils.FuncDeclToFuncLit(funcDecl), nImports, nSplitPkg[len(nSplitPkg)-1], strings.Join(nSplitPkg[:len(nSplitPkg)-1], "/"), level+1)
 				if err != nil {
 					return false
 				}
@@ -564,7 +477,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 	return nil
 }
 
-func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath string, imports []*ast.ImportSpec, onExtract func(result utils.ParseResult)) (error, bool) {
+func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	arg := callExpr.Args[argNo]
 	switch argType := arg.(type) {
 	case *ast.UnaryExpr: // A reference to a constant defined in the arguments
@@ -577,8 +490,8 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 				return nil, false
 			}
 
-			onExtract(utils.ParseResult{
-				PkgName: utils.ParseInputPath(imports, ident.Name, pkgPath),
+			onExtract(astUtils.ParseResult{
+				PkgName: astUtils.ParseInputPath(imports, ident.Name, pkgPath),
 				VarName: unaryExpr.Sel.Name,
 			})
 
@@ -587,7 +500,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	case *ast.CompositeLit: // A constant defined in the arguments
 		switch compositLit := argType.Type.(type) {
 		case *ast.Ident: // A constant defined in this package
-			onExtract(utils.ParseResult{
+			onExtract(astUtils.ParseResult{
 				PkgName: pkgName,
 				VarName: compositLit.Name,
 			})
@@ -599,8 +512,8 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 				return nil, false
 			}
 
-			onExtract(utils.ParseResult{
-				PkgName: utils.ParseInputPath(imports, ident.Name, pkgPath),
+			onExtract(astUtils.ParseResult{
+				PkgName: astUtils.ParseInputPath(imports, ident.Name, pkgPath),
 				VarName: compositLit.Sel.Name,
 			})
 
@@ -609,7 +522,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	case *ast.Ident: // A variable used in the arguments
 		return parseIdentAndTrace(log, argType, pkgPath, pkgName, imports, onExtract)
 	case *ast.BasicLit: // A literal used in the arguments
-		onExtract(utils.ParseResult{
+		onExtract(astUtils.ParseResult{
 			PkgName: pkgName,
 			VarName: strings.ToLower(argType.Kind.String()),
 			Value:   argType.Value,
@@ -623,7 +536,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	return nil, false
 }
 
-func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, pkgName string, imports []*ast.ImportSpec, onExtract func(result utils.ParseResult)) (error, bool) {
+func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, pkgName string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
 	if !ok {
 		return nil, false
@@ -647,9 +560,9 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 	onExternalPkg := func(funcName, pkgName, pkgPath string) error {
 		// We need all this logic here because we need to check the return type of the function against that package's imports
 
-		nPkgPath := utils.ParseInputPath(imports, pkgName, pkgPath)
+		nPkgPath := astUtils.ParseInputPath(imports, pkgName, pkgPath)
 		var pkg *packages.Package
-		pkg, err := loadPackage(nPkgPath)
+		pkg, err := astUtils.LoadPackage(nPkgPath)
 		if err != nil {
 			return err
 		}
@@ -679,13 +592,13 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 
 		field := funcDecl.Type.Results.List[funcReturnIndex]
 
-		res, ok := parseFunctionReturnTypes(log, field.Type, argType)
+		res, ok := astUtils.ParseFunctionReturnTypes(log, field.Type, argType)
 		if !ok {
 			return nil
 		}
 
-		onExtract(utils.ParseResult{
-			PkgName:   utils.ParseInputPath(pkgImports, res.PkgName, nPkgPath),
+		onExtract(astUtils.ParseResult{
+			PkgName:   astUtils.ParseInputPath(pkgImports, res.PkgName, nPkgPath),
 			VarName:   res.VarName,
 			Value:     res.Value,
 			MapKeyPkg: res.MapKeyPkg,
@@ -697,17 +610,17 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 		return nil
 	}
 
-	var res utils.ParseResult
-	res, err, isExtractRequired := parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
+	var res astUtils.ParseResult
+	res, err, isExtractRequired := astUtils.ParseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
 	if err != nil {
 		return err, false
 	} else if !isExtractRequired {
 		return nil, true
 	}
 
-	onExtract(utils.ParseResult{
+	onExtract(astUtils.ParseResult{
 		VarName:   res.VarName,
-		PkgName:   utils.ParseInputPath(imports, res.PkgName, pkgPath),
+		PkgName:   astUtils.ParseInputPath(imports, res.PkgName, pkgPath),
 		Value:     res.Value,
 		MapKeyPkg: res.MapKeyPkg,
 		MapKey:    res.MapKey,
@@ -715,146 +628,4 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 		SliceType: res.SliceType,
 	})
 	return nil, true
-}
-
-func parseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.AssignStmt, pkgPath string, pkgName string, imports []*ast.ImportSpec, argType *ast.Ident, onExternalPkg func(funcName, pkgName, pkgPath string) error) (utils.ParseResult, error, bool) {
-	var err error
-	var res utils.ParseResult
-	switch rhs := expr.(type) {
-	case *ast.UnaryExpr:
-		return parseAssignStatement(log, rhs.X, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
-	case *ast.CompositeLit:
-		switch compositLit := rhs.Type.(type) {
-		case *ast.Ident:
-			res = utils.SplitIdentSelectorExpr(compositLit, pkgName)
-		case *ast.SelectorExpr:
-			res = utils.SplitIdentSelectorExpr(compositLit, pkgName)
-		case *ast.ArrayType:
-			embeddedType := utils.SplitIdentSelectorExpr(compositLit.Elt, pkgName)
-			res = utils.ParseResult{
-				VarName:   "slice",
-				PkgName:   embeddedType.PkgName,
-				SliceType: embeddedType.VarName,
-			}
-		case *ast.MapType:
-			keyType := utils.SplitIdentSelectorExpr(compositLit.Key, pkgName)
-			valueType := utils.SplitIdentSelectorExpr(compositLit.Value, pkgName)
-			res = utils.ParseResult{
-				VarName:   "map",
-				MapKey:    keyType.VarName,
-				MapKeyPkg: keyType.PkgName,
-				MapVal:    valueType.VarName,
-				PkgName:   valueType.PkgName,
-			}
-		}
-
-	case *ast.BasicLit:
-		res = utils.ParseResult{
-			VarName: strings.ToLower(rhs.Kind.String()),
-			PkgName: pkgName,
-			Value:   rhs.Value,
-		}
-	case *ast.Ident:
-		assignStmt, ok := rhs.Obj.Decl.(*ast.AssignStmt)
-		if !ok {
-			return utils.ParseResult{}, nil, false
-		}
-
-		var assignedIndex int
-		for i, expr := range assignStmt.Lhs {
-			if expr.(*ast.Ident).Name == rhs.Name {
-				assignedIndex = i
-				break
-			}
-		}
-
-		var assignedExpr ast.Expr
-		if len(assignStmt.Lhs) == len(assignStmt.Rhs) { // If the number of variables and values are the same
-			assignedExpr = assignStmt.Rhs[assignedIndex]
-		} else { // If the number of variables and values are different (i.e. a function call)
-			assignedExpr = assignStmt.Rhs[0]
-		}
-
-		return parseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
-	case *ast.CallExpr:
-		switch fun := rhs.Fun.(type) {
-		case *ast.SelectorExpr: // foo.Bar()
-			ident, ok := fun.X.(*ast.Ident)
-			if !ok {
-				return utils.ParseResult{}, nil, false
-			}
-
-			err = onExternalPkg(fun.Sel.Name, ident.Name, pkgPath)
-			if err != nil {
-				return utils.ParseResult{}, err, false
-			} else {
-				return utils.ParseResult{}, nil, false
-			}
-		case *ast.Ident: // Bar()
-			funcDecl, ok := fun.Obj.Decl.(*ast.FuncDecl)
-			if !ok {
-				return utils.ParseResult{}, nil, false
-			}
-
-			var funcReturnIndex int
-			for i, field := range assignStmt.Lhs {
-				if f, ok := field.(*ast.Ident); ok {
-					if f.Name == argType.Name {
-						funcReturnIndex = i
-					}
-				}
-			}
-
-			field := funcDecl.Type.Results.List[funcReturnIndex]
-
-			res, ok = parseFunctionReturnTypes(log, field.Type, argType)
-			if !ok {
-				return utils.ParseResult{}, nil, false
-			}
-		default:
-			return utils.ParseResult{}, nil, false
-		}
-	default:
-		return utils.ParseResult{}, nil, false
-	}
-
-	return res, nil, true
-}
-
-func parseFunctionReturnTypes(log zerolog.Logger, node ast.Node, argType *ast.Ident) (utils.ParseResult, bool) {
-	switch fieldType := node.(type) {
-	case *ast.StarExpr:
-		return parseFunctionReturnTypes(log, fieldType.X, argType)
-	case *ast.ArrayType:
-		arrayResult, ok := parseFunctionReturnTypes(log, fieldType.Elt, argType)
-		if ok {
-			return utils.ParseResult{
-				VarName:   "slice",
-				PkgName:   arrayResult.PkgName,
-				SliceType: arrayResult.VarName,
-			}, true
-		} else {
-			return utils.ParseResult{}, false
-		}
-	case *ast.MapType:
-		keyResult, keyOk := parseFunctionReturnTypes(log, fieldType.Key, argType)
-		valResult, valOk := parseFunctionReturnTypes(log, fieldType.Value, argType)
-		if keyOk && valOk {
-			return utils.ParseResult{
-				VarName:   "map",
-				MapKey:    keyResult.VarName,
-				MapKeyPkg: keyResult.PkgName,
-				MapVal:    valResult.VarName,
-				PkgName:   valResult.PkgName,
-			}, true
-		} else {
-			return utils.ParseResult{}, false
-		}
-	case *ast.SelectorExpr:
-		return utils.SplitIdentSelectorExpr(fieldType, argType.Name), true
-	case *ast.Ident:
-		return utils.SplitIdentSelectorExpr(fieldType, argType.Name), true
-	default:
-		return utils.ParseResult{}, false
-	}
 }
