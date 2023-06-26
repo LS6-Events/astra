@@ -99,7 +99,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						argNo = 2
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, argNo, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, argNo, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -147,7 +147,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -163,7 +163,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -179,7 +179,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -200,7 +200,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -224,7 +224,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "form"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -247,7 +247,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/json"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -270,7 +270,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/xml"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -293,7 +293,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/yaml"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -310,7 +310,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -328,7 +328,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -346,7 +346,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, imports, onExtract)
+					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -371,7 +371,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 					}
 					nPkgPath := astUtils.ParseInputPath(imports, ident.Name, pkgPath)
 					var nPkg *packages.Package
-					nPkg, err = astUtils.LoadPackage(nPkgPath)
+					nPkg, err = astUtils.LoadPackage(nPkgPath, s.WorkDir)
 					if err != nil {
 						return false
 					}
@@ -428,7 +428,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 				}
 
 				var nPkg *packages.Package
-				nPkg, err = astUtils.LoadPackage(nPkgPath)
+				nPkg, err = astUtils.LoadPackage(nPkgPath, s.WorkDir)
 				if err != nil {
 					return false
 				}
@@ -477,13 +477,13 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 	return nil
 }
 
-func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
+func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	arg := callExpr.Args[argNo]
 	switch argType := arg.(type) {
 	case *ast.UnaryExpr: // A reference to a constant defined in the arguments
 		switch unaryExpr := argType.X.(type) {
 		case *ast.Ident: // A constant defined in this package
-			return parseIdentAndTrace(log, unaryExpr, pkgName, pkgPath, imports, onExtract)
+			return parseIdentAndTrace(log, unaryExpr, pkgName, pkgPath, workDir, imports, onExtract)
 		case *ast.SelectorExpr: // A constant defined in another package
 			ident, ok := unaryExpr.X.(*ast.Ident)
 			if !ok {
@@ -520,7 +520,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 			return nil, true
 		}
 	case *ast.Ident: // A variable used in the arguments
-		return parseIdentAndTrace(log, argType, pkgPath, pkgName, imports, onExtract)
+		return parseIdentAndTrace(log, argType, pkgPath, pkgName, workDir, imports, onExtract)
 	case *ast.BasicLit: // A literal used in the arguments
 		onExtract(astUtils.ParseResult{
 			PkgName: pkgName,
@@ -536,7 +536,7 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	return nil, false
 }
 
-func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, pkgName string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
+func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath, pkgName, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
 	if !ok {
 		return nil, false
@@ -562,7 +562,7 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath string, 
 
 		nPkgPath := astUtils.ParseInputPath(imports, pkgName, pkgPath)
 		var pkg *packages.Package
-		pkg, err := astUtils.LoadPackage(nPkgPath)
+		pkg, err := astUtils.LoadPackage(nPkgPath, workDir)
 		if err != nil {
 			return err
 		}

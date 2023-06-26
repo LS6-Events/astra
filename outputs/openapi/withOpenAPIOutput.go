@@ -9,6 +9,9 @@ func WithOpenAPIOutput(filePath string) gengo.Option {
 		s.Outputs = append(s.Outputs, gengo.Output{
 			Mode:     gengo.OutputModeOpenAPI,
 			Generate: generate(filePath),
+			Configuration: gengo.IOConfiguration{
+				gengo.IOConfigurationKeyFilePath: filePath,
+			},
 		})
 	}
 }

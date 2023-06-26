@@ -8,8 +8,9 @@ import (
 func WithGinInput(router *gin.Engine) gengo.Option {
 	return func(s *gengo.Service) {
 		s.Inputs = append(s.Inputs, gengo.Input{
-			Mode:     gengo.InputModeGin,
-			Populate: populate(router),
+			Mode:         gengo.InputModeGin,
+			CreateRoutes: createRoutes(router),
+			ParseRoutes:  parseRoutes(),
 		})
 	}
 }

@@ -8,12 +8,14 @@ import (
 	"strings"
 )
 
-func (s *Service) process() error {
+func (s *Service) Process() error {
+	s.Log.Info().Msg("Begin processing found definitions")
+
 	newPass := true
 	for newPass {
 		newPass = false
 
-		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Processing flagged types")
+		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Processing flagged definitions")
 		pkgs, err := s.loadPackages()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error loading packages")
@@ -79,6 +81,16 @@ func (s *Service) process() error {
 					newPass = true
 				}
 			}
+		}
+	}
+
+	s.Log.Info().Msg("Processing found definitions complete")
+
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
 		}
 	}
 

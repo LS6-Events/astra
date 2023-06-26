@@ -1,9 +1,11 @@
 package gengo
 
-import "fmt"
+import (
+	"fmt"
+)
 
 var specialTypes = map[string]string{
-	"time.Time": "string", // We can assume that all time.Time types will be serialized as strings
+	"time.Time": "string", // We can assume that all time.Time definitions will be serialized as strings
 }
 
 func (s *Service) handleSpecialType(component *Field) {

@@ -1,6 +1,8 @@
 package gengo
 
-func (s *Service) clean() error {
+func (s *Service) Clean() error {
+	s.Log.Info().Msg("Cleaning up structs")
+
 	mainPkg, err := s.GetMainPackageName()
 	if err != nil {
 		return err
@@ -23,6 +25,16 @@ func (s *Service) clean() error {
 		}
 
 		s.Components[i] = f
+	}
+
+	s.Log.Info().Msg("Cleaning up structs complete")
+
+	if s.cacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
 	}
 
 	return nil

@@ -7,11 +7,12 @@ import (
 	"github.com/ls6-events/gengo/utils"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
 
-func generate(filePath string) gengo.GenerateFunction {
+func generate(filePath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Debug().Msg("Generating OpenAPI output")
 		if s.Config == nil {
@@ -327,6 +328,7 @@ func generate(filePath string) gengo.GenerateFunction {
 			return err
 		}
 
+		filePath = path.Join(s.WorkDir, filePath)
 		err = os.WriteFile(filePath, file, 0644)
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to write OpenAPI schema file")

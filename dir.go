@@ -7,30 +7,25 @@ import (
 
 const gengoDir = ".gengo"
 
-func getGenGoDirPath() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	return path.Join(cwd, gengoDir)
+func (s *Service) getGenGoDirPath() string {
+	return path.Join(s.WorkDir, gengoDir)
 }
 
-func setupGenGoDir() error {
-	tempDirPath := getGenGoDirPath()
+func (s *Service) setupGenGoDir() error {
+	tempDirPath := s.getGenGoDirPath()
 	if err := os.MkdirAll(tempDirPath, 0755); err != nil {
 		return err
 	}
 
-	if err := setupGitIgnore(); err != nil {
+	if err := s.setupGitIgnore(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func setupGitIgnore() error {
-	tempDirPath := getGenGoDirPath()
+func (s *Service) setupGitIgnore() error {
+	tempDirPath := s.getGenGoDirPath()
 	gitIgnorePath := path.Join(tempDirPath, ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); err == nil {
 		return nil
@@ -49,8 +44,8 @@ func setupGitIgnore() error {
 	return nil
 }
 
-func cleanupGenGoDir() error {
-	tempDirPath := getGenGoDirPath()
+func (s *Service) cleanupGenGoDir() error {
+	tempDirPath := s.getGenGoDirPath()
 	if err := os.RemoveAll(tempDirPath); err != nil {
 		return err
 	}

@@ -11,26 +11,21 @@ const mainPackageReplacement = "gengomain"
 const mainPackageReplacementPath = gengoDir + "/" + mainPackageReplacement
 
 func (s *Service) setupTempMainPackage() error {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
 	var pkgName string
 
-	newMainPkgPath := path.Join(getGenGoDirPath(), mainPackageReplacement)
+	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
 	if _, err := os.Stat(newMainPkgPath); err == nil {
 		err := os.RemoveAll(newMainPkgPath)
 		if err != nil {
 			return err
 		}
 	}
-	err = os.Mkdir(newMainPkgPath, 0755)
+	err := os.Mkdir(newMainPkgPath, 0755)
 	if err != nil {
 		return err
 	}
 
-	files, err := os.ReadDir(cwd)
+	files, err := os.ReadDir(s.WorkDir)
 	if err != nil {
 		return err
 	}
@@ -38,7 +33,7 @@ func (s *Service) setupTempMainPackage() error {
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".go") {
 
-			fileName := path.Join(cwd, file.Name())
+			fileName := path.Join(s.WorkDir, file.Name())
 			fileData, err := os.ReadFile(fileName)
 			if err != nil {
 				return err
@@ -52,7 +47,7 @@ func (s *Service) setupTempMainPackage() error {
 				return err
 			}
 		} else if strings.HasSuffix(file.Name(), ".mod") {
-			fileName := path.Join(cwd, file.Name())
+			fileName := path.Join(s.WorkDir, file.Name())
 			fileData, err := os.ReadFile(fileName)
 			if err != nil {
 				return err
@@ -70,7 +65,7 @@ func (s *Service) setupTempMainPackage() error {
 }
 
 func (s *Service) cleanupTempMainPackage() error {
-	newMainPkgPath := path.Join(getGenGoDirPath(), mainPackageReplacement)
+	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
 	if _, err := os.Stat(newMainPkgPath); err == nil {
 		err := os.RemoveAll(newMainPkgPath)
 		if err != nil {

@@ -1,122 +1,102 @@
 package gengo
 
-import (
-	"errors"
-)
+import "errors"
 
-func (s *Service) Parse() error {
-	s.Log.Info().Msg("Begin parsing")
+func (s *Service) SetupParse() error {
+	s.Log.Info().Msg("Setting up parse")
 
 	if len(s.Inputs) == 0 {
 		err := errors.New("input not set")
-		s.Log.Error().Err(err).Msg("Error parsing")
+		s.Log.Error().Err(err).Msg("Error setting up parse")
 		return err
 	}
 
 	if len(s.Outputs) == 0 {
 		err := errors.New("output not set")
+		s.Log.Error().Err(err).Msg("Error setting up parse")
+		return err
+	}
+
+	err := s.Setup()
+	if err != nil {
 		s.Log.Error().Err(err).Msg("Error parsing")
 		return err
 	}
 
-	s.Log.Info().Msg("Creating temp dir")
-	err := setupGenGoDir()
+	err = s.CreateRoutes()
 	if err != nil {
-		s.Log.Error().Err(err).Msg("Error creating temp dir")
+		s.Log.Error().Err(err).Msg("Error creating routes from inputs")
 		return err
 	}
-	defer func() {
-		if !s.cacheEnabled {
-			s.Log.Info().Msg("Cleaning up temp dir")
-			err := cleanupGenGoDir()
-			if err != nil {
-				s.Log.Error().Err(err).Msg("Error cleaning up temp dir")
-			} else {
-				s.Log.Info().Msg("Cleaning up temp dir complete")
-			}
-		} else {
-			s.Log.Info().Msg("Leaving temp dir but cleaning up main package")
-			err := s.cleanupTempMainPackage()
-			if err != nil {
-				s.Log.Error().Err(err).Msg("Error cleaning up main package")
-			} else {
-				s.Log.Info().Msg("Cleaning up main package complete")
-			}
-		}
 
-	}()
-	s.Log.Info().Msg("Creating temp dir complete")
+	s.Log.Info().Msg("Setting up parse complete")
 
-	s.Log.Info().Msg("Populating inputs")
-	for _, input := range s.Inputs {
-		s.Log.Info().Str("mode", string(input.Mode)).Msg("Populating input")
-		err = input.Populate(s)
-		if err != nil {
-			s.Log.Error().Err(err).Str("mode", string(input.Mode)).Msg("Error populating input")
-			return err
-		}
-		s.Log.Info().Str("mode", string(input.Mode)).Msg("Populating input complete")
-	}
-	s.Log.Info().Msg("Populating inputs complete")
+	return nil
+}
 
-	if s.cacheEnabled {
-		err := s.Cache()
-		if err != nil {
-			s.Log.Error().Err(err).Msg("Error caching")
-			return err
-		}
-	}
+func (s *Service) CompleteParse() error {
+	s.Log.Info().Msg("Completing parse")
 
-	s.Log.Info().Msg("Processing found types")
-	err = s.process()
-	if err != nil {
-		s.Log.Error().Err(err).Msg("Error processing found types")
+	if len(s.Inputs) == 0 {
+		err := errors.New("input not set")
+		s.Log.Error().Err(err).Msg("Error completing parse")
 		return err
 	}
-	s.Log.Info().Msg("Processing found types complete")
 
-	if s.cacheEnabled {
-		err := s.Cache()
-		if err != nil {
-			s.Log.Error().Err(err).Msg("Error caching")
-			return err
-		}
+	if len(s.Outputs) == 0 {
+		err := errors.New("output not set")
+		s.Log.Error().Err(err).Msg("Error completing parse")
+		return err
 	}
 
-	s.Log.Info().Msg("Cleaning up structs")
-	err = s.clean()
+	err := s.ParseRoutes()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error parsing routes from inputs")
+		return err
+	}
+
+	err = s.Process()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error processing found definitions")
+		return err
+	}
+
+	err = s.Clean()
 	if err != nil {
 		s.Log.Error().Err(err).Msg("Error cleaning up structs")
 		return err
 	}
-	s.Log.Info().Msg("Cleaning up structs complete")
 
-	if s.cacheEnabled {
-		err := s.Cache()
-		if err != nil {
-			s.Log.Error().Err(err).Msg("Error caching")
-			return err
-		}
+	err = s.Generate()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error generating outputs")
+		return err
 	}
 
-	s.Log.Info().Msg("Generating outputs")
-	for _, output := range s.Outputs {
-		s.Log.Info().Str("mode", string(output.Mode)).Msg("Generating output")
-		err = output.Generate(s)
-		if err != nil {
-			s.Log.Error().Err(err).Str("mode", string(output.Mode)).Msg("Error generating output")
-			return err
-		}
-		s.Log.Info().Str("mode", string(output.Mode)).Msg("Generating output complete")
+	err = s.Teardown()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error tearing down")
+		return err
 	}
-	s.Log.Info().Msg("Generating outputs complete")
 
-	if s.cacheEnabled {
-		err := s.Cache()
-		if err != nil {
-			s.Log.Error().Err(err).Msg("Error caching")
-			return err
-		}
+	s.Log.Info().Msg("Completing parse complete")
+
+	return nil
+}
+
+func (s *Service) Parse() error {
+	s.Log.Info().Msg("Begin parsing")
+
+	err := s.SetupParse()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error setting up parse")
+		return err
+	}
+
+	err = s.CompleteParse()
+	if err != nil {
+		s.Log.Error().Err(err).Msg("Error completing parse")
+		return err
 	}
 
 	s.Log.Info().Msg("Parsing complete")

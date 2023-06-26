@@ -1,10 +1,9 @@
 package gengo
 
-type PopulateFunction func(service *Service) error
-
 type Input struct {
-	Mode     InputMode        `json:"mode"`
-	Populate PopulateFunction `json:"-"`
+	Mode         InputMode       `json:"mode"`
+	CreateRoutes ServiceFunction `json:"-"`
+	ParseRoutes  ServiceFunction `json:"-"`
 }
 
 type InputMode string

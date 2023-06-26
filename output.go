@@ -1,10 +1,9 @@
 package gengo
 
-type GenerateFunction func(service *Service) error
-
 type Output struct {
-	Mode     OutputMode       `json:"mode"`
-	Generate GenerateFunction `json:"-"`
+	Mode          OutputMode      `json:"mode"`
+	Generate      ServiceFunction `json:"-"`
+	Configuration IOConfiguration `json:"configuration"`
 }
 
 type OutputMode string

@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-func populate(router *gin.Engine) gengo.PopulateFunction {
+func createRoutes(router *gin.Engine) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Debug().Msg("Populating service with gin routes")
 		for _, route := range router.Routes() {
@@ -19,7 +19,7 @@ func populate(router *gin.Engine) gengo.PopulateFunction {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Msg("Found route handler")
 
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Msg("Parsing route")
-			err := parseRoute(s, file, line, route)
+			err := createRoute(s, file, line, route)
 			if err != nil {
 				s.Log.Error().Str("path", route.Path).Str("method", route.Method).Str("file", file).Int("line", line).Err(err).Msg("Failed to parse route")
 				return err
