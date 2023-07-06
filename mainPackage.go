@@ -7,9 +7,14 @@ import (
 	"strings"
 )
 
+// This file contains functionality for copying the main package to a temporary directory and replacing the package name with a different name
+// This is required so that the generator can parse the types in the main package should they be required, and follow any functions that are required
+// The package is cleaned up after the generator has finished running
+
 const mainPackageReplacement = "gengomain"
 const mainPackageReplacementPath = gengoDir + "/" + mainPackageReplacement
 
+// setupTempMainPackage copies the main package to a temporary directory and replaces the package name with a different name
 func (s *Service) setupTempMainPackage() error {
 	var pkgName string
 
@@ -64,6 +69,7 @@ func (s *Service) setupTempMainPackage() error {
 	return nil
 }
 
+// cleanupTempMainPackage removes the temporary main package
 func (s *Service) cleanupTempMainPackage() error {
 	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
 	if _, err := os.Stat(newMainPkgPath); err == nil {
@@ -75,6 +81,7 @@ func (s *Service) cleanupTempMainPackage() error {
 	return nil
 }
 
+// GetMainPackageName returns the name of the temporary main package
 func (s *Service) GetMainPackageName() (string, error) {
 	if s.tempMainPackageName == "" {
 		err := s.setupTempMainPackage()

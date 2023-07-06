@@ -1,5 +1,7 @@
 package gengo
 
+// Teardown tears down the service by cleaning up the temp dir
+// Teardown should be called after everything else in the service
 func (s *Service) Teardown() error {
 	s.Log.Info().Msg("Tearing down")
 

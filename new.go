@@ -7,14 +7,17 @@ import (
 	"os"
 )
 
-func New(cfgs ...Option) *Service {
+// New creates a new generator service
+// It takes in a list of options that can be used to configure the generator
+// It will also setup the logger for the generator and setup the slices that are used to store the routes, inputs, outputs and components
+func New(opts ...Option) *Service {
 	s := &Service{}
 
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	s.Log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).Level(zerolog.InfoLevel)
 
-	for _, cfg := range cfgs {
-		cfg(s)
+	for _, opt := range opts {
+		opt(s)
 	}
 
 	s.Routes = make([]Route, 0)

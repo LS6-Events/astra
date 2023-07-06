@@ -9,8 +9,13 @@ import (
 	"strings"
 )
 
+// The caching mechanism is used to cache the service in a file so that it can be loaded later on
+// At the moment it is only used the CLI to load the service and the files that are needed to be crawled by the AST parser with their respective inputs
+// Plans are for the future to use it as as change only mechanism to only generate the files that have changed since the last build
+
 const cacheFileName = "cache.json"
 
+// Cache Cache the service in a file
 func (s *Service) Cache() error {
 	s.Log.Debug().Msg("Caching service")
 
@@ -47,6 +52,8 @@ func (s *Service) Cache() error {
 	return nil
 }
 
+// LoadCache Load the service from a file cache
+// If the file does not exist, it will not return an error
 func (s *Service) LoadCache() error {
 	s.Log.Debug().Msg("Loading cached service")
 
@@ -69,6 +76,9 @@ func (s *Service) LoadCache() error {
 	return nil
 }
 
+// LoadCacheFromCustomPath Load the service from a file cache
+// If the file does not exist, it will return an error
+// Requires the path to the cache file
 func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	f, err := os.Open(cachePath)
 	if err != nil {
@@ -97,6 +107,7 @@ func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	return nil
 }
 
+// ClearCache Clear the cache file
 func (s *Service) ClearCache() error {
 	s.Log.Debug().Msg("Clearing cached service")
 
@@ -119,16 +130,19 @@ func (s *Service) ClearCache() error {
 	return nil
 }
 
+// IsCacheEnabled Check if the cache is enabled
 func (s *Service) IsCacheEnabled() bool {
 	return s.cacheEnabled
 }
 
+// WithCache Option to enable the cache
 func WithCache() Option {
 	return func(s *Service) {
 		s.cacheEnabled = true
 	}
 }
 
+// WithCustomCachePath Option to enable the cache with a custom path
 func WithCustomCachePath(cachePath string) Option {
 	return func(s *Service) {
 		s.cacheEnabled = true

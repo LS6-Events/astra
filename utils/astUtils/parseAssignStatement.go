@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// ParseAssignStatement parses an assignment statement
+// It will extract the package name and type of the element on the right hand side of the assignment
 func ParseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.AssignStmt, pkgPath string, pkgName string, imports []*ast.ImportSpec, argType *ast.Ident, onExternalPkg func(funcName, pkgName, pkgPath string) error) (ParseResult, error, bool) {
 	var err error
 	var res ParseResult

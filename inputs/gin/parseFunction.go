@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+// parseFunction parses a function and adds it to the service
+// It is designed to be called recursively should it be required
+// The level parameter is used to determine the depth of recursion
+// And the package name and path are used to determine the package of the currently analysed function
+// The currRoute reference is used to manipulate the current route being analysed
+// The imports are used to determine the package of the context variable
 func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route, node *ast.FuncLit, imports []*ast.ImportSpec, pkgName, pkgPath string, level int) error {
 	// Get the variable name of the context parameter
 	ctxName, err := astUtils.ExtractContext("github.com/gin-gonic/gin", "*Context", node, imports)
@@ -477,6 +483,8 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 	return nil
 }
 
+// parseFromCalledFunction parses a function call that returns a constant
+// It returns true if a new pass is needed to parse the function (i.e. it has had to extract another different type)
 func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	arg := callExpr.Args[argNo]
 	switch argType := arg.(type) {
@@ -536,6 +544,9 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 	return nil, false
 }
 
+// parseIdentAndTrace parses an identifier and traces it back to its definition
+// It returns true if a new pass is needed to parse the function (i.e. it has had to extract another different type)
+// It is designed to match any number of arguments on either side
 func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath, pkgName, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
 	if !ok {

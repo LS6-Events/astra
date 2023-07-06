@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+// ExtractStatusCode extracts the status code from a handler, assuming it's the first argument
+// We also assume that the status code is a number literal constant, or part of the http.StatusX enum
 func ExtractStatusCode(status ast.Node) (int, error) {
 	var statusCode int
 	var err error

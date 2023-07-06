@@ -4,6 +4,9 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+// loadPackages loads the packages that are needed for the generator
+// It finds the packages by looping over the structs that are to be processed
+// It then loads all the packages at once using the packages.Load function
 func (s *Service) loadPackages() ([]*packages.Package, error) {
 	s.typesByName = make(map[string][]string, 0)
 	patterns := make([]string, 0)

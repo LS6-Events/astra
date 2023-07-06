@@ -1,4 +1,4 @@
-module github.com/ls6-events/gengo/cli
+module github.com/ls6-events/gengo/gengocli
 
 go 1.19
 

@@ -8,11 +8,15 @@ import (
 	"strings"
 )
 
+// JSONOutput is the output of the JSON output
+// It will in essence be a copy of the service's output (routes and components)
 type JSONOutput struct {
 	Routes     []gengo.Route `json:"routes"`
 	Components []gengo.Field `json:"components"`
 }
 
+// generate the JSON output
+// It will marshal the JSONOutput struct and write it to a file
 func generate(filePath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Info().Msg("Generating JSON output")

@@ -5,6 +5,9 @@ import (
 	"go/ast"
 )
 
+// ParseFunctionReturnTypes parses the return types of a function
+// It will extract the package name and type of the element on the return types
+// And map them appropriately for the different types
 func ParseFunctionReturnTypes(log zerolog.Logger, node ast.Node, argType *ast.Ident) (ParseResult, bool) {
 	switch fieldType := node.(type) {
 	case *ast.StarExpr:

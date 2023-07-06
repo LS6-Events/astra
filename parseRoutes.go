@@ -1,5 +1,7 @@
 package gengo
 
+// ParseRoutes iterates over the inputs and parses the routes from them
+// CreateRoutes should be called before ParseRoutes
 func (s *Service) ParseRoutes() error {
 	s.Log.Info().Msg("Parsing routes from inputs")
 	for _, input := range s.Inputs {

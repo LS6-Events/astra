@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+// Process is the function that processes the type definitions of the specified return types
+// It does this by loading the packages that are needed for the generator
+// It then finds the types in the packages that have returned
+// It will then process them using the types package
 func (s *Service) Process() error {
 	s.Log.Info().Msg("Begin processing found definitions")
 
@@ -97,6 +101,11 @@ func (s *Service) Process() error {
 	return nil
 }
 
+// processStruct processes a struct type
+// It will return a bool indicating if a new pass is needed and a Field that represents the struct
+// It can look at all the fields of the struct and process them individually with all their names and tags
+// It will also process embedded structs
+// TODO: Add support for validation tags
 func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, Field) {
 	newPass := false
 	fields := make(map[string]Field)
@@ -187,6 +196,9 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 	}
 }
 
+// processMap processes a map type
+// It will return a bool indicating if a new pass is needed and a Field that represents the map
+// It will also process the key and value types of the map
 func (s *Service) processMap(t *types.Map, pkg *packages.Package) (bool, Field) {
 	newPassKey, relativeKeyPkg, relativeKeyName := s.processType(t.Key().String(), pkg.PkgPath)
 	newPassValue, relativeValuePkg, relativeValueName := s.processType(t.Elem().String(), pkg.PkgPath)
@@ -202,6 +214,9 @@ func (s *Service) processMap(t *types.Map, pkg *packages.Package) (bool, Field) 
 	return newPassKey || newPassValue, resultField
 }
 
+// processSlice processes a slice type
+// It will return a bool indicating if a new pass is needed and a Field that represents the slice
+// It will also process the element type of the slice
 func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Field) {
 	newPass, relativePkg, relativeName := s.processType(t.Elem().String(), pkg.PkgPath)
 	resultField := Field{
@@ -213,6 +228,12 @@ func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Fie
 	return newPass, resultField
 }
 
+// processType processes a type
+// It will return a bool indicating if a new pass is needed and a Field that represents the type
+// It will also process the package and name of the type
+// If the type has a dot, it will split it and use the first part as the package and the second part as the name
+// Therefore it will return the package and name of the type
+// Otherwise it will use the default package and the type as the name
 func (s *Service) processType(t string, defaultPkg string) (newPass bool, relativePkg string, relativeName string) {
 	split := strings.Split(t, ".")
 	if len(split) > 1 {

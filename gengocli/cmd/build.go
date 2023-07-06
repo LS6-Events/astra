@@ -13,6 +13,11 @@ var (
 	cwd       string = "."                 // Current working directory (where main.go is located)
 )
 
+// buildCmd represents the build command
+// It is used to build the service from a cache file
+// It requires the cache file to be passed in, and the working directory of the main.go file
+// By default the cache file is .gengo/cache.json and the working directory is the current directory
+// Example: gengocli build -c .gengo/cache.json -d .
 var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Build the service",

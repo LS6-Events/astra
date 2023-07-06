@@ -3,15 +3,21 @@ package gin
 import (
 	"fmt"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/utils"
 	"github.com/ls6-events/gengo/utils/astUtils"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"path"
-	"regexp"
 	"strings"
 )
 
+// parseRoute parses a route from a gin router
+// It will populate the route with the handler function
+// createRoute must be called before this
+// It will open the file as an AST and find the handler function using the line number and function name
+// It can also find the path parameters from the handler function
+// It calls the parseFunction function to parse the handler function
 func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 	fset := token.NewFileSet()
 
@@ -38,19 +44,11 @@ func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 		return err
 	}
 
-	paramRegex := regexp.MustCompile(`:[^\/]+|\*[^\/]+`)
-	if paramRegex.MatchString(baseRoute.Path) {
-		log.Debug().Str("path", baseRoute.Path).Msg("Found path params")
-		params := paramRegex.FindAllString(baseRoute.Path, -1)
-		for _, param := range params {
-			baseRoute.PathParams = append(baseRoute.PathParams, gengo.Param{
-				Name:       param[1:],
-				Type:       "string",
-				IsRequired: param[0] == ':',
-			})
-		}
+	baseRoute.PathParams = utils.ExtractParamsFromPath(baseRoute.Path)
+	if len(baseRoute.PathParams) > 0 {
+		log.Debug().Interface("pathParams", baseRoute.PathParams).Msg("Found path params")
 	} else {
-		log.Debug().Str("path", baseRoute.Path).Msg("No path params found")
+		log.Debug().Msg("No path params found")
 	}
 
 	ast.Inspect(node, func(n ast.Node) bool {
