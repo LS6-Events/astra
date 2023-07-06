@@ -11,7 +11,7 @@ import (
 
 // The caching mechanism is used to cache the service in a file so that it can be loaded later on
 // At the moment it is only used the CLI to load the service and the files that are needed to be crawled by the AST parser with their respective inputs
-// Plans are for the future to use it as as change only mechanism to only generate the files that have changed since the last build
+// Plans are for the future to use it as a change only mechanism to only generate the files that have changed since the last build
 
 const cacheFileName = "cache.json"
 
@@ -20,8 +20,8 @@ func (s *Service) Cache() error {
 	s.Log.Debug().Msg("Caching service")
 
 	var cachePath string
-	if s.cachePath != "" {
-		cachePath = s.cachePath
+	if s.CachePath != "" {
+		cachePath = s.CachePath
 	} else {
 		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
 	}
@@ -58,8 +58,8 @@ func (s *Service) LoadCache() error {
 	s.Log.Debug().Msg("Loading cached service")
 
 	var cachePath string
-	if s.cachePath != "" {
-		cachePath = s.cachePath
+	if s.CachePath != "" {
+		cachePath = s.CachePath
 	} else {
 		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
 	}
@@ -112,8 +112,8 @@ func (s *Service) ClearCache() error {
 	s.Log.Debug().Msg("Clearing cached service")
 
 	var cachePath string
-	if s.cachePath != "" {
-		cachePath = s.cachePath
+	if s.CachePath != "" {
+		cachePath = s.CachePath
 	} else {
 		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
 	}
@@ -128,24 +128,4 @@ func (s *Service) ClearCache() error {
 
 	s.Log.Debug().Msg("Cleared cached service")
 	return nil
-}
-
-// IsCacheEnabled Check if the cache is enabled
-func (s *Service) IsCacheEnabled() bool {
-	return s.cacheEnabled
-}
-
-// WithCache Option to enable the cache
-func WithCache() Option {
-	return func(s *Service) {
-		s.cacheEnabled = true
-	}
-}
-
-// WithCustomCachePath Option to enable the cache with a custom path
-func WithCustomCachePath(cachePath string) Option {
-	return func(s *Service) {
-		s.cacheEnabled = true
-		s.cachePath = cachePath
-	}
 }

@@ -5,7 +5,7 @@ package gengo
 func (s *Service) Teardown() error {
 	s.Log.Info().Msg("Tearing down")
 
-	if !s.cacheEnabled && s.CLIMode == CLIModeNone {
+	if !s.CacheEnabled && s.CLIMode == CLIModeNone {
 		s.Log.Info().Msg("Cleaning up temp dir")
 		err := s.cleanupGenGoDir()
 		if err != nil {

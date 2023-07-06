@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ls6-events/gengo/gengocli/cmd"
+	"github.com/ls6-events/gengo/cli/gengo/cmd"
 	"os"
 )
 

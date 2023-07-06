@@ -35,7 +35,7 @@ type Service struct {
 	tempMainPackageName string
 	WorkDir             string
 
-	cacheEnabled bool
-	cachePath    string
+	CacheEnabled bool
+	CachePath    string
 	CLIMode      CLIMode `json:"-"`
 }

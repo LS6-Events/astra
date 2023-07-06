@@ -1,8 +1,8 @@
-module github.com/ls6-events/gengo/gengocli
+module github.com/ls6-events/gengo/cli/gengo
 
 go 1.19
 
-replace github.com/ls6-events/gengo => ../
+replace github.com/ls6-events/gengo => ../../
 
 require (
 	github.com/ls6-events/gengo v0.0.0-00010101000000-000000000000

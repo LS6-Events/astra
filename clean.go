@@ -33,7 +33,7 @@ func (s *Service) Clean() error {
 
 	s.Log.Info().Msg("Cleaning up structs complete")
 
-	if s.cacheEnabled {
+	if s.CacheEnabled {
 		err := s.Cache()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error caching")

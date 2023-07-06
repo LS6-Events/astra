@@ -90,7 +90,7 @@ func (s *Service) Process() error {
 
 	s.Log.Info().Msg("Processing found definitions complete")
 
-	if s.cacheEnabled {
+	if s.CacheEnabled {
 		err := s.Cache()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error caching")

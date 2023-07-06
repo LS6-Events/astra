@@ -29,7 +29,7 @@ func (s *Service) Setup() error {
 		s.Log.Info().Msg("Noting current dir complete")
 	}
 
-	if s.cacheEnabled {
+	if s.CacheEnabled {
 		err := s.Cache()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error caching")

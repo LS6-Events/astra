@@ -1,7 +1,13 @@
-# [WIP] GenGo
-## A Go type extractor from web services and outputter to various formats
+# GenGo
+## An automatic Go type extractor for web services with very little additional configuration
 
-GenGo is a tool that extracts types from web services and outputs them in various formats. It is intended to be used as a library with your code. The idea stems from not having to define any additional comments or code duplication to export your types to other formats, not violating the DRY (Don't Repeat Yourself) principle.
+GenGo is a tool that extracts types from web services _without any additional configuration for the handlers_ and outputs them in various formats. It is intended to be used as a library with your code. 
+
+The idea stems from not having to define any additional comments or code duplication to export your types to be used in other systems, not violating the DRY (Don't Repeat Yourself) principle. 
+
+For example, if you had a Go backend that used the [Gin](https://www.github.com/gin-gonic/gin) framework, you would have to define the types in the handler function, and then define them again in the OpenAPI specification. This is not only time consuming, but also violates the DRY principle. Whereas our solution, you'd only have to define the types once, and then use GenGo to extract them from the handlers and output them to the OpenAPI specification, which you could host using [Swagger UI](https://swagger.io/tools/swagger-ui/) or use them to generate client code.
+
+## Features
 
 *The key features of Gengo are:*
 * Extract types from web services
@@ -17,8 +23,8 @@ GenGo is a tool that extracts types from web services and outputs them in variou
 ### Currently supported input formats
 * [Gin](https://www.github.com/gin-gonic/gin)
 ### Currently supported output formats
-* JSON
 * [OpenAPI](https://www.openapis.org/)
+* [JSON](https://www.json.org/json-en.html) (for debugging purposes)
 
 ## Usage
 If you have [Go module](https://github.com/golang/go/wiki/Modules) support, then simply add this import to your configuration:
@@ -31,53 +37,7 @@ Otherwise, install the package using the following command:
 ```bash
 $ go get -u github.com/ls6-events/gengo
 ```
-
-Now you can set it up with your existing `gin.Engine` instance:
-```go
-package main
-
-import (
-	"github.com/ls6-events/gengo"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/json"
-	"github.com/gin-gonic/gin"
-)
-
-func main() {
-	r := gin.Default()
-
-	// The handlers can be defined in any package including main
-	r.GET("/posts", GetPosts)
-	r.GET("/posts/:id", GetPosts)
-	r.POST("/posts", CreatePost)
-	r.PUT("/posts/:id", UpdatePost)
-	r.DELETE("/posts/:id", DeletePost)
-	
-	r.GET("/health", func(c *gin.Context) {
-        c.JSON(200, gin.H{
-            "status": "ok",
-        })
-    })
-
-	// We need to pass in the gin.Engine instance to the input, this needs to be done before Parse()
-	// We also need an output instance, in this case we are using JSON
-	// You can have multiple inputs and outputs
-	gen := gengo.New(gengoGin.WithGinInput(r), json.WithJSONOutput("example.json"))
-	
-	// This step isn't necessary to run in production, recommend to only run in development
-	err := gen.Parse()
-	if err != nil {
-		panic(err)
-	}
-	
-	err = r.Run(":8000")
-	if err != nil {
-		panic(err)
-	}
-}
-```
-
-We also support OpenAPI output, which can be used as follows:
+We recommend using the OpenAPI specification as the output format, as it is the most widely used format for describing RESTful APIs. To use it, you need to import the following package:
 ```go
 package main
 
@@ -134,6 +94,9 @@ func main() {
 	}
 }
 ```
+### CLI (CI/CD)
+GenGo also has a method for running the program from the command line, which is useful for CI/CD pipelines. To use it, follow the instructions in the [CLI documenation](./docs/cli.md).
+
 ### Logging
 We use [ZeroLog](https://www.github.com/rs/zerolog) for logging, which is a fast and lightweight logging library. By default we have `info` level logging configured, but to specify `debug`, you can add a configuration option to the `New` function
 ```go
@@ -158,6 +121,8 @@ We have methods to extract types from the following:
 * Functions in the `main` package
 * Anywhere that utilises the `gin.Context` type
 * Functions from inline functions (_but it has to be set inside the function where you specify your routes_)
+
+There is more information in the [how it works documentation](./docs/how-it-works.md)
 
 ### Upcoming features
 * Allow custom status codes nested inside packages (here we only allow for preset constants (i.e. 200), or the `http.Status*` constants)

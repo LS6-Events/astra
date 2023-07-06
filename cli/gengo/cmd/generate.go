@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/cli"
 	"github.com/spf13/cobra"
 	"os"
 	"path"
@@ -13,15 +14,15 @@ var (
 	cwd       string = "."                 // Current working directory (where main.go is located)
 )
 
-// buildCmd represents the build command
-// It is used to build the service from a cache file
+// generateCmd represents the generate command
+// It is used to generate the service from a cache file
 // It requires the cache file to be passed in, and the working directory of the main.go file
 // By default the cache file is .gengo/cache.json and the working directory is the current directory
-// Example: gengocli build -c .gengo/cache.json -d .
-var buildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "Build the service",
-	Long:  `Build the service by parsing the inputs and outputs and generating the routes using the options setup where the service was defined`,
+// Example: gengo generate -c .gengo/cache.json -d .
+var generateCmd = &cobra.Command{
+	Use:   "generate",
+	Short: "Generate the service",
+	Long:  `Generate the service by parsing the inputs and outputs and calculating the routes using the options setup where the service was defined`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		if !path.IsAbs(cwd) {
@@ -34,7 +35,7 @@ var buildCmd = &cobra.Command{
 			cwd = path.Join(wd, cwd)
 		}
 
-		s := gengo.New(gengo.WithCLIBuilder(), gengo.WithCustomWorkDir(cwd))
+		s := gengo.New(cli.WithCLIBuilder(), gengo.WithCustomWorkDir(cwd))
 
 		err := s.LoadCacheFromCustomPath(cacheFile)
 		if err != nil {
@@ -50,7 +51,7 @@ var buildCmd = &cobra.Command{
 
 		err = s.CompleteParse()
 		if err != nil {
-			s.Log.Error().Err(err).Msg("Failed to build service")
+			s.Log.Error().Err(err).Msg("Failed to generate service")
 			os.Exit(1)
 		}
 
@@ -59,7 +60,7 @@ var buildCmd = &cobra.Command{
 }
 
 func init() {
-	buildCmd.Flags().StringVarP(&cacheFile, "cache", "c", cacheFile, "Location of the cache.json file")
-	buildCmd.Flags().StringVarP(&cwd, "dir", "d", cwd, "Current working directory (where main.go is located)")
-	rootCmd.AddCommand(buildCmd)
+	generateCmd.Flags().StringVarP(&cacheFile, "cache", "c", cacheFile, "Location of the cache.json file")
+	generateCmd.Flags().StringVarP(&cwd, "dir", "d", cwd, "Current working directory (where main.go is located)")
+	rootCmd.AddCommand(generateCmd)
 }

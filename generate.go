@@ -15,7 +15,7 @@ func (s *Service) Generate() error {
 
 	s.Log.Info().Msg("Generating outputs complete")
 
-	if s.cacheEnabled {
+	if s.CacheEnabled {
 		err := s.Cache()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error caching")
