@@ -105,7 +105,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						argNo = 2
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, argNo, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, argNo, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -153,7 +153,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -169,7 +169,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -185,7 +185,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						})
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -206,7 +206,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 						currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 					}
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -230,7 +230,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "form"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -253,7 +253,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/json"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -276,7 +276,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/xml"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -299,7 +299,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/yaml"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -316,7 +316,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -334,7 +334,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -352,7 +352,7 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 
-					err, ok = parseFromCalledFunction(log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
+					err, ok = parseFromCalledFunction(s, log, callExpr, 0, pkgName, pkgPath, s.WorkDir, imports, onExtract)
 					if err != nil {
 						return false
 					}
@@ -483,15 +483,15 @@ func parseFunction(s *gengo.Service, log zerolog.Logger, currRoute *gengo.Route,
 	return nil
 }
 
-// parseFromCalledFunction parses a function call that returns a constant
+// parseFromCalledFunction parses a function call that an argument is a reference to something
 // It returns true if a new pass is needed to parse the function (i.e. it has had to extract another different type)
-func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
+func parseFromCalledFunction(s *gengo.Service, log zerolog.Logger, callExpr *ast.CallExpr, argNo int, pkgName, pkgPath, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	arg := callExpr.Args[argNo]
 	switch argType := arg.(type) {
 	case *ast.UnaryExpr: // A reference to a constant defined in the arguments
 		switch unaryExpr := argType.X.(type) {
 		case *ast.Ident: // A constant defined in this package
-			return parseIdentAndTrace(log, unaryExpr, pkgName, pkgPath, workDir, imports, onExtract)
+			return parseIdentAndTrace(s, log, unaryExpr, pkgName, pkgPath, workDir, imports, onExtract)
 		case *ast.SelectorExpr: // A constant defined in another package
 			ident, ok := unaryExpr.X.(*ast.Ident)
 			if !ok {
@@ -528,7 +528,48 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 			return nil, true
 		}
 	case *ast.Ident: // A variable used in the arguments
-		return parseIdentAndTrace(log, argType, pkgPath, pkgName, workDir, imports, onExtract)
+		return parseIdentAndTrace(s, log, argType, pkgPath, pkgName, workDir, imports, onExtract)
+	case *ast.CallExpr: // A function call used in the arguments
+		res, err := astUtils.HandleReservedFunctions(argType, pkgName)
+		if err != nil {
+			return err, false
+		}
+		if res.VarName != "" {
+			onExtract(res)
+			return nil, true
+		}
+
+		res, node, nImports, err := astUtils.FindDeclInPackage(argType.Fun, imports, pkgName, pkgPath, workDir, func(res astUtils.ParseResult) (astUtils.ParseResult, error) {
+			if res.PkgName == "main" {
+				var err error
+				res.PkgName, err = s.GetMainPackageName()
+				if err != nil {
+					return astUtils.ParseResult{}, err
+				}
+			}
+
+			return res, nil
+		})
+		if err != nil {
+			return err, false
+		}
+
+		if funcDecl, ok := node.(*ast.FuncDecl); ok {
+			returnType := funcDecl.Type.Results.List[0] // It is assumed that the function only returns one value, as it is inline in the arguments
+
+			res, ok = astUtils.ParseFunctionReturnTypes(log, returnType.Type, res.PkgName)
+			res.PkgName = astUtils.ParseInputPath(nImports, res.PkgName, pkgPath)
+			if !ok {
+				return nil, false
+			} else {
+				onExtract(res)
+				return nil, true
+			}
+
+		} else {
+			return nil, false
+		}
+
 	case *ast.BasicLit: // A literal used in the arguments
 		onExtract(astUtils.ParseResult{
 			PkgName: pkgName,
@@ -547,32 +588,73 @@ func parseFromCalledFunction(log zerolog.Logger, callExpr *ast.CallExpr, argNo i
 // parseIdentAndTrace parses an identifier and traces it back to its definition
 // It returns true if a new pass is needed to parse the function (i.e. it has had to extract another different type)
 // It is designed to match any number of arguments on either side
-func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath, pkgName, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
-	assignStmt, ok := argType.Obj.Decl.(*ast.AssignStmt)
-	if !ok {
-		return nil, false
-	}
-
-	var assignedIndex int
-	for i, expr := range assignStmt.Lhs {
-		if expr.(*ast.Ident).Name == argType.Name {
-			assignedIndex = i
-			break
-		}
-	}
-
+func parseIdentAndTrace(s *gengo.Service, log zerolog.Logger, argType *ast.Ident, pkgPath, pkgName, workDir string, imports []*ast.ImportSpec, onExtract func(result astUtils.ParseResult)) (error, bool) {
 	var assignedExpr ast.Expr
-	if len(assignStmt.Lhs) == len(assignStmt.Rhs) { // If the number of variables and values are the same
-		assignedExpr = assignStmt.Rhs[assignedIndex]
-	} else { // If the number of variables and values are different (i.e. a function call)
-		assignedExpr = assignStmt.Rhs[0]
+	var assignStmt *ast.AssignStmt
+	var ok bool
+	if argType.Obj == nil {
+		res, node, nImports, err := astUtils.FindDeclInPackage(argType, imports, pkgName, pkgPath, workDir, func(res astUtils.ParseResult) (astUtils.ParseResult, error) {
+			if res.PkgName == "main" {
+				var err error
+				res.PkgName, err = s.GetMainPackageName()
+				if err != nil {
+					return astUtils.ParseResult{}, err
+				}
+			}
+
+			return res, nil
+		})
+		if err != nil {
+			return err, false
+		}
+
+		if valueSpec, ok := node.(*ast.ValueSpec); ok { // It is a variable that is assigned a value, so we need to trace it back to its definition
+			var assignedIndex int
+			for i, expr := range valueSpec.Names {
+				if expr.Name == argType.Name {
+					assignedIndex = i
+					break
+				}
+			}
+
+			assignedExpr = valueSpec.Values[assignedIndex]
+			pkgPath = astUtils.ParseInputPath(nImports, res.PkgName, pkgPath)
+			pkgName = res.PkgName
+			imports = nImports
+		}
+	} else {
+		assignStmt, ok = argType.Obj.Decl.(*ast.AssignStmt)
+		if !ok {
+			return nil, false
+		}
+
+		var assignedIndex int
+		for i, expr := range assignStmt.Lhs {
+			if expr.(*ast.Ident).Name == argType.Name {
+				assignedIndex = i
+				break
+			}
+		}
+
+		if len(assignStmt.Lhs) == len(assignStmt.Rhs) { // If the number of variables and values are the same
+			assignedExpr = assignStmt.Rhs[assignedIndex]
+		} else { // If the number of variables and values are different (i.e. a function call)
+			assignedExpr = assignStmt.Rhs[0]
+		}
 	}
 
 	onExternalPkg := func(funcName, pkgName, pkgPath string) error {
 		// We need all this logic here because we need to check the return type of the function against that package's imports
 
+		if pkgName == "main" {
+			var err error
+			pkgName, err = s.GetMainPackageName()
+			if err != nil {
+				return err
+			}
+		}
+
 		nPkgPath := astUtils.ParseInputPath(imports, pkgName, pkgPath)
-		var pkg *packages.Package
 		pkg, err := astUtils.LoadPackage(nPkgPath, workDir)
 		if err != nil {
 			return err
@@ -603,7 +685,7 @@ func parseIdentAndTrace(log zerolog.Logger, argType *ast.Ident, pkgPath, pkgName
 
 		field := funcDecl.Type.Results.List[funcReturnIndex]
 
-		res, ok := astUtils.ParseFunctionReturnTypes(log, field.Type, argType)
+		res, ok := astUtils.ParseFunctionReturnTypes(log, field.Type, argType.Name)
 		if !ok {
 			return nil
 		}

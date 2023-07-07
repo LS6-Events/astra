@@ -14,7 +14,6 @@ func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	if pkg, ok := cachedPackages[pkgPath]; ok {
 		return pkg, nil
 	}
-
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedImports | packages.NeedDeps | packages.NeedName,
 		Dir:  workDir,

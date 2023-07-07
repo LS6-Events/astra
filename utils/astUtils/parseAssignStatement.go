@@ -7,7 +7,7 @@ import (
 )
 
 // ParseAssignStatement parses an assignment statement
-// It will extract the package name and type of the element on the right hand side of the assignment
+// It will extract the package name and type of the element on the right-hand side of the assignment
 func ParseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.AssignStmt, pkgPath string, pkgName string, imports []*ast.ImportSpec, argType *ast.Ident, onExternalPkg func(funcName, pkgName, pkgPath string) error) (ParseResult, error, bool) {
 	var err error
 	var res ParseResult
@@ -15,30 +15,7 @@ func ParseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.Ass
 	case *ast.UnaryExpr:
 		return ParseAssignStatement(log, rhs.X, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
 	case *ast.CompositeLit:
-		switch compositLit := rhs.Type.(type) {
-		case *ast.Ident:
-			res = SplitIdentSelectorExpr(compositLit, pkgName)
-		case *ast.SelectorExpr:
-			res = SplitIdentSelectorExpr(compositLit, pkgName)
-		case *ast.ArrayType:
-			embeddedType := SplitIdentSelectorExpr(compositLit.Elt, pkgName)
-			res = ParseResult{
-				VarName:   "slice",
-				PkgName:   embeddedType.PkgName,
-				SliceType: embeddedType.VarName,
-			}
-		case *ast.MapType:
-			keyType := SplitIdentSelectorExpr(compositLit.Key, pkgName)
-			valueType := SplitIdentSelectorExpr(compositLit.Value, pkgName)
-			res = ParseResult{
-				VarName:   "map",
-				MapKey:    keyType.VarName,
-				MapKeyPkg: keyType.PkgName,
-				MapVal:    valueType.VarName,
-				PkgName:   valueType.PkgName,
-			}
-		}
-
+		res = HandleExpr(rhs.Type, pkgName)
 	case *ast.BasicLit:
 		res = ParseResult{
 			VarName: strings.ToLower(rhs.Kind.String()),
@@ -68,6 +45,14 @@ func ParseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.Ass
 
 		return ParseAssignStatement(log, assignedExpr, assignStmt, pkgPath, pkgName, imports, argType, onExternalPkg)
 	case *ast.CallExpr:
+		res, err = HandleReservedFunctions(rhs, pkgName)
+		if err != nil {
+			return ParseResult{}, err, false
+		}
+		if res.VarName != "" {
+			return res, nil, true
+		}
+
 		switch fun := rhs.Fun.(type) {
 		case *ast.SelectorExpr: // foo.Bar()
 			ident, ok := fun.X.(*ast.Ident)
@@ -82,25 +67,34 @@ func ParseAssignStatement(log zerolog.Logger, expr ast.Expr, assignStmt *ast.Ass
 				return ParseResult{}, nil, false
 			}
 		case *ast.Ident: // Bar()
-			funcDecl, ok := fun.Obj.Decl.(*ast.FuncDecl)
-			if !ok {
-				return ParseResult{}, nil, false
-			}
+			if fun.Obj == nil { // If the function is in the current package but not declared in the same file
+				err = onExternalPkg(fun.Name, pkgName, pkgPath)
+				if err != nil {
+					return ParseResult{}, err, false
+				} else {
+					return ParseResult{}, nil, false
+				}
+			} else {
+				funcDecl, ok := fun.Obj.Decl.(*ast.FuncDecl)
+				if !ok {
+					return ParseResult{}, nil, false
+				}
 
-			var funcReturnIndex int
-			for i, field := range assignStmt.Lhs {
-				if f, ok := field.(*ast.Ident); ok {
-					if f.Name == argType.Name {
-						funcReturnIndex = i
+				var funcReturnIndex int
+				for i, field := range assignStmt.Lhs {
+					if f, ok := field.(*ast.Ident); ok {
+						if f.Name == argType.Name {
+							funcReturnIndex = i
+						}
 					}
 				}
-			}
 
-			field := funcDecl.Type.Results.List[funcReturnIndex]
+				field := funcDecl.Type.Results.List[funcReturnIndex]
 
-			res, ok = ParseFunctionReturnTypes(log, field.Type, argType)
-			if !ok {
-				return ParseResult{}, nil, false
+				res, ok = ParseFunctionReturnTypes(log, field.Type, argType.Name)
+				if !ok {
+					return ParseResult{}, nil, false
+				}
 			}
 		default:
 			return ParseResult{}, nil, false
