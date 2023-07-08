@@ -116,6 +116,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 		// Get if "binding:required" tag is present and "json" as well
 		isRequired := false
 		isEmbedded := f.Embedded()
+		isShown := true
 		name := f.Id()
 
 		tag := t.Tag(i)
@@ -126,24 +127,40 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 			}
 
 			yaml := reflect.StructTag(tag).Get("yaml")
-			if yaml != "" {
+			if yaml != "" && yaml != "-" {
+				isShown = true
 				name = strings.Split(yaml, ",")[0]
+			} else if yaml == "-" && isShown {
+				isShown = false
 			}
 
 			xml := reflect.StructTag(tag).Get("xml")
-			if xml != "" {
+			if xml != "" && xml != "-" {
+				isShown = true
 				name = strings.Split(xml, ",")[0]
+			} else if xml == "-" && isShown {
+				isShown = false
 			}
 
 			form := reflect.StructTag(tag).Get("form")
-			if form != "" {
+			if form != "" && form != "-" {
+				isShown = true
 				name = strings.Split(form, ",")[0]
+			} else if form == "-" && isShown {
+				isShown = false
 			}
 
 			json := reflect.StructTag(tag).Get("json")
-			if json != "" {
+			if json != "" && json != "-" {
+				isShown = true
 				name = strings.Split(json, ",")[0]
+			} else if json == "-" && isShown {
+				isShown = false
 			}
+		}
+
+		if !isShown {
+			continue
 		}
 
 		switch f.Type().(type) {
@@ -237,8 +254,8 @@ func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Fie
 func (s *Service) processType(t string, defaultPkg string) (newPass bool, relativePkg string, relativeName string) {
 	split := strings.Split(t, ".")
 	if len(split) > 1 {
-		relativePkg = split[0]
-		relativeName = split[1]
+		relativePkg = strings.Join(split[:len(split)-1], ".")
+		relativeName = split[len(split)-1]
 	} else {
 		relativePkg = defaultPkg
 		relativeName = split[0]

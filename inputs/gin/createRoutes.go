@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-// createRoutes creates routes from a gin router
+// createRoutes creates routes from a gin routes
 // It will only create the routes and refer to the handler function by name, file and line number
 // The routes will be populated later by parseRoutes
 // It will individually call createRoute for each route
@@ -16,6 +16,18 @@ func createRoutes(router *gin.Engine) gengo.ServiceFunction {
 		s.Log.Debug().Msg("Populating service with gin routes")
 		for _, route := range router.Routes() {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")
+
+			blacklisted := false
+			for _, blacklistFunc := range s.PathBlacklist {
+				if blacklistFunc(route.Path) {
+					s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Path is blacklisted")
+					blacklisted = true
+					break
+				}
+			}
+			if blacklisted {
+				continue
+			}
 
 			pc := reflect.ValueOf(route.HandlerFunc).Pointer()
 			file, line := runtime.FuncForPC(pc).FileLine(pc)

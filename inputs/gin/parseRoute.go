@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// parseRoute parses a route from a gin router
+// parseRoute parses a route from a gin routes
 // It will populate the route with the handler function
 // createRoute must be called before this
 // It will open the file as an AST and find the handler function using the line number and function name

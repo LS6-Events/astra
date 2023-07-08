@@ -33,9 +33,11 @@ type Service struct {
 	Components []Field `json:"components" yaml:"components"`
 
 	tempMainPackageName string
-	WorkDir             string
+	WorkDir             string `json:"-"`
 
-	CacheEnabled bool
-	CachePath    string
+	CacheEnabled bool    `json:"-"`
+	CachePath    string  `json:"-"`
 	CLIMode      CLIMode `json:"-"`
+
+	PathBlacklist []func(string) bool `json:"-"`
 }

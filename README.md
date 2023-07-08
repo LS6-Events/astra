@@ -42,17 +42,17 @@ We recommend using the OpenAPI specification as the output format, as it is the 
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
 	gengoGin "github.com/ls6-events/gengo/inputs/gin"
 	"github.com/ls6-events/gengo/outputs/openapi"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
 
 	r.GET("/posts", GetPosts)
-	r.GET("/posts/:id", GetPosts)
+	r.GET("/posts/:id", GetPost)
 	r.POST("/posts", CreatePost)
 	r.PUT("/posts/:id", UpdatePost)
 	r.DELETE("/posts/:id", DeletePost)
@@ -97,6 +97,11 @@ func main() {
 ### CLI (CI/CD)
 GenGo also has a method for running the program from the command line, which is useful for CI/CD pipelines. To use it, follow the instructions in the [CLI documenation](./docs/cli.md).
 
+### Blacklist
+
+GenGo can also blacklist certain functions from being parsed. This is useful if you have a function that you don't want to be parsed, such as a function that is used for testing. To use this, follow the instructions in the [blacklist documentation](./docs/blacklisting.md).
+
+
 ### Logging
 We use [ZeroLog](https://www.github.com/rs/zerolog) for logging, which is a fast and lightweight logging library. By default we have `info` level logging configured, but to specify `debug`, you can add a configuration option to the `New` function
 ```go
@@ -110,6 +115,8 @@ import "github.com/rs/zerolog/log"
 logger := log.With().Caller().Logger()
 gengo.New(...(previous configuration)..., gengo.WithCustomLogger(logger))
 ```
+
+More information can be found in the [logging documentation](./docs/logging.md).
 
 ## How it works
 
@@ -130,6 +137,14 @@ There is more information in the [how it works documentation](./docs/how-it-work
 * Add support for more output formats (e.g. TypeScript interfaces/classes etc.)
 * Add unit tests and more documentation
 * Test more edge cases (please report any issues you find!)
+
+## Issue Reporting
+
+Naturally a project that has to adapt to so many people's coding styles will have some issues. If you find any, please report them in the [issues](https://www.github.com/LS6-Events/gengo/issues) section of this repository. 
+
+Please try to be as specific as possible, 
+
+We will try to fix them as soon as possible.
 
 ## Contributing
 We aim to welcome contributions to this project, will provide further information in due course.

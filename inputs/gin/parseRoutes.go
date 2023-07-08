@@ -4,13 +4,13 @@ import (
 	"github.com/ls6-events/gengo"
 )
 
-// parseRoutes parses routes from a gin router
+// parseRoutes parses routes from a gin routes
 // It will populate the routes with the handler function
 // It will individually call parseRoute for each route
 // createRoutes must be called before this
 func parseRoutes() gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
-		s.Log.Debug().Msg("Populating routes from gin router")
+		s.Log.Debug().Msg("Populating routes from gin routes")
 		for _, route := range s.Routes {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")
 

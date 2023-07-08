@@ -15,7 +15,7 @@ import (
 
 const cacheFileName = "cache.json"
 
-// Cache Cache the service in a file
+// Cache the service in a file
 func (s *Service) Cache() error {
 	s.Log.Debug().Msg("Caching service")
 
