@@ -97,9 +97,9 @@ func main() {
 ### CLI (CI/CD)
 GenGo also has a method for running the program from the command line, which is useful for CI/CD pipelines. To use it, follow the instructions in the [CLI documenation](./docs/cli.md).
 
-### Blacklist
+### Denying
 
-GenGo can also blacklist certain functions from being parsed. This is useful if you have a function that you don't want to be parsed, such as a function that is used for testing. To use this, follow the instructions in the [blacklist documentation](./docs/blacklisting.md).
+GenGo can also deny certain functions from being parsed. This is useful if you have a function that you don't want to be parsed, such as a function that is used for testing. To use this, follow the instructions in the [denying documentation](./docs/denying.md).
 
 
 ### Logging

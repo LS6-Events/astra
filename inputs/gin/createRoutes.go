@@ -17,15 +17,15 @@ func createRoutes(router *gin.Engine) gengo.ServiceFunction {
 		for _, route := range router.Routes() {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")
 
-			blacklisted := false
-			for _, blacklistFunc := range s.PathBlacklist {
-				if blacklistFunc(route.Path) {
+			denied := false
+			for _, denyFunc := range s.PathDenyList {
+				if denyFunc(route.Path) {
 					s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Path is blacklisted")
-					blacklisted = true
+					denied = true
 					break
 				}
 			}
-			if blacklisted {
+			if denied {
 				continue
 			}
 

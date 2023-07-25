@@ -39,5 +39,5 @@ type Service struct {
 	CachePath    string  `json:"-"`
 	CLIMode      CLIMode `json:"-"`
 
-	PathBlacklist []func(string) bool `json:"-"`
+	PathDenyList []func(string) bool `json:"-"`
 }
