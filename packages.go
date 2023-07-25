@@ -2,17 +2,16 @@ package gengo
 
 import (
 	"golang.org/x/tools/go/packages"
-	"os"
 )
 
+// loadPackages loads the packages that are needed for the generator
+// It finds the packages by looping over the structs that are to be processed
+// It then loads all the packages at once using the packages.Load function
 func (s *Service) loadPackages() ([]*packages.Package, error) {
 	s.typesByName = make(map[string][]string, 0)
 	patterns := make([]string, 0)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
+	var err error
 
 	for _, structToProcess := range s.ToBeProcessed {
 		if structToProcess.Pkg == "main" {
@@ -31,7 +30,7 @@ func (s *Service) loadPackages() ([]*packages.Package, error) {
 
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedImports | packages.NeedDeps | packages.NeedName,
-		Dir:  cwd,
+		Dir:  s.WorkDir,
 	}, patterns...)
 
 	if err != nil {

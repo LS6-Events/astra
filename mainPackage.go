@@ -7,24 +7,30 @@ import (
 	"strings"
 )
 
+// This file contains functionality for copying the main package to a temporary directory and replacing the package name with a different name
+// This is required so that the generator can parse the types in the main package should they be required, and follow any functions that are required
+// The package is cleaned up after the generator has finished running
+
 const mainPackageReplacement = "gengomain"
-const mainPackageReplacementPath = tempDir + "/" + mainPackageReplacement
+const mainPackageReplacementPath = gengoDir + "/" + mainPackageReplacement
 
+// setupTempMainPackage copies the main package to a temporary directory and replaces the package name with a different name
 func (s *Service) setupTempMainPackage() error {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
 	var pkgName string
 
-	newMainPkgPath := path.Join(getTempDirPath(), mainPackageReplacement)
-	err = os.Mkdir(newMainPkgPath, 0755)
+	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
+	if _, err := os.Stat(newMainPkgPath); err == nil {
+		err := os.RemoveAll(newMainPkgPath)
+		if err != nil {
+			return err
+		}
+	}
+	err := os.Mkdir(newMainPkgPath, 0755)
 	if err != nil {
 		return err
 	}
 
-	files, err := os.ReadDir(cwd)
+	files, err := os.ReadDir(s.WorkDir)
 	if err != nil {
 		return err
 	}
@@ -32,7 +38,7 @@ func (s *Service) setupTempMainPackage() error {
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".go") {
 
-			fileName := path.Join(cwd, file.Name())
+			fileName := path.Join(s.WorkDir, file.Name())
 			fileData, err := os.ReadFile(fileName)
 			if err != nil {
 				return err
@@ -46,7 +52,7 @@ func (s *Service) setupTempMainPackage() error {
 				return err
 			}
 		} else if strings.HasSuffix(file.Name(), ".mod") {
-			fileName := path.Join(cwd, file.Name())
+			fileName := path.Join(s.WorkDir, file.Name())
 			fileData, err := os.ReadFile(fileName)
 			if err != nil {
 				return err
@@ -63,6 +69,19 @@ func (s *Service) setupTempMainPackage() error {
 	return nil
 }
 
+// cleanupTempMainPackage removes the temporary main package
+func (s *Service) cleanupTempMainPackage() error {
+	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
+	if _, err := os.Stat(newMainPkgPath); err == nil {
+		err := os.RemoveAll(newMainPkgPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetMainPackageName returns the name of the temporary main package
 func (s *Service) GetMainPackageName() (string, error) {
 	if s.tempMainPackageName == "" {
 		err := s.setupTempMainPackage()

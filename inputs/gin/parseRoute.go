@@ -2,33 +2,32 @@ package gin
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/utils"
 	"github.com/ls6-events/gengo/utils/astUtils"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"regexp"
+	"path"
 	"strings"
 )
 
-func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) error {
+// parseRoute parses a route from a gin routes
+// It will populate the route with the handler function
+// createRoute must be called before this
+// It will open the file as an AST and find the handler function using the line number and function name
+// It can also find the path parameters from the handler function
+// It calls the parseFunction function to parse the handler function
+func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 	fset := token.NewFileSet()
 
-	log := s.Log.With().Str("path", info.Path).Str("method", info.Method).Str("file", file).Logger()
+	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", baseRoute.File).Logger()
 
-	log.Debug().Msg("Parsing file")
-	node, err := parser.ParseFile(fset, file, nil, parser.ParseComments)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to parse file")
-		return err
-	}
-
-	pkgPath := strings.Split(info.Handler, "/")
+	pkgPath := strings.Split(baseRoute.Handler, "/")
 	names := strings.Split(pkgPath[len(pkgPath)-1], ".")
 
 	if len(names) < 2 {
-		err := fmt.Errorf("invalid handler name for file: %s", info.Handler)
+		err := fmt.Errorf("invalid handler name for file: %s", baseRoute.Handler)
 		log.Error().Err(err).Msg("Failed to parse handler name")
 		return err
 	}
@@ -37,28 +36,19 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 	funcName := names[1]
 	log.Debug().Str("pkgName", pkgName).Str("funcName", funcName).Msg("Found handler name")
 
-	baseRoute := gengo.Route{
-		Path:        info.Path,
-		Method:      info.Method,
-		PathParams:  make([]gengo.Param, 0),
-		Body:        make([]gengo.Param, 0),
-		QueryParams: make([]gengo.Param, 0),
-		ReturnTypes: make([]gengo.ReturnType, 0),
+	log.Debug().Msg("Parsing file")
+	filePath := path.Join(s.WorkDir, baseRoute.File)
+	node, err := parser.ParseFile(fset, filePath, nil, parser.ParseComments)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to parse file")
+		return err
 	}
 
-	paramRegex := regexp.MustCompile(`:[^\/]+|\*[^\/]+`)
-	if paramRegex.MatchString(baseRoute.Path) {
-		log.Debug().Str("path", baseRoute.Path).Msg("Found path params")
-		params := paramRegex.FindAllString(baseRoute.Path, -1)
-		for _, param := range params {
-			baseRoute.PathParams = append(baseRoute.PathParams, gengo.Param{
-				Name:       param[1:],
-				Type:       "string",
-				IsRequired: param[0] == ':',
-			})
-		}
+	baseRoute.PathParams = utils.ExtractParamsFromPath(baseRoute.Path)
+	if len(baseRoute.PathParams) > 0 {
+		log.Debug().Interface("pathParams", baseRoute.PathParams).Msg("Found path params")
 	} else {
-		log.Debug().Str("path", baseRoute.Path).Msg("No path params found")
+		log.Debug().Msg("No path params found")
 	}
 
 	ast.Inspect(node, func(n ast.Node) bool {
@@ -69,7 +59,7 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 
 			startPos := fset.Position(funcDecl.Pos())
 
-			if line != startPos.Line {
+			if baseRoute.LineNo != startPos.Line {
 				// This means that the function is set inline in the route definition
 				log.Debug().Str("funcName", funcName).Msg("Function is inline")
 
@@ -79,17 +69,16 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 					if ok {
 						inlineStartPos := fset.Position(funcLit.Pos())
 
-						if line == inlineStartPos.Line {
+						if baseRoute.LineNo == inlineStartPos.Line {
 							log.Debug().Str("funcName", funcName).Msg("Found inline handler function")
 
-							err = parseFunction(s, log, &baseRoute, funcLit, node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+							err = parseFunction(s, log, baseRoute, funcLit, node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
 							if err != nil {
 								log.Error().Err(err).Msg("Failed to parse inline function")
 								return false
 							}
 
-							log.Debug().Str("funcName", funcName).Interface("route", baseRoute).Msg("Adding route")
-							s.AddRoute(baseRoute)
+							log.Debug().Str("funcName", funcName).Interface("route", *baseRoute).Msg("Adding route")
 
 							return false
 						}
@@ -101,14 +90,13 @@ func parseRoute(s *gengo.Service, file string, line int, info gin.RouteInfo) err
 				return false
 			}
 
-			err = parseFunction(s, log, &baseRoute, astUtils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+			err = parseFunction(s, log, baseRoute, astUtils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to parse function")
 				return false
 			}
 
-			log.Debug().Str("funcName", funcName).Interface("route", baseRoute).Msg("Adding route")
-			s.AddRoute(baseRoute)
+			log.Debug().Str("funcName", funcName).Interface("route", *baseRoute).Msg("Adding route")
 
 			return false
 		}

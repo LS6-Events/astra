@@ -4,15 +4,20 @@ import (
 	"encoding/json"
 	"github.com/ls6-events/gengo"
 	"os"
+	"path"
 	"strings"
 )
 
+// JSONOutput is the output of the JSON output
+// It will in essence be a copy of the service's output (routes and components)
 type JSONOutput struct {
 	Routes     []gengo.Route `json:"routes"`
 	Components []gengo.Field `json:"components"`
 }
 
-func generate(filePath string) gengo.GenerateFunction {
+// generate the JSON output
+// It will marshal the JSONOutput struct and write it to a file
+func generate(filePath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Info().Msg("Generating JSON output")
 		output := JSONOutput{
@@ -33,6 +38,7 @@ func generate(filePath string) gengo.GenerateFunction {
 		}
 
 		s.Log.Debug().Str("filePath", filePath).Msg("Writing JSON output to file")
+		filePath = path.Join(s.WorkDir, filePath)
 		err = os.WriteFile(filePath, file, 0644)
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to write JSON output to file")

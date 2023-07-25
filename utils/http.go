@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// ConvertStatusCodeTypeToInt converts a status code type to an integer
+// If it uses the net/http package to get the status code, it will return the integer value of the status code constant
 func ConvertStatusCodeTypeToInt(statusCode string) (int, error) {
 	if strings.HasPrefix(statusCode, "http.") {
 		statusCode = strings.Replace(statusCode, "http.", "", 1)

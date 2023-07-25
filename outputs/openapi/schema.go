@@ -1,5 +1,6 @@
 package openapi
 
+// OpenAPISchema is the OpenAPI schema
 type OpenAPISchema struct {
 	OpenAPI           string        `json:"openapi" yaml:"openapi"`
 	Info              Info          `json:"info" yaml:"info"`
@@ -13,6 +14,7 @@ type OpenAPISchema struct {
 	ExternalDocs      *ExternalDocs `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
 }
 
+// Info is the OpenAPI info
 type Info struct {
 	Title          string  `json:"title" yaml:"title"`
 	Description    string  `json:"description,omitempty" yaml:"description,omitempty"`
@@ -22,12 +24,14 @@ type Info struct {
 	Version        string  `json:"version" yaml:"version"`
 }
 
+// Contact is the OpenAPI contact
 type Contact struct {
 	Name  string `json:"name,omitempty" yaml:"name,omitempty"`
 	URL   string `json:"url,omitempty" yaml:"url,omitempty"`
 	Email string `json:"email,omitempty" yaml:"email,omitempty"`
 }
 
+// License is the OpenAPI license
 type License struct {
 	Name string `json:"name" yaml:"name"`
 	URL  string `json:"url,omitempty" yaml:"url,omitempty"`
@@ -38,8 +42,10 @@ type Server struct {
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 }
 
+// Paths is the OpenAPI paths
 type Paths map[string]Path
 
+// Path is the OpenAPI path
 type Path struct {
 	Ref         string      `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Summary     string      `json:"summary,omitempty" yaml:"summary,omitempty"`
@@ -56,6 +62,7 @@ type Path struct {
 	Parameters  []Parameter `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
+// Operation is the OpenAPI operation
 type Operation struct {
 	Ref          string        `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Tags         []string      `json:"tags,omitempty" yaml:"tags,omitempty"`
@@ -72,6 +79,7 @@ type Operation struct {
 	Servers      []Server      `json:"servers,omitempty" yaml:"servers,omitempty"`
 }
 
+// Parameter is the OpenAPI parameter
 type Parameter struct {
 	Ref         string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Name        string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -85,6 +93,7 @@ type Parameter struct {
 	Schema      Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
 }
 
+// RequestBody is the OpenAPI request body
 type RequestBody struct {
 	Ref         string               `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Description string               `json:"description,omitempty" yaml:"description,omitempty"`
@@ -92,16 +101,19 @@ type RequestBody struct {
 	Required    bool                 `json:"required,omitempty" yaml:"required,omitempty"`
 }
 
+// MediaType is the OpenAPI media type
 type MediaType struct {
 	Schema   Schema              `json:"schema,omitempty" yaml:"schema,omitempty"`
 	Encoding map[string]Encoding `json:"encoding,omitempty" yaml:"encoding,omitempty"`
 }
 
+// Encoding is the OpenAPI encoding
 type Encoding struct {
 	ContentType string            `json:"contentType,omitempty" yaml:"contentType,omitempty"`
 	Headers     map[string]Header `json:"headers,omitempty" yaml:"headers,omitempty"`
 }
 
+// Header is the OpenAPI header
 type Header struct {
 	Ref         string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
@@ -110,8 +122,10 @@ type Header struct {
 	AllowEmpty  bool   `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
 }
 
+// Responses is the OpenAPI responses
 type Responses map[string]Response
 
+// Response is the OpenAPI response
 type Response struct {
 	Description string               `json:"description" yaml:"description"`
 	Headers     map[string]Header    `json:"headers,omitempty" yaml:"headers,omitempty"`
@@ -119,6 +133,7 @@ type Response struct {
 	Links       map[string]Link      `json:"links,omitempty" yaml:"links,omitempty"`
 }
 
+// Link is the OpenAPI link
 type Link struct {
 	OperationRef string               `json:"operationRef,omitempty" yaml:"operationRef,omitempty"`
 	OperationID  string               `json:"operationId,omitempty" yaml:"operationId,omitempty"`
@@ -128,9 +143,13 @@ type Link struct {
 	Server       Server               `json:"server,omitempty" yaml:"server,omitempty"`
 }
 
+// Callbacks is the OpenAPI callbacks
 type Callbacks map[string]Callback
+
+// Callback is the OpenAPI callback
 type Callback map[string]Path
 
+// Components is the OpenAPI components
 type Components struct {
 	Schemas         map[string]Schema         `json:"schemas,omitempty" yaml:"schemas,omitempty"`
 	Responses       map[string]Response       `json:"responses,omitempty" yaml:"responses,omitempty"`
@@ -143,6 +162,7 @@ type Components struct {
 	PathItems       map[string]Path           `json:"pathItems,omitempty" yaml:"pathItems,omitempty"`
 }
 
+// Schema is JSON Schema utilised by OpenAPI
 type Schema struct {
 	Ref                  string            `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Title                string            `json:"title,omitempty" yaml:"title,omitempty"`
@@ -173,6 +193,7 @@ type Schema struct {
 	Description          string            `json:"description,omitempty" yaml:"description,omitempty"`
 }
 
+// SecurityScheme is the OpenAPI security scheme
 type SecurityScheme struct {
 	Ref         string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	Type        string `json:"type,omitempty" yaml:"type,omitempty"`
@@ -182,14 +203,17 @@ type SecurityScheme struct {
 	Scheme      string `json:"scheme,omitempty" yaml:"scheme,omitempty"`
 }
 
+// Security is the OpenAPI security
 type Security map[string][]string
 
+// Tag is the OpenAPI tag
 type Tag struct {
 	Name         string        `json:"name,omitempty" yaml:"name,omitempty"`
 	Description  string        `json:"description,omitempty" yaml:"description,omitempty"`
 	ExternalDocs *ExternalDocs `json:"externalDocs,omitempty" yaml:"externalDocs,omitempty"`
 }
 
+// ExternalDocs is the OpenAPI external documentation
 type ExternalDocs struct {
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 	URL         string `json:"url,omitempty" yaml:"url,omitempty"`

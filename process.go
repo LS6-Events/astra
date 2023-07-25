@@ -8,12 +8,18 @@ import (
 	"strings"
 )
 
-func (s *Service) process() error {
+// Process is the function that processes the type definitions of the specified return types
+// It does this by loading the packages that are needed for the generator
+// It then finds the types in the packages that have returned
+// It will then process them using the types package
+func (s *Service) Process() error {
+	s.Log.Info().Msg("Begin processing found definitions")
+
 	newPass := true
 	for newPass {
 		newPass = false
 
-		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Processing flagged types")
+		s.Log.Debug().Int("len", len(s.ToBeProcessed)).Msg("Processing flagged definitions")
 		pkgs, err := s.loadPackages()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error loading packages")
@@ -82,9 +88,24 @@ func (s *Service) process() error {
 		}
 	}
 
+	s.Log.Info().Msg("Processing found definitions complete")
+
+	if s.CacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
+	}
+
 	return nil
 }
 
+// processStruct processes a struct type
+// It will return a bool indicating if a new pass is needed and a Field that represents the struct
+// It can look at all the fields of the struct and process them individually with all their names and tags
+// It will also process embedded structs
+// TODO: Add support for validation tags
 func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, Field) {
 	newPass := false
 	fields := make(map[string]Field)
@@ -95,6 +116,7 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 		// Get if "binding:required" tag is present and "json" as well
 		isRequired := false
 		isEmbedded := f.Embedded()
+		isShown := true
 		name := f.Id()
 
 		tag := t.Tag(i)
@@ -105,24 +127,40 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 			}
 
 			yaml := reflect.StructTag(tag).Get("yaml")
-			if yaml != "" {
+			if yaml != "" && yaml != "-" {
+				isShown = true
 				name = strings.Split(yaml, ",")[0]
+			} else if yaml == "-" && isShown {
+				isShown = false
 			}
 
 			xml := reflect.StructTag(tag).Get("xml")
-			if xml != "" {
+			if xml != "" && xml != "-" {
+				isShown = true
 				name = strings.Split(xml, ",")[0]
+			} else if xml == "-" && isShown {
+				isShown = false
 			}
 
 			form := reflect.StructTag(tag).Get("form")
-			if form != "" {
+			if form != "" && form != "-" {
+				isShown = true
 				name = strings.Split(form, ",")[0]
+			} else if form == "-" && isShown {
+				isShown = false
 			}
 
 			json := reflect.StructTag(tag).Get("json")
-			if json != "" {
+			if json != "" && json != "-" {
+				isShown = true
 				name = strings.Split(json, ",")[0]
+			} else if json == "-" && isShown {
+				isShown = false
 			}
+		}
+
+		if !isShown {
+			continue
 		}
 
 		switch f.Type().(type) {
@@ -175,6 +213,9 @@ func (s *Service) processStruct(t *types.Struct, pkg *packages.Package) (bool, F
 	}
 }
 
+// processMap processes a map type
+// It will return a bool indicating if a new pass is needed and a Field that represents the map
+// It will also process the key and value types of the map
 func (s *Service) processMap(t *types.Map, pkg *packages.Package) (bool, Field) {
 	newPassKey, relativeKeyPkg, relativeKeyName := s.processType(t.Key().String(), pkg.PkgPath)
 	newPassValue, relativeValuePkg, relativeValueName := s.processType(t.Elem().String(), pkg.PkgPath)
@@ -190,6 +231,9 @@ func (s *Service) processMap(t *types.Map, pkg *packages.Package) (bool, Field) 
 	return newPassKey || newPassValue, resultField
 }
 
+// processSlice processes a slice type
+// It will return a bool indicating if a new pass is needed and a Field that represents the slice
+// It will also process the element type of the slice
 func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Field) {
 	newPass, relativePkg, relativeName := s.processType(t.Elem().String(), pkg.PkgPath)
 	resultField := Field{
@@ -201,11 +245,17 @@ func (s *Service) processSlice(t *types.Slice, pkg *packages.Package) (bool, Fie
 	return newPass, resultField
 }
 
+// processType processes a type
+// It will return a bool indicating if a new pass is needed and a Field that represents the type
+// It will also process the package and name of the type
+// If the type has a dot, it will split it and use the first part as the package and the second part as the name
+// Therefore it will return the package and name of the type
+// Otherwise it will use the default package and the type as the name
 func (s *Service) processType(t string, defaultPkg string) (newPass bool, relativePkg string, relativeName string) {
 	split := strings.Split(t, ".")
 	if len(split) > 1 {
-		relativePkg = split[0]
-		relativeName = split[1]
+		relativePkg = strings.Join(split[:len(split)-1], ".")
+		relativeName = split[len(split)-1]
 	} else {
 		relativePkg = defaultPkg
 		relativeName = split[0]

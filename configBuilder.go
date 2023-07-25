@@ -1,5 +1,9 @@
 package gengo
 
+// ConfigBuilder is a builder for the Config struct
+// It has methods to set the fields of the Config struct
+// It also has a Build method that returns the Config struct and an error, allowing for easy chaining and basic validation
+
 type ConfigBuilder struct {
 	config *Config
 }

@@ -3,24 +3,20 @@ package astUtils
 import (
 	"fmt"
 	"golang.org/x/tools/go/packages"
-	"os"
 )
 
 var cachedPackages = make(map[string]*packages.Package)
 
-func LoadPackage(pkgPath string) (*packages.Package, error) {
+// LoadPackage loads a package from a path
+// Because of the way the packages.Load function works, we cache the packages to avoid loading the same package multiple times
+// As we load these packages one at a time
+func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	if pkg, ok := cachedPackages[pkgPath]; ok {
 		return pkg, nil
 	}
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedImports | packages.NeedDeps | packages.NeedName,
-		Dir:  cwd,
+		Dir:  workDir,
 	}, pkgPath)
 	if err != nil {
 		return nil, err

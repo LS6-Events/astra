@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// ExtractContext extracts the name of the context parameter from a function literal
+// It returns an error if the context parameter is not found
 func ExtractContext(pkgPath, typeName string, node *ast.FuncLit, imports []*ast.ImportSpec) (string, error) {
 	var pkgName string
 	for _, im := range imports {

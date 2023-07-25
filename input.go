@@ -1,14 +1,14 @@
 package gengo
 
-type PopulateFunction func(service *Service) error
-
+// Input is the input for the generator
 type Input struct {
-	Mode     InputMode
-	Populate PopulateFunction
+	Mode         InputMode       `json:"mode"`
+	CreateRoutes ServiceFunction `json:"-"`
+	ParseRoutes  ServiceFunction `json:"-"`
 }
 
 type InputMode string
 
 const (
-	InputModeGin InputMode = "gin"
+	InputModeGin InputMode = "gin" // github.com/gin-gonic/gin web framework
 )

@@ -1,6 +1,12 @@
 package gengo
 
-func (s *Service) clean() error {
+// Clean cleans up the structs
+// At the moment it only changes the package name of the main package to "main"
+// It also handles the "special" types
+// It also caches the service after cleaning
+func (s *Service) Clean() error {
+	s.Log.Info().Msg("Cleaning up structs")
+
 	mainPkg, err := s.GetMainPackageName()
 	if err != nil {
 		return err
@@ -23,6 +29,16 @@ func (s *Service) clean() error {
 		}
 
 		s.Components[i] = f
+	}
+
+	s.Log.Info().Msg("Cleaning up structs complete")
+
+	if s.CacheEnabled {
+		err := s.Cache()
+		if err != nil {
+			s.Log.Error().Err(err).Msg("Error caching")
+			return err
+		}
 	}
 
 	return nil

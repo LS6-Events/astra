@@ -1,5 +1,7 @@
 package gengo
 
+// AcceptedTypes is a list of all accepted types for the gengo package
+// Everything else is considered a type that has to be processed
 var AcceptedTypes = []string{
 	"nil",
 	"string",
@@ -26,5 +28,5 @@ var AcceptedTypes = []string{
 }
 
 func IsAcceptedType(t string) bool {
-	return contains(AcceptedTypes, t)
+	return strSliceContains(AcceptedTypes, t)
 }
