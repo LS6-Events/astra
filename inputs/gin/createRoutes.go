@@ -7,11 +7,11 @@ import (
 	"runtime"
 )
 
-// createRoutes creates routes from a gin routes
+// CreateRoutes creates routes from a gin routes
 // It will only create the routes and refer to the handler function by name, file and line number
 // The routes will be populated later by parseRoutes
 // It will individually call createRoute for each route
-func createRoutes(router *gin.Engine) gengo.ServiceFunction {
+func CreateRoutes(router *gin.Engine) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Debug().Msg("Populating service with gin routes")
 		for _, route := range router.Routes() {
