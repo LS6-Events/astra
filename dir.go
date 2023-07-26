@@ -1,6 +1,8 @@
 package gengo
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"path"
 )
@@ -18,8 +20,7 @@ func (s *Service) getGenGoDirPath() string {
 
 // setupGenGoDir creates the .gengo directory and the .gitignore file
 func (s *Service) setupGenGoDir() error {
-	tempDirPath := s.getGenGoDirPath()
-	if err := os.MkdirAll(tempDirPath, 0755); err != nil {
+	if err := os.MkdirAll(s.getGenGoDirPath(), 0755); err != nil {
 		return err
 	}
 
@@ -30,10 +31,37 @@ func (s *Service) setupGenGoDir() error {
 	return nil
 }
 
+func (s *Service) SetupTempOutputDir(output OutputMode) (string, error) {
+	tempDir := path.Join(s.getGenGoDirPath(), string(output))
+
+	err := os.Mkdir(tempDir, 0755)
+	if err != nil {
+		return "", err
+	}
+
+	return tempDir, nil
+}
+
+func (s *Service) MoveTempOutputDir(output OutputMode, outputDir string) error {
+	sourcePath := path.Join(s.getGenGoDirPath(), string(output))
+	destinationPath := path.Join(s.WorkDir, outputDir)
+
+	_, err := os.Stat(destinationPath)
+	if !errors.Is(err, fs.ErrNotExist) {
+		os.RemoveAll(destinationPath)
+	}
+
+	err = os.Rename(sourcePath, destinationPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // setupGitIgnore creates the .gitignore file, by default it will ignore all files in the directory
 func (s *Service) setupGitIgnore() error {
-	tempDirPath := s.getGenGoDirPath()
-	gitIgnorePath := path.Join(tempDirPath, ".gitignore")
+	gitIgnorePath := path.Join(s.getGenGoDirPath(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); err == nil {
 		return nil
 	}
@@ -53,8 +81,7 @@ func (s *Service) setupGitIgnore() error {
 
 // cleanupGenGoDir removes the .gengo directory
 func (s *Service) cleanupGenGoDir() error {
-	tempDirPath := s.getGenGoDirPath()
-	if err := os.RemoveAll(tempDirPath); err != nil {
+	if err := os.RemoveAll(s.getGenGoDirPath()); err != nil {
 		return err
 	}
 
