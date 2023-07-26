@@ -40,10 +40,10 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: 1.19
-          cache-dependency-path: examples/${{ martix.manifest }}/go.sum
+          cache-dependency-path: examples/${{ matrix.manifest }}/go.sum
       - name: Install Dependencies
-        working-directory: examples/${{ martix.manifest }}
+        working-directory: examples/${{ matrix.manifest }}
         run: go get .
-      - name: Build ${{ martix.manifest }}
-        working-directory: examples/${{ martix.manifest }}
+      - name: Build ${{ matrix.manifest }}
+        working-directory: examples/${{ matrix.manifest }}
         run: go build .
