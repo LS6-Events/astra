@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/json"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 )
 
 // These functions are used to rebind the inputs and outputs to the service, as the JSON unmarshalling does not call the functions to bind the inputs and outputs, and loses all their referenced functions
@@ -31,8 +30,8 @@ func rebindInputs(s *gengo.Service) error {
 	s.Inputs = nil
 	for _, input := range inputsCopy {
 		switch input.Mode {
-		case gengo.InputModeGin:
-			gin.WithGinInput(nil)(s)
+		case inputs.InputModeGin:
+			inputs.WithGinInput(nil)(s)
 		default:
 			return gengo.ErrInputModeNotFound
 		}
@@ -49,18 +48,24 @@ func rebindOutputs(s *gengo.Service) error {
 	s.Outputs = nil
 	for _, output := range outputsCopy {
 		switch output.Mode {
-		case gengo.OutputModeJSON:
+		case outputs.OutputModeAzureFunctions:
+			directoryPath, ok := output.Configuration[gengo.IOConfigurationKeyDirectoryPath].(string)
+			if ok || directoryPath == "" {
+				return gengo.ErrOutputDirectoryPathRequired
+			}
+			outputs.WithAzureFunctionsOutput(directoryPath)(s)
+		case outputs.OutputModeJSON:
 			filePath, ok := output.Configuration[gengo.IOConfigurationKeyFilePath].(string)
 			if !ok || filePath == "" {
 				return gengo.ErrOutputFilePathRequired
 			}
-			json.WithJSONOutput(filePath)(s)
-		case gengo.OutputModeOpenAPI:
+			outputs.WithJSONOutput(filePath)(s)
+		case outputs.OutputModeOpenAPI:
 			filePath, ok := output.Configuration[gengo.IOConfigurationKeyFilePath].(string)
 			if !ok || filePath == "" {
 				return gengo.ErrOutputFilePathRequired
 			}
-			openapi.WithOpenAPIOutput(filePath)(s)
+			outputs.WithOpenAPIOutput(filePath)(s)
 		default:
 			return gengo.ErrOutputModeNotFound
 		}

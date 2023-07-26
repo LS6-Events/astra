@@ -9,6 +9,7 @@ var (
 
 	ErrInputModeNotFound = errors.New("input mode not found")
 
-	ErrOutputModeNotFound     = errors.New("output mode not found")
-	ErrOutputFilePathRequired = errors.New("output file path is required")
+	ErrOutputModeNotFound          = errors.New("output mode not found")
+	ErrOutputFilePathRequired      = errors.New("output file path is required")
+	ErrOutputDirectoryPathRequired = errors.New("output directory path is required")
 )
