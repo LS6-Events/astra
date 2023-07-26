@@ -30,6 +30,8 @@ jobs:
       - id: set-directories
         run: echo "::set-output name=directories::$(ls examples -d | jq -R -s -c 'split("\n")[:-1]')"
       - run: ls examples -d | jq -R -s -c 'split("\n")[:-1]'
+      - run: ls
+      - run: find . -maxdepth 2 -type d -ls
   examples:
     runs-on: ubuntu-latest
     needs: example-directories
