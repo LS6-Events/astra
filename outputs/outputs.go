@@ -2,13 +2,15 @@ package outputs
 
 import (
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/outputs/azureFunctions"
 	"github.com/ls6-events/gengo/outputs/json"
 	"github.com/ls6-events/gengo/outputs/openapi"
 )
 
 const (
-	OutputModeJSON    gengo.OutputMode = "json"    // JSON file - primarily used for debugging
-	OutputModeOpenAPI gengo.OutputMode = "openapi" // OpenAPI 3.0 file
+	OutputModeAzureFunctions gengo.OutputMode = "azureFunctions" // Azure Functions HTTP Trigger Bindings
+	OutputModeJSON           gengo.OutputMode = "json"           // JSON file - primarily used for debugging
+	OutputModeOpenAPI        gengo.OutputMode = "openapi"        // OpenAPI 3.0 file
 )
 
 func addOutput(mode gengo.OutputMode, generate gengo.ServiceFunction, configuration gengo.IOConfiguration) gengo.Option {
@@ -19,6 +21,17 @@ func addOutput(mode gengo.OutputMode, generate gengo.ServiceFunction, configurat
 			Configuration: configuration,
 		})
 	}
+}
+
+// WithAzureFunctionsOutput adds Azure Functions HTTP Trigger Bindings as an output to the service
+func WithAzureFunctionsOutput(directoryPath string) gengo.Option {
+	return addOutput(
+		OutputModeAzureFunctions,
+		azureFunctions.Generate(directoryPath),
+		gengo.IOConfiguration{
+			gengo.IOConfigurationKeyDirectoryPath: directoryPath,
+		},
+	)
 }
 
 // WithOpenAPIOutput adds an OpenAPI specification as an output to the service

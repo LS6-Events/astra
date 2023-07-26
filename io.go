@@ -10,7 +10,8 @@ type ServiceFunction func(service *Service) error
 type IOConfigurationKey string
 
 const (
-	IOConfigurationKeyFilePath IOConfigurationKey = "filePath"
+	IOConfigurationKeyFilePath      IOConfigurationKey = "filePath"
+	IOConfigurationKeyDirectoryPath IOConfigurationKey = "directoryPath"
 )
 
 type IOConfiguration map[IOConfigurationKey]any
