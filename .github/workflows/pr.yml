@@ -28,8 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-directories
-        run: echo "::set-output name=directories::$(ls examples -d | jq -R -s -c 'split("\n")[:-1]')"
-      - run: ls -d examples/* | jq -R -s -c 'split("\n")[:-1]'
+        run: echo "::set-output name=directories::$(ls -d examples/* | jq -R -s -c 'split("\n")[:-1]')"
   examples:
     runs-on: ubuntu-latest
     needs: example-directories
