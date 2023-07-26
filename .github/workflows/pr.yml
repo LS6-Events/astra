@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: example-directories
     strategy:
+      fail-fast: false
       matrix:
         manifest: ${{ fromJson(needs.example-directories.outputs.directories) }}
     steps:
