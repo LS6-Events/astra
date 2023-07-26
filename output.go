@@ -9,9 +9,3 @@ type Output struct {
 }
 
 type OutputMode string
-
-const (
-	OutputModeAzureFunctions OutputMode = "azureFunctions" // Azure Functions HTTP Trigger Bindings
-	OutputModeJSON           OutputMode = "json"           // JSON file - primarily used for debugging
-	OutputModeOpenAPI        OutputMode = "openapi"        // OpenAPI 3.0 file
-)

@@ -31,8 +31,8 @@ func (s *Service) setupGenGoDir() error {
 	return nil
 }
 
-func (s *Service) SetupTempOutputDir(output OutputMode) (string, error) {
-	tempDir := path.Join(s.getGenGoDirPath(), string(output))
+func (s *Service) SetupTempOutputDir(dirPath string) (string, error) {
+	tempDir := path.Join(s.getGenGoDirPath(), dirPath)
 
 	err := os.Mkdir(tempDir, 0755)
 	if err != nil {
@@ -42,8 +42,8 @@ func (s *Service) SetupTempOutputDir(output OutputMode) (string, error) {
 	return tempDir, nil
 }
 
-func (s *Service) MoveTempOutputDir(output OutputMode, outputDir string) error {
-	sourcePath := path.Join(s.getGenGoDirPath(), string(output))
+func (s *Service) MoveTempOutputDir(dirPath, outputDir string) error {
+	sourcePath := path.Join(s.getGenGoDirPath(), dirPath)
 	destinationPath := path.Join(s.WorkDir, outputDir)
 
 	_, err := os.Stat(destinationPath)

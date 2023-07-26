@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
 	"github.com/ls6-events/gengo/cli"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 		})
 	})
 
-	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
+	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
 
 	config := gengo.Config{
 		Title:   "Example API with Cache",

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+const tempOutputDir = "azure"
 const outputFile = "function.json"
 
 type AzureFunctionsBinding struct {
@@ -22,11 +23,11 @@ type AzureFunctionsOutput struct {
 	Bindings []AzureFunctionsBinding `json:"bindings"`
 }
 
-func generate(directoryPath string) gengo.ServiceFunction {
+func Generate(directoryPath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Debug().Msg("Generating Azure Functions output")
 
-		tempOutputDirectoryPath, err := s.SetupTempOutputDir(gengo.OutputModeAzureFunctions)
+		tempOutputDirectoryPath, err := s.SetupTempOutputDir(tempOutputDir)
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to create directory")
 			return err
@@ -77,7 +78,7 @@ func generate(directoryPath string) gengo.ServiceFunction {
 			}
 		}
 
-		err = s.MoveTempOutputDir(gengo.OutputModeAzureFunctions, directoryPath)
+		err = s.MoveTempOutputDir(tempOutputDir, directoryPath)
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Failed to move temporary output directory to final location")
 			return err
