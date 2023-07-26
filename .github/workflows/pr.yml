@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        manifest: ${{ fromJson(steps.example-directories.outputs.directories) }}
+        manifest: ${{ fromJson(needs.example-directories.outputs.directories) }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
