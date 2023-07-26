@@ -12,11 +12,11 @@ import (
 	"strings"
 )
 
-// generate the OpenAPI output
+// Generate the OpenAPI output
 // It will marshal the OpenAPI struct and write it to a file
 // It will also generate the paths and their operations
 // It will also generate the components and their schemas
-func generate(filePath string) gengo.ServiceFunction {
+func Generate(filePath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Debug().Msg("Generating OpenAPI output")
 		if s.Config == nil {

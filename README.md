@@ -44,8 +44,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 )
 
 func main() {
@@ -62,8 +62,8 @@ func main() {
 			"status": "ok",
 		})
 	})
-	
-	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.yaml"))
+
+	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
 	// For OpenAPI to work, we need to define a configuration, which contains the title, version and description amongst other important information
 	config := gengo.Config{
@@ -87,7 +87,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = r.Run(":8000")
 	if err != nil {
 		panic(err)

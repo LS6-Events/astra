@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 	"regexp"
 )
 
@@ -25,7 +25,7 @@ func main() {
 
 	r.Static("/swaggerui", "./swaggerui")
 
-	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("./swaggerui/swagger.json"), gengo.WithPathBlacklistRegex(regexp.MustCompile("^/swaggerui.*")))
+	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./swaggerui/swagger.json"), gengo.WithPathDenyListRegex(regexp.MustCompile("^/swaggerui.*")))
 
 	config := gengo.Config{
 		Title:   "Example API",
