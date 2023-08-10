@@ -21,8 +21,10 @@ func ExtractParamsFromPath(path string) []gengo.Param {
 		params := paramRegex.FindAllString(path, -1)
 		for _, param := range params {
 			resultParams = append(resultParams, gengo.Param{
-				Name:       param[1:],
-				Type:       "string",
+				Name: param[1:],
+				Field: gengo.Field{
+					Type: "string",
+				},
 				IsRequired: param[0] == ':',
 			})
 		}

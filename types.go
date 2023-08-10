@@ -29,8 +29,7 @@ type ReturnType struct {
 // It also contains an IsBound field, which is used to denote whether the param is a struct reference
 type Param struct {
 	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
-	Type       string `json:"type,omitempty" yaml:"type,omitempty"`
-	Package    string `json:"package,omitempty" yaml:"package,omitempty"`
+	Field      Field  `json:"type,omitempty" yaml:"type,omitempty"`
 	IsRequired bool   `json:"isRequired,omitempty" yaml:"isRequired,omitempty"`
 	IsArray    bool   `json:"isArray,omitempty" yaml:"isArray,omitempty"`
 	IsMap      bool   `json:"isMap,omitempty" yaml:"isMap,omitempty"`

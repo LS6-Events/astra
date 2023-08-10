@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/ls6-events/gengo"
 	"github.com/ls6-events/gengo/utils"
-	"github.com/ls6-events/gengo/utils/astUtils"
+	"github.com/ls6-events/gengo/utils/astUtils/astTraversal"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -23,17 +23,33 @@ func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 
 	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", baseRoute.File).Logger()
 
-	pkgPath := strings.Split(baseRoute.Handler, "/")
-	names := strings.Split(pkgPath[len(pkgPath)-1], ".")
+	traverser := astTraversal.New(s.WorkDir).SetLog(&log)
 
-	if len(names) < 2 {
+	traverser.Packages.AddPathLoader(func(path string) (string, error) {
+		if path == "main" {
+			return s.GetMainPackageName()
+		}
+		return path, nil
+	})
+
+	splitHandler := strings.Split(baseRoute.Handler, ".")
+
+	pkgPath := splitHandler[0]
+	pkgParts := strings.Split(pkgPath, "/")
+	pkgName := pkgParts[len(pkgParts)-1]
+
+	funcParts := splitHandler[1:]
+
+	if len(funcParts) < 1 {
 		err := fmt.Errorf("invalid handler name for file: %s", baseRoute.Handler)
 		log.Error().Err(err).Msg("Failed to parse handler name")
 		return err
 	}
 
-	pkgName := names[0]
-	funcName := names[1]
+	funcName := funcParts[0]
+
+	pkgNode := traverser.Packages.AddPackage(pkgPath)
+
 	log.Debug().Str("pkgName", pkgName).Str("funcName", funcName).Msg("Found handler name")
 
 	log.Debug().Msg("Parsing file")
@@ -43,6 +59,14 @@ func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 		log.Error().Err(err).Msg("Failed to parse file")
 		return err
 	}
+
+	fileNode, err := traverser.ASTFileToNode(node, pkgNode)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to convert file to node")
+		return err
+	}
+
+	traverser.SetActiveFile(fileNode)
 
 	baseRoute.PathParams = utils.ExtractParamsFromPath(baseRoute.Path)
 	if len(baseRoute.PathParams) > 0 {
@@ -72,7 +96,7 @@ func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 						if baseRoute.LineNo == inlineStartPos.Line {
 							log.Debug().Str("funcName", funcName).Msg("Found inline handler function")
 
-							err = parseFunction(s, log, baseRoute, funcLit, node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+							err = parseFunction(traverser, s, baseRoute, funcLit, 0)
 							if err != nil {
 								log.Error().Err(err).Msg("Failed to parse inline function")
 								return false
@@ -90,7 +114,7 @@ func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
 				return false
 			}
 
-			err = parseFunction(s, log, baseRoute, astUtils.FuncDeclToFuncLit(funcDecl), node.Imports, pkgName, strings.Join(pkgPath[:len(pkgPath)-1], "/"), 0)
+			err = parseFunction(traverser, s, baseRoute, funcDecl, 0)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to parse function")
 				return false

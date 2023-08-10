@@ -1,4 +1,4 @@
-package astUtils
+package astTraversal
 
 import (
 	"fmt"
