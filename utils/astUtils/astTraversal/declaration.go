@@ -6,15 +6,17 @@ import (
 )
 
 type DeclarationTraverser struct {
-	Traverser *Traverser
+	Traverser *BaseTraverser
 	Decl      ast.Node
+	File      *FileNode
 	VarName   string
 }
 
-func (t *Traverser) Declaration(node ast.Node, varName string) (*DeclarationTraverser, error) {
+func (t *BaseTraverser) Declaration(node ast.Node, varName string) (*DeclarationTraverser, error) {
 	return &DeclarationTraverser{
 		Traverser: t,
 		Decl:      node,
+		File:      t.ActiveFile(),
 		VarName:   varName, // The name of the variable on the LHS of the arrangement
 	}, nil
 }
@@ -69,7 +71,7 @@ func (dt *DeclarationTraverser) Result(varName string) (Result, error) {
 		if specIndex != -1 && nameIndex != -1 {
 			valueSpec := decl.Specs[specIndex].(*ast.ValueSpec)
 
-			result, err := dt.ValueSpecResult(valueSpec)
+			result, err := dt.ValueSpecResult(valueSpec, nameIndex)
 			if err != nil {
 				return Result{}, err
 			}
@@ -93,13 +95,28 @@ func (dt *DeclarationTraverser) Result(varName string) (Result, error) {
 			return Result{}, errors.New("cannot find declaration line for gendecl")
 		}
 	case *ast.ValueSpec:
+		nameIndex := 0 // Default value of 0 for single value spec
+		for i, name := range decl.Names {
+			if name.Name == dt.VarName {
+				nameIndex = i
+				break
+			}
+		}
 		// TODO Figure out way to trace value spec back to Gen Decl AST - ident.Obj.Decl gives you a value spec
-		return dt.ValueSpecResult(decl)
+		return dt.ValueSpecResult(decl, nameIndex)
 	default:
 		return Result{}, errors.New("unsupported declaration type")
 	}
 }
 
-func (dt *DeclarationTraverser) ValueSpecResult(valueSpec *ast.ValueSpec) (Result, error) {
+func (dt *DeclarationTraverser) ValueSpecResult(valueSpec *ast.ValueSpec, nameIndex int) (Result, error) {
+	if valueSpec.Type == nil { // Type inference
+		lt, err := dt.Traverser.Literal(valueSpec.Values[nameIndex], -1)
+		if err != nil {
+			return Result{}, err
+		}
+
+		return lt.Result()
+	}
 	return dt.Traverser.Expression(valueSpec.Type).Result()
 }

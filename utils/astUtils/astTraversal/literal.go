@@ -5,12 +5,12 @@ import (
 )
 
 type LiteralTraverser struct {
-	Traverser *Traverser
+	Traverser *BaseTraverser
 	Node      ast.Node
 	ReturnNum int
 }
 
-func (t *Traverser) Literal(node ast.Node, returnNum int) (*LiteralTraverser, error) {
+func (t *BaseTraverser) Literal(node ast.Node, returnNum int) (*LiteralTraverser, error) {
 	return &LiteralTraverser{
 		Traverser: t,
 		Node:      node,

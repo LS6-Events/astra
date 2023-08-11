@@ -16,7 +16,7 @@ import (
 // And the package name and path are used to determine the package of the currently analysed function
 // The currRoute reference is used to manipulate the current route being analysed
 // The imports are used to determine the package of the context variable
-func parseFunction(traverser *astTraversal.Traverser, s *gengo.Service, currRoute *gengo.Route, node ast.Node, level int) error {
+func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, currRoute *gengo.Route, node ast.Node, level int) error {
 	// Get the variable name of the context parameter
 	funcExpr, err := traverser.Function(node)
 	if err != nil {
@@ -326,7 +326,7 @@ func parseFunction(traverser *astTraversal.Traverser, s *gengo.Service, currRout
 	return nil
 }
 
-func extractSingleRequestParam(traverser *astTraversal.Traverser, s *gengo.Service, node ast.Node, baseParam gengo.Param) (gengo.Param, error) {
+func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, s *gengo.Service, node ast.Node, baseParam gengo.Param) (gengo.Param, error) {
 	expr := traverser.Expression(node)
 	result, err := expr.Result()
 	if err != nil {
@@ -358,7 +358,7 @@ func extractSingleRequestParam(traverser *astTraversal.Traverser, s *gengo.Servi
 	}, nil
 }
 
-func extractBoundRequestParam(traverser *astTraversal.Traverser, s *gengo.Service, node ast.Node) (gengo.Param, error) {
+func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, s *gengo.Service, node ast.Node) (gengo.Param, error) {
 	expr := traverser.Expression(node)
 	result, err := expr.Result()
 	if err != nil {

@@ -5,11 +5,12 @@ import (
 )
 
 type CallExpressionTraverser struct {
-	Traverser *Traverser
+	Traverser *BaseTraverser
 	Node      *ast.CallExpr
+	File      *FileNode
 }
 
-func (t *Traverser) CallExpression(node ast.Node) (*CallExpressionTraverser, error) {
+func (t *BaseTraverser) CallExpression(node ast.Node) (*CallExpressionTraverser, error) {
 	callExpr, ok := node.(*ast.CallExpr)
 	if !ok {
 		return nil, ErrInvalidNodeType
@@ -18,6 +19,7 @@ func (t *Traverser) CallExpression(node ast.Node) (*CallExpressionTraverser, err
 	return &CallExpressionTraverser{
 		Traverser: t,
 		Node:      callExpr,
+		File:      t.ActiveFile(),
 	}, nil
 }
 
@@ -42,7 +44,7 @@ func (c *CallExpressionTraverser) IsExternal() bool {
 		return false
 	}
 
-	return c.Traverser.ActiveFile().IsImportedPackage(ident.Name)
+	return c.File.IsImportedPackage(ident.Name)
 }
 
 func (c *CallExpressionTraverser) Function() (*FunctionTraverser, error) {
@@ -65,6 +67,10 @@ func (c *CallExpressionTraverser) ReturnResult(returnNum int) (Result, error) {
 		return Result{}, err
 	}
 
+	if len(function.Results()) <= returnNum {
+		return Result{}, ErrInvalidIndex
+	}
+
 	resultType := function.Results()[returnNum]
 
 	result, err := c.Traverser.Expression(resultType.Type).Result()
@@ -73,6 +79,9 @@ func (c *CallExpressionTraverser) ReturnResult(returnNum int) (Result, error) {
 }
 
 func (c *CallExpressionTraverser) ArgResult(argNum int) (Result, error) {
+	if len(c.Node.Args) <= argNum {
+		return Result{}, ErrInvalidIndex
+	}
 	arg := c.Node.Args[argNum]
 
 	result, err := c.Traverser.Expression(arg).Result()

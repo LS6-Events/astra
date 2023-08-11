@@ -22,6 +22,21 @@ func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 		return nil, err
 	}
 
+	for _, pkg := range pkgs {
+		for _, pkgErr := range pkg.Errors {
+			switch pkgErr.Kind {
+			case packages.ListError:
+				return nil, fmt.Errorf("package %s has list errors", pkgPath)
+			case packages.TypeError:
+				return nil, fmt.Errorf("package %s has type errors", pkgPath)
+			case packages.ParseError:
+				return nil, fmt.Errorf("package %s has parse errors", pkgPath)
+			case packages.UnknownError:
+				return nil, fmt.Errorf("package %s has unknown errors", pkgPath)
+			}
+		}
+	}
+
 	if len(pkgs) == 0 {
 		return nil, fmt.Errorf("package %s not found", pkgPath)
 	}

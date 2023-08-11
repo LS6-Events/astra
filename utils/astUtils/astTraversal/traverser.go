@@ -6,40 +6,40 @@ import (
 	"go/ast"
 )
 
-type Traverser struct {
+type BaseTraverser struct {
 	baseActiveFile *FileNode
 	activeFile     *FileNode
 	Log            *zerolog.Logger
 	Packages       *PackageManager
 }
 
-func New(workDir string) *Traverser {
+func New(workDir string) *BaseTraverser {
 	packages := NewPackageManager(workDir)
-	return &Traverser{
+	return &BaseTraverser{
 		Packages: packages,
 	}
 }
 
-func (t *Traverser) SetLog(log *zerolog.Logger) *Traverser {
+func (t *BaseTraverser) SetLog(log *zerolog.Logger) *BaseTraverser {
 	t.Log = log
 	return t
 }
 
-func (t *Traverser) ActiveFile() *FileNode {
+func (t *BaseTraverser) ActiveFile() *FileNode {
 	return t.activeFile
 }
 
-func (t *Traverser) SetActiveFile(file *FileNode) *Traverser {
+func (t *BaseTraverser) SetActiveFile(file *FileNode) *BaseTraverser {
 	t.baseActiveFile = file
 	t.activeFile = file
 	return t
 }
 
-func (t *Traverser) Reset() {
+func (t *BaseTraverser) Reset() {
 	t.activeFile = t.baseActiveFile
 }
 
-func (t *Traverser) ExtractVarName(node ast.Node) Result {
+func (t *BaseTraverser) ExtractVarName(node ast.Node) Result {
 	packageNode := t.ActiveFile().Package
 
 	switch nodeType := node.(type) {
@@ -56,17 +56,17 @@ func (t *Traverser) ExtractVarName(node ast.Node) Result {
 			switch n := nodeType.X.(type) {
 			case *ast.Ident:
 				name := n.Name
-				fileImport, ok := t.ActiveFile().FindImport(name)
+				fileImport, ok := t.ActiveFile().FindImport(name) // We don't change the active file here
 				if ok {
 					packageNode = fileImport.Package
 				} else {
-					names = append(names, name)
+					names = append([]string{name}, names...)
 				}
 
 				return Result{
 					Package:     packageNode,
-					Type:        names[0],
-					StructNames: names[1:],
+					Type:        names[len(names)-1],
+					StructNames: names[:len(names)-1],
 				}
 			case *ast.SelectorExpr:
 				isSelectorExpr = true
@@ -81,7 +81,7 @@ func (t *Traverser) ExtractVarName(node ast.Node) Result {
 	return Result{}
 }
 
-func (t *Traverser) FindDeclarationForNode(node ast.Node) (*DeclarationTraverser, error) {
+func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTraverser, error) {
 	switch nodeType := node.(type) {
 	case *ast.UnaryExpr:
 		return t.FindDeclarationForNode(nodeType.X)

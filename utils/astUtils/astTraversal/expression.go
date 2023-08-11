@@ -7,15 +7,17 @@ import (
 )
 
 type ExpressionTraverser struct {
-	Traverser *Traverser
+	Traverser *BaseTraverser
 	Node      ast.Expr
+	File      *FileNode
 	ReturnNum int
 }
 
-func (t *Traverser) Expression(node ast.Node) *ExpressionTraverser {
+func (t *BaseTraverser) Expression(node ast.Node) *ExpressionTraverser {
 	return &ExpressionTraverser{
 		Traverser: t,
 		Node:      node.(ast.Expr),
+		File:      t.ActiveFile(),
 		ReturnNum: 0,
 	}
 }
@@ -93,11 +95,17 @@ func (e *ExpressionTraverser) Result() (Result, error) {
 	case *ast.CompositeLit:
 		return e.Traverser.Expression(n.Type).Result()
 	case *ast.BasicLit:
-		return Result{
+		result := Result{
 			Type:          strings.ToLower(n.Kind.String()),
-			Package:       e.Traverser.ActiveFile().Package,
+			Package:       e.File.Package,
 			ConstantValue: n.Value,
-		}, nil
+		}
+
+		if result.Type == "string" {
+			result.ConstantValue = strings.Trim(result.ConstantValue, "\"")
+		}
+
+		return result, nil
 	case *ast.CallExpr:
 		result, err := e.ReservedFunctions(n)
 		if err != nil {

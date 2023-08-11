@@ -1,17 +1,17 @@
 package astTraversal
 
 import (
-	"errors"
 	"github.com/ls6-events/gengo/utils/astUtils"
 	"go/ast"
 )
 
 type FunctionTraverser struct {
-	Traverser *Traverser
+	Traverser *BaseTraverser
 	Node      *ast.FuncLit
+	File      *FileNode
 }
 
-func (t *Traverser) Function(node ast.Node) (*FunctionTraverser, error) {
+func (t *BaseTraverser) Function(node ast.Node) (*FunctionTraverser, error) {
 	var funcLit *ast.FuncLit
 	switch n := node.(type) {
 	case *ast.FuncLit:
@@ -25,6 +25,7 @@ func (t *Traverser) Function(node ast.Node) (*FunctionTraverser, error) {
 	return &FunctionTraverser{
 		Traverser: t,
 		Node:      funcLit,
+		File:      t.ActiveFile(),
 	}, nil
 }
 
@@ -45,7 +46,7 @@ func (f *FunctionTraverser) Results() []*ast.Field {
 func (f *FunctionTraverser) FindArgumentNameByType(typeName string, packagePath string, isPointer bool) string {
 	var packageIdentifier string
 	if packagePath != "" {
-		for _, im := range f.Traverser.ActiveFile().Imports {
+		for _, im := range f.File.Imports {
 			if im.Package.Path() == packagePath {
 				if im.Name == "" {
 					packageIdentifier = im.Package.Name
@@ -129,7 +130,7 @@ func (f *FunctionTraverser) ReturnTypeResult(varNum int) (Result, error) {
 	results := f.Results()
 
 	if len(results) < varNum+1 {
-		return Result{}, errors.New("too few return variables")
+		return Result{}, ErrInvalidIndex
 	}
 
 	result, err := f.Traverser.Expression(results[varNum].Type).Result()

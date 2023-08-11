@@ -29,7 +29,7 @@ func (f *FileNode) FindImport(ident string) (FileImport, bool) {
 	return FileImport{}, false
 }
 
-func (t *Traverser) ASTFileToNode(file *ast.File, packageNode *PackageNode) (*FileNode, error) {
+func (t *BaseTraverser) ASTFileToNode(file *ast.File, packageNode *PackageNode) (*FileNode, error) {
 	pkg, err := t.Packages.Get(packageNode)
 	if err != nil {
 		return nil, err
