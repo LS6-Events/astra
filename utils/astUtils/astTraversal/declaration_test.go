@@ -11,8 +11,7 @@ func setupTestDeclarationTraverser() (*BaseTraverser, error) {
 }
 
 func TestTraverser_Declaration(t *testing.T) {
-	var node ast.Node
-	node = &ast.GenDecl{}
+	var node ast.Node = &ast.GenDecl{}
 
 	traverser, err := setupTestDeclarationTraverser()
 	assert.NoError(t, err)

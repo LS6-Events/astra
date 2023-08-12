@@ -12,6 +12,7 @@ func NoArgs() {
 	fmt.Println("Function with no arguments.")
 }
 
+// nolint:unused
 func callExpr() {
 	// Direct function calls
 	fmt.Println("Hello, World!")

@@ -74,6 +74,9 @@ func (c *CallExpressionTraverser) ReturnResult(returnNum int) (Result, error) {
 	resultType := function.Results()[returnNum]
 
 	result, err := c.Traverser.Expression(resultType.Type).Result()
+	if err != nil {
+		return Result{}, err
+	}
 
 	return result, nil
 }

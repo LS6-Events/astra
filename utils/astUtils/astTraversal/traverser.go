@@ -49,10 +49,8 @@ func (t *BaseTraverser) ExtractVarName(node ast.Node) Result {
 			Package: packageNode,
 		}
 	case *ast.SelectorExpr:
-		isSelectorExpr := true
 		names := []string{nodeType.Sel.Name}
-		for isSelectorExpr {
-			isSelectorExpr = false
+		for {
 			switch n := nodeType.X.(type) {
 			case *ast.Ident:
 				name := n.Name
@@ -69,7 +67,6 @@ func (t *BaseTraverser) ExtractVarName(node ast.Node) Result {
 					StructNames: names[:len(names)-1],
 				}
 			case *ast.SelectorExpr:
-				isSelectorExpr = true
 				names = append([]string{n.Sel.Name}, names...)
 				nodeType = n
 			default:
@@ -95,6 +92,9 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 			}
 
 			newNode, file, err := t.ActiveFile().Package.FindASTForType(nodeType.Name)
+			if err != nil {
+				return nil, err
+			}
 			t.activeFile = file
 
 			return t.Declaration(newNode, nodeType.Name)
@@ -108,6 +108,9 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 			}
 
 			newNode, file, err := fileImport.Package.FindASTForType(nodeType.Sel.Name)
+			if err != nil {
+				return nil, err
+			}
 			t.activeFile = file
 
 			return t.Declaration(newNode, nodeType.Sel.Name)

@@ -116,6 +116,9 @@ func (e *ExpressionTraverser) Result() (Result, error) {
 		}
 
 		callExpr, err := e.Traverser.CallExpression(n)
+		if err != nil {
+			return Result{}, err
+		}
 
 		return callExpr.ReturnResult(e.ReturnNum)
 	default:
