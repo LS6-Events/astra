@@ -28,7 +28,7 @@ func createTraverserFromTestFile(testFilePath string) (*BaseTraverser, error) {
 		return nil, err
 	}
 
-	traverser := New(relativeTestFilePath)
+	traverser := New(wd)
 
 	packagePath := "github.com/ls6-events/gengo/" + relativeTestFilePath
 
