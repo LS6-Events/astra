@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/cli"
 	"github.com/ls6-events/gengo/inputs"
 	"github.com/ls6-events/gengo/outputs"
 )
@@ -23,10 +22,14 @@ func main() {
 		})
 	})
 
-	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
+	gen := gengo.New(
+		inputs.WithGinInput(r),
+		outputs.WithOpenAPIOutput("openapi.generated.yaml"),
+		outputs.WithAzureFunctionsOutput("bindings"),
+	)
 
 	config := gengo.Config{
-		Title:   "Example API with Cache",
+		Title:   "Example API",
 		Version: "1.0.0",
 		Host:    "localhost",
 		Port:    8000,
@@ -34,7 +37,7 @@ func main() {
 
 	gen.SetConfig(&config)
 
-	err := gen.SetupParse() // NOTE: This is SetupParse instead of Parse
+	err := gen.Parse()
 	if err != nil {
 		panic(err)
 	}

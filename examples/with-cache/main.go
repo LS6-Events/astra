@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
 	"github.com/ls6-events/gengo/cache"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 	// Normally, you would use the following option to add the cache to the generated code:
 	// gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCache())
 	// However, the folder by default is git ignored, so we will use the following option instead:
-	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCustomCachePath("cache.json"))
+	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCustomCachePath("cache.json"))
 
 	config := gengo.Config{
 		Title:   "Example API with Cache",

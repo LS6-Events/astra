@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/gengo"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/gengo/inputs"
+	"github.com/ls6-events/gengo/outputs"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 		})
 	})
 
-	gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"))
+	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
 	config := gengo.Config{
 		Title:   "Example API",

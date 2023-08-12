@@ -17,7 +17,7 @@ type JSONOutput struct {
 
 // generate the JSON output
 // It will marshal the JSONOutput struct and write it to a file
-func generate(filePath string) gengo.ServiceFunction {
+func Generate(filePath string) gengo.ServiceFunction {
 	return func(s *gengo.Service) error {
 		s.Log.Info().Msg("Generating JSON output")
 		output := JSONOutput{

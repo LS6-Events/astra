@@ -8,7 +8,3 @@ type Input struct {
 }
 
 type InputMode string
-
-const (
-	InputModeGin InputMode = "gin" // github.com/gin-gonic/gin web framework
-)
