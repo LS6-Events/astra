@@ -34,7 +34,7 @@ func (t *BaseTraverser) ASTFileToNode(file *ast.File, packageNode *PackageNode) 
 	if err != nil {
 		return nil, err
 	}
-	pos := pkg.Fset.Position(file.FileStart)
+	pos := pkg.Fset.Position(file.Pos())
 
 	imports := t.Packages.MapImportSpecs(file.Imports)
 
