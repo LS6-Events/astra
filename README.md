@@ -17,6 +17,10 @@ For example, if you had a Go backend that used the [Gin](https://www.github.com/
 * Adapt to different coding styles
 * Read the entirety of the `main` package (by extracting to a temporary directory `$GOPATH/.gengo/gengomain`) to extract types
 * Support for different input and output formats
+* Support for CLI (CI/CD)
+* Support for denying functions from being parsed
+* Support for custom logging
+* Support for custom status codes _they must be defined as constants/only defined once (`http.StatusX` is perfect, or `200`)_
 
 ## Supported Formats
 
@@ -132,10 +136,9 @@ We have methods to extract types from the following:
 There is more information in the [how it works documentation](./docs/how-it-works.md)
 
 ### Upcoming features
-* Allow custom status codes nested inside packages (here we only allow for preset constants (i.e. 200), or the `http.Status*` constants)
 * Extract types from other web frameworks as inputs (e.g. [Echo](https://github.com/labstack/echo), [Fiber](https://github.com/gofiber/fiber), etc.)
 * Add support for more output formats (e.g. TypeScript interfaces/classes etc.)
-* Add unit tests and more documentation
+* Add more unit tests and more documentation
 * Test more edge cases (please report any issues you find!)
 
 ## Issue Reporting

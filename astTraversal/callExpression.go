@@ -24,26 +24,6 @@ func (t *BaseTraverser) CallExpression(node ast.Node) (*CallExpressionTraverser,
 	}, nil
 }
 
-func (c *CallExpressionTraverser) FuncName() string {
-	result := c.Traverser.ExtractVarName(c.Node.Fun)
-
-	return result.Type
-}
-
-func (c *CallExpressionTraverser) IsExternal() bool {
-	node, ok := c.Node.Fun.(*ast.SelectorExpr)
-	if !ok {
-		return false
-	}
-
-	ident, ok := node.X.(*ast.Ident)
-	if !ok {
-		return false
-	}
-
-	return c.File.IsImportedPackage(ident.Name)
-}
-
 func (c *CallExpressionTraverser) Function() (*FunctionTraverser, error) {
 	decl, err := c.Traverser.FindDeclarationForNode(c.Node.Fun)
 	if err != nil {

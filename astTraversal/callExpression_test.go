@@ -48,31 +48,6 @@ func TestTraverser_CallExpression(t *testing.T) {
 	assert.Nil(t, callExpression)
 }
 
-func TestCallExpressionTraverser_FuncName(t *testing.T) {
-	function, traverser, err := setupTestCallExpressionTraverser()
-	assert.NoError(t, err)
-
-	callExpression, err := traverser.CallExpression(function.Body.List[0].(*ast.ExprStmt).X)
-	assert.NoError(t, err)
-
-	assert.Equal(t, "Println", callExpression.FuncName())
-}
-
-func TestCallExpressionTraverser_IsExternal(t *testing.T) {
-	function, traverser, err := setupTestCallExpressionTraverser()
-	assert.NoError(t, err)
-
-	callExpression, err := traverser.CallExpression(function.Body.List[0].(*ast.ExprStmt).X)
-	assert.NoError(t, err)
-
-	assert.True(t, callExpression.IsExternal())
-
-	callExpression, err = traverser.CallExpression(function.Body.List[3].(*ast.ExprStmt).X)
-	assert.NoError(t, err)
-
-	assert.False(t, callExpression.IsExternal())
-}
-
 func TestCallExpressionTraverser_Function(t *testing.T) {
 	function, traverser, err := setupTestCallExpressionTraverser()
 	assert.NoError(t, err)
