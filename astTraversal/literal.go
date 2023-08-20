@@ -2,6 +2,7 @@ package astTraversal
 
 import (
 	"go/ast"
+	"go/types"
 )
 
 type LiteralTraverser struct {
@@ -18,6 +19,6 @@ func (t *BaseTraverser) Literal(node ast.Node, returnNum int) (*LiteralTraverser
 	}, nil
 }
 
-func (lt *LiteralTraverser) Result() (Result, error) {
-	return lt.Traverser.Expression(lt.Node).SetReturnNum(lt.ReturnNum).Result()
+func (lt *LiteralTraverser) Type() (types.Type, error) {
+	return lt.Traverser.Expression(lt.Node).SetReturnNum(lt.ReturnNum).Type()
 }

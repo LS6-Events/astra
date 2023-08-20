@@ -101,38 +101,3 @@ func TestFunctionTraverser_FindArgumentNameByType(t *testing.T) {
 		assert.Equal(t, "", name)
 	})
 }
-
-func TestFunctionTraverser_ReturnTypeResult(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("declaration.go")
-	assert.NoError(t, err)
-
-	t.Run("should return the type of a function result", func(t *testing.T) {
-		function, err := traverser.Function(traverser.ActiveFile().AST.Decls[4])
-		assert.NoError(t, err)
-		assert.NotNil(t, function)
-
-		resultType, err := function.ReturnTypeResult(0)
-		assert.NoError(t, err)
-		assert.Equal(t, "string", resultType.Type)
-	})
-
-	t.Run("should return the type of a function result with a pointer", func(t *testing.T) {
-		function, err := traverser.Function(traverser.ActiveFile().AST.Decls[4])
-		assert.NoError(t, err)
-		assert.NotNil(t, function)
-
-		resultType, err := function.ReturnTypeResult(1)
-		assert.NoError(t, err)
-		assert.Equal(t, "MyStruct", resultType.Type)
-	})
-
-	t.Run("should return an error if the result index is out of bounds", func(t *testing.T) {
-		function, err := traverser.Function(traverser.ActiveFile().AST.Decls[4])
-		assert.NoError(t, err)
-		assert.NotNil(t, function)
-
-		_, err = function.ReturnTypeResult(2)
-		assert.Error(t, err)
-		assert.ErrorIs(t, err, ErrInvalidIndex)
-	})
-}

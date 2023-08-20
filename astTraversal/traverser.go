@@ -7,10 +7,12 @@ import (
 )
 
 type BaseTraverser struct {
-	baseActiveFile *FileNode
-	activeFile     *FileNode
-	Log            *zerolog.Logger
-	Packages       *PackageManager
+	baseActiveFile     *FileNode
+	activeFile         *FileNode
+	Log                *zerolog.Logger
+	Packages           *PackageManager
+	shouldAddComponent bool
+	addComponent       func(result Result) error
 }
 
 func New(workDir string) *BaseTraverser {
@@ -62,9 +64,9 @@ func (t *BaseTraverser) ExtractVarName(node ast.Node) Result {
 				}
 
 				return Result{
-					Package:     packageNode,
-					Type:        names[len(names)-1],
-					StructNames: names[:len(names)-1],
+					Package: packageNode,
+					Type:    names[len(names)-1],
+					Names:   names[:len(names)-1],
 				}
 			case *ast.SelectorExpr:
 				names = append([]string{n.Sel.Name}, names...)
@@ -121,4 +123,10 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 	}
 
 	return nil, errors.New("unsupported type")
+}
+
+func (t *BaseTraverser) SetAddComponentFunction(addComponent func(result Result) error) *BaseTraverser {
+	t.addComponent = addComponent
+	t.shouldAddComponent = true
+	return t
 }

@@ -3,11 +3,19 @@ package gin
 import (
 	"errors"
 	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/gengo/astTraversal"
 	"github.com/ls6-events/gengo/utils"
-	"github.com/ls6-events/gengo/utils/astUtils"
-	"github.com/ls6-events/gengo/utils/astUtils/astTraversal"
 	"go/ast"
-	"strings"
+	"go/types"
+)
+
+const (
+	// GinPackagePath is the import path of the gin package
+	GinPackagePath = "github.com/gin-gonic/gin"
+	// GinContextType is the type of the context variable
+	GinContextType = "Context"
+	// GinContextIsPointer is whether the context variable is a pointer for the handler functions
+	GinContextIsPointer = true
 )
 
 // parseFunction parses a function and adds it to the service
@@ -16,20 +24,23 @@ import (
 // And the package name and path are used to determine the package of the currently analysed function
 // The currRoute reference is used to manipulate the current route being analysed
 // The imports are used to determine the package of the context variable
-func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, currRoute *gengo.Route, node ast.Node, level int) error {
-	// Get the variable name of the context parameter
-	funcExpr, err := traverser.Function(node)
-	if err != nil {
-		return err
-	}
+func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *gengo.Route, activeFile *astTraversal.FileNode, level int) error {
+	traverser := funcTraverser.Traverser
 
-	ctxName := funcExpr.FindArgumentNameByType("Context", "github.com/gin-gonic/gin", true)
+	traverser.SetActiveFile(activeFile)
+	traverser.SetAddComponentFunction(addComponent(s))
+
+	ctxName := funcTraverser.FindArgumentNameByType(GinContextType, GinPackagePath, GinContextIsPointer)
 	if ctxName == "" {
 		return errors.New("failed to find context variable name")
 	}
 
+	var err error
 	// Loop over every statement in the function
-	ast.Inspect(funcExpr.Node.Body, func(n ast.Node) bool {
+	ast.Inspect(funcTraverser.Node.Body, func(n ast.Node) bool {
+		if n == nil {
+			return true
+		}
 		// If a function is called
 		var callExpr *astTraversal.CallExpressionTraverser
 		callExpr, err = traverser.CallExpression(n)
@@ -40,11 +51,39 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 			return true
 		}
 
+		// If the function takes the context as any argument, traverse it
 		_, ok := callExpr.ArgIndex(ctxName)
-		if !ok {
-			result := callExpr.FuncResult()
-			if len(result.StructNames) > 0 && result.StructNames[0] == ctxName {
-				switch callExpr.FuncName() {
+		if ok {
+			var function *astTraversal.FunctionTraverser
+			function, err = callExpr.Function()
+			if err != nil {
+				traverser.Log.Error().Err(err).Msg("failed to get function")
+				return false
+			}
+
+			err = parseFunction(s, function, currRoute, function.Traverser.ActiveFile(), level+1)
+			if err != nil {
+				traverser.Log.Error().Err(err).Msg("error parsing function")
+				return false
+			}
+
+			traverser.SetActiveFile(activeFile)
+		} else {
+			var funcType *types.Func
+			funcType, err = callExpr.Type()
+			if err != nil {
+				return false
+			}
+
+			signature := funcType.Type().(*types.Signature)
+
+			signaturePath := GinPackagePath + "." + GinContextType
+			if GinContextIsPointer {
+				signaturePath = "*" + signaturePath
+			}
+
+			if signature.Recv() != nil && signature.Recv().Type().String() == signaturePath {
+				switch funcType.Name() {
 				case "JSON":
 					fallthrough
 				case "XML":
@@ -54,7 +93,7 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 				case "ProtoBuf":
 					fallthrough
 				case "Data":
-					switch callExpr.FuncName() {
+					switch funcType.Name() {
 					case "JSON":
 						currRoute.ContentType = "application/json"
 					case "XML":
@@ -67,50 +106,38 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					// Get the status code
 					var statusCode int
-					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args()[0])
+					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
 					if err != nil {
 						return true
 					}
 
 					argNo := 1
-					if callExpr.FuncName() == "Data" {
+					if funcType.Name() == "Data" {
 						argNo = 2
 					}
 
-					expr := traverser.Expression(callExpr.Args()[argNo])
-
-					result, err = expr.Result()
+					var exprType types.Type
+					exprType, err = traverser.Expression(callExpr.Args()[argNo]).Type()
 					if err != nil {
-						traverser.Log.Error().Err(err).Msg("failed to get result for expression")
+						traverser.Log.Error().Err(err).Msg("failed to get type for expression")
 						return false
 					}
-					if expr.DoesNeedTracing() {
-						var decl *astTraversal.DeclarationTraverser
-						decl, err = traverser.FindDeclarationForNode(expr.Node)
-						if err != nil {
-							return false
-						}
 
-						result, err = decl.Result(result.Type)
-						if err != nil {
-							traverser.Log.Error().Err(err).Msg("failed to get result for declaration")
-							return false
-						}
-					}
+					var result astTraversal.Result
+					result, err = traverser.Type(exprType, traverser.ActiveFile().Package).Result()
 
 					returnType := gengo.ReturnType{
 						StatusCode: statusCode,
-						Field:      parseResultToField(s, result),
+						Field:      parseResultToField(result),
 					}
 
 					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
 
-					return true
 				case "String": // c.String
 					currRoute.ContentType = "text/plain"
 
 					var statusCode int
-					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args()[0])
+					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -123,10 +150,9 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 					}
 					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
 
-					return true
 				case "Status": // c.Status
 					var statusCode int
-					statusCode, err = astUtils.ExtractStatusCode(callExpr.Args()[0])
+					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -139,25 +165,23 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 					}
 					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
 
-					return true
 				// Query Param methods
 				case "GetQuery":
 					fallthrough
 				case "Query":
 					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{})
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{})
 					if err != nil {
 						return false
 					}
 
 					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
-					return true
 				case "GetQueryArray":
 					fallthrough
 				case "QueryArray":
 					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
 						IsArray: true,
 					})
 					if err != nil {
@@ -166,12 +190,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
-					return true
 				case "GetQueryMap":
 					fallthrough
 				case "QueryMap":
 					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
 						IsMap: true,
 					})
 					if err != nil {
@@ -185,20 +208,19 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 					fallthrough
 				case "BindQuery":
 					var queryParam gengo.Param
-					queryParam, err = extractBoundRequestParam(traverser, s, callExpr.Args()[0])
+					queryParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
 
 					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
-					return true
 				// Body Param methods
 				case "ShouldBind":
 					fallthrough
 				case "Bind":
 					var bodyParam gengo.Param
-					bodyParam, err = extractBoundRequestParam(traverser, s, callExpr.Args()[0])
+					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -207,12 +229,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "ShouldBindJSON":
 					fallthrough
 				case "BindJSON":
 					var bodyParam gengo.Param
-					bodyParam, err = extractBoundRequestParam(traverser, s, callExpr.Args()[0])
+					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -221,12 +242,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "ShouldBindXML":
 					fallthrough
 				case "BindXML":
 					var bodyParam gengo.Param
-					bodyParam, err = extractBoundRequestParam(traverser, s, callExpr.Args()[0])
+					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -235,12 +255,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "ShouldBindYAML":
 					fallthrough
 				case "BindYAML":
 					var bodyParam gengo.Param
-					bodyParam, err = extractBoundRequestParam(traverser, s, callExpr.Args()[0])
+					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
 					}
@@ -249,12 +268,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
 					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{})
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{})
 					if err != nil {
 						return false
 					}
@@ -262,12 +280,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "GetPostFormArray":
 					fallthrough
 				case "PostFormArray":
 					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
 						IsArray: true,
 					})
 					if err != nil {
@@ -277,12 +294,11 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 					currRoute.Body = append(currRoute.Body, bodyParam)
 
-					return true
 				case "GetPostFormMap":
 					fallthrough
 				case "PostFormMap":
 					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, s, callExpr.Args()[0], gengo.Param{
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
 						IsMap: true,
 					})
 					if err != nil {
@@ -291,24 +307,7 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 
 					currRoute.BodyType = "application/x-www-form-urlencoded"
 					currRoute.Body = append(currRoute.Body, bodyParam)
-
-					return true
-				default:
-					return true
 				}
-			}
-		} else {
-			var function *astTraversal.FunctionTraverser
-			function, err = callExpr.Function()
-			if err != nil {
-				traverser.Log.Error().Err(err).Msg("failed to get function")
-				return false
-			}
-
-			err = parseFunction(traverser, s, currRoute, function.Node, level+1)
-			if err != nil {
-				traverser.Log.Error().Err(err).Msg("error parsing function")
-				return false
 			}
 		}
 
@@ -326,93 +325,96 @@ func parseFunction(traverser *astTraversal.BaseTraverser, s *gengo.Service, curr
 	return nil
 }
 
-func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, s *gengo.Service, node ast.Node, baseParam gengo.Param) (gengo.Param, error) {
+func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node, baseParam gengo.Param) (gengo.Param, error) {
 	expr := traverser.Expression(node)
-	result, err := expr.Result()
+
+	name, err := expr.Value()
 	if err != nil {
 		traverser.Log.Error().Err(err).Msg("failed to parse expression")
 		return gengo.Param{}, err
 	}
 
-	if expr.DoesNeedTracing() {
-		var decl *astTraversal.DeclarationTraverser
-		decl, err = traverser.FindDeclarationForNode(expr.Node)
-		if err != nil {
-			traverser.Log.Error().Err(err).Msg("failed to find declaration")
-			return gengo.Param{}, err
-		}
-
-		result, err = decl.Result(result.Type)
-		if err != nil {
-			traverser.Log.Error().Err(err).Msg("failed to get result for declaration")
-			return gengo.Param{}, err
-		}
+	exprType, err := expr.Type()
+	if err != nil {
+		traverser.Log.Error().Err(err).Msg("failed to parse expression type")
+		return gengo.Param{}, err
 	}
 
 	return gengo.Param{
-		Name:       strings.ReplaceAll(result.ConstantValue, "\"", ""),
-		Field:      parseResultToField(s, result),
+		Name: name,
+		Field: gengo.Field{
+			Type: exprType.String(),
+		},
 		IsArray:    baseParam.IsArray,
 		IsMap:      baseParam.IsMap,
 		IsRequired: baseParam.IsRequired,
 	}, nil
 }
 
-func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, s *gengo.Service, node ast.Node) (gengo.Param, error) {
-	expr := traverser.Expression(node)
-	result, err := expr.Result()
+func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node) (gengo.Param, error) {
+	exprType, err := traverser.Expression(node).Type()
 	if err != nil {
-		traverser.Log.Error().Err(err).Msg("failed to parse expression")
 		return gengo.Param{}, err
 	}
 
-	if expr.DoesNeedTracing() {
-		var decl *astTraversal.DeclarationTraverser
-		decl, err = traverser.FindDeclarationForNode(expr.Node)
-		if err != nil {
-			traverser.Log.Error().Err(err).Msg("failed to find declaration")
-			return gengo.Param{}, err
-		}
-
-		result, err = decl.Result(result.Type)
-		if err != nil {
-			traverser.Log.Error().Err(err).Msg("failed to get result for declaration")
-			return gengo.Param{}, err
-		}
-	}
+	result, err := traverser.Type(exprType, traverser.ActiveFile().Package).Result()
 
 	bodyParam := gengo.Param{
 		IsBound: true,
-		Field:   parseResultToField(s, result),
+		Field:   parseResultToField(result),
 	}
 
 	return bodyParam, nil
 }
 
-func parseResultToField(s *gengo.Service, result astTraversal.Result) gengo.Field {
+func parseResultToField(result astTraversal.Result) gengo.Field {
 	field := gengo.Field{
-		Type:      result.Type,
-		SliceType: result.SliceType,
-		MapKey:    result.MapKeyType,
-		MapValue:  result.MapValType,
+		Type:         result.Type,
+		Name:         result.Name,
+		IsRequired:   result.IsRequired,
+		IsEmbedded:   result.IsEmbedded,
+		SliceType:    result.SliceType,
+		ArrayType:    result.ArrayType,
+		ArrayLength:  result.ArrayLength,
+		MapKeyType:   result.MapKeyType,
+		MapValueType: result.MapValueType,
 	}
 
-	if !gengo.IsAcceptedType(result.Type) {
-		s.AddToBeProcessed(result.Package.Path(), result.Type)
+	// If the type is not a primitive type, we need to get the package path
+	// If the type is named, it is referring to a type
+	// If the slice type is populated and not a primitive type, we need to get the package path for the slice
+	// If the array type is populated and not a primitive type, we need to get the package path for the array
+	// If the map value type is populated and not a primitive type, we need to get the package path for the map value
+	if !gengo.IsAcceptedType(result.Type) || result.Name != "" ||
+		(result.SliceType != "" && !gengo.IsAcceptedType(result.SliceType)) ||
+		(result.ArrayType != "" && !gengo.IsAcceptedType(result.ArrayType)) ||
+		(result.MapValueType != "" && !gengo.IsAcceptedType(result.MapValueType)) {
 		field.Package = result.Package.Path()
 	}
-	if result.SliceType != "" && !gengo.IsAcceptedType(result.SliceType) {
-		s.AddToBeProcessed(result.Package.Path(), result.SliceType)
-		field.Package = result.Package.Path()
-	}
+
+	// If the map key type is populated and not a primitive type, we need to get the package path for the map key
 	if result.MapKeyType != "" && !gengo.IsAcceptedType(result.MapKeyType) {
-		s.AddToBeProcessed(result.MapKeyPackage.Path(), result.MapKeyType)
-		field.MapKeyPkg = result.MapKeyPackage.Path()
+		field.MapKeyPackage = result.MapKeyPackage.Path()
 	}
-	if result.MapValType != "" && !gengo.IsAcceptedType(result.MapValType) {
-		s.AddToBeProcessed(result.Package.Path(), result.MapValType)
-		field.Package = result.Package.Path()
+
+	// If the struct fields are populated, we need to parse them
+	if result.StructFields != nil {
+		field.StructFields = make(map[string]gengo.Field)
+		for name, value := range result.StructFields {
+			field.StructFields[name] = parseResultToField(value)
+		}
 	}
 
 	return field
+}
+
+func addComponent(s *gengo.Service) func(astTraversal.Result) error {
+	return func(result astTraversal.Result) error {
+		field := parseResultToField(result)
+
+		if field.Package != "" {
+			s.Components = utils.AddComponent(s.Components, field)
+		}
+		return nil
+	}
 }

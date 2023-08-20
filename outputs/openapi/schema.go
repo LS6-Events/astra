@@ -51,10 +51,10 @@ func mapFieldToSchema(field gengo.Field) Schema {
 			schema.Items = &itemSchema
 		} else if field.Type == "map" {
 			var additionalProperties Schema
-			if !gengo.IsAcceptedType(field.MapValue) {
-				additionalProperties.Ref = makeComponentRef(field.MapValue, field.Package)
+			if !gengo.IsAcceptedType(field.MapValueType) {
+				additionalProperties.Ref = makeComponentRef(field.MapValueType, field.Package)
 			} else {
-				additionalProperties = mapAcceptedType(field.MapValue)
+				additionalProperties = mapAcceptedType(field.MapValueType)
 			}
 			schema.AdditionalProperties = &additionalProperties
 		}

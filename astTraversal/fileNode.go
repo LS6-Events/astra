@@ -28,24 +28,3 @@ func (f *FileNode) FindImport(ident string) (FileImport, bool) {
 
 	return FileImport{}, false
 }
-
-func (t *BaseTraverser) ASTFileToNode(file *ast.File, packageNode *PackageNode) (*FileNode, error) {
-	pkg, err := t.Packages.Get(packageNode)
-	if err != nil {
-		return nil, err
-	}
-	pos := pkg.Fset.Position(file.Pos())
-
-	imports := t.Packages.MapImportSpecs(file.Imports)
-
-	node := &FileNode{
-		Package:  packageNode,
-		FileName: pos.Filename,
-		Imports:  imports,
-		AST:      file,
-	}
-
-	packageNode.AddFile(node)
-
-	return node, nil
-}

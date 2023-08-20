@@ -60,9 +60,12 @@ type Field struct {
 
 	SliceType string `json:"sliceType,omitempty" yaml:"sliceType,omitempty"`
 
-	MapKeyPkg string `json:"mapKeyPkg,omitempty" yaml:"mapKeyPkg,omitempty"`
-	MapKey    string `json:"mapKey,omitempty" yaml:"mapKey,omitempty"`
-	MapValue  string `json:"mapValue,omitempty" yaml:"mapValue,omitempty"`
+	ArrayType   string `json:"arrayType,omitempty" yaml:"arrayType,omitempty"`
+	ArrayLength int64  `json:"arrayLength,omitempty" yaml:"arrayLength,omitempty"`
+
+	MapKeyPackage string `json:"mapKeyPackage,omitempty" yaml:"mapKeyPackage,omitempty"`
+	MapKeyType    string `json:"mapKeyType,omitempty" yaml:"mapKeyType,omitempty"`
+	MapValueType  string `json:"mapValueType,omitempty" yaml:"mapValueType,omitempty"`
 
 	StructFields map[string]Field `json:"structFields,omitempty" yaml:"structFields,omitempty"`
 }

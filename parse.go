@@ -62,12 +62,6 @@ func (s *Service) CompleteParse() error {
 		return err
 	}
 
-	err = s.Process()
-	if err != nil {
-		s.Log.Error().Err(err).Msg("Error processing found definitions")
-		return err
-	}
-
 	err = s.Clean()
 	if err != nil {
 		s.Log.Error().Err(err).Msg("Error cleaning up structs")

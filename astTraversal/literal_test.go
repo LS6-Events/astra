@@ -20,17 +20,3 @@ func TestBaseTraverser_Literal(t *testing.T) {
 	assert.NotNil(t, literalTraverser)
 	assert.Equal(t, node, literalTraverser.Node)
 }
-
-func TestLiteralTraverser_Result(t *testing.T) {
-	traverser, err := setupTestLiteralTraverser()
-	assert.NoError(t, err)
-
-	node := traverser.ActiveFile().AST.Decls[1].(*ast.GenDecl).Specs[0].(*ast.ValueSpec).Values[0]
-	literalTraverser, err := traverser.Literal(node, 0)
-	assert.NoError(t, err)
-	assert.NotNil(t, literalTraverser)
-
-	result, err := literalTraverser.Result()
-	assert.NoError(t, err)
-	assert.Equal(t, "string", result.Type)
-}

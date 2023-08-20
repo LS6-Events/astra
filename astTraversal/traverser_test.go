@@ -87,7 +87,7 @@ func TestTraverser_ExtractVarName(t *testing.T) {
 		}
 		result := traverser.ExtractVarName(selectorExpr)
 		assert.Equal(t, "MyField2", result.Type)
-		assert.Equal(t, []string{"MyStruct", "MyField"}, result.StructNames)
+		assert.Equal(t, []string{"MyStruct", "MyField"}, result.Names)
 	})
 
 	t.Run("should return the name of a SelectorExpr with multiplx X and a package", func(t *testing.T) {
@@ -112,7 +112,7 @@ func TestTraverser_ExtractVarName(t *testing.T) {
 		}
 		result := traverser.ExtractVarName(selectorExpr)
 		assert.Equal(t, "MyField2", result.Type)
-		assert.Equal(t, []string{"MyStruct", "MyField"}, result.StructNames)
+		assert.Equal(t, []string{"MyStruct", "MyField"}, result.Names)
 		assert.Contains(t, result.Package.Path(), "testfiles") // We don't change the active file here
 	})
 }

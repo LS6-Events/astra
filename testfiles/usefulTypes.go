@@ -10,6 +10,8 @@ type MyStruct struct {
 	Name string
 }
 
+type MyInt int
+
 func (m *MyStruct) SayHello() {
 	fmt.Println("Hello from", strings.Join([]string{"MyStruct", m.Name}, " "))
 }

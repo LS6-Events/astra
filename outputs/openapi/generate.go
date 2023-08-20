@@ -196,10 +196,10 @@ func Generate(filePath string) gengo.ServiceFunction {
 			} else if component.Type == "map" {
 				var additionalProperties Schema
 
-				if !gengo.IsAcceptedType(component.MapValue) {
-					additionalProperties.Ref = makeComponentRef(component.MapValue, component.Package)
+				if !gengo.IsAcceptedType(component.MapValueType) {
+					additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
 				} else {
-					additionalProperties = mapAcceptedType(component.MapValue)
+					additionalProperties = mapAcceptedType(component.MapValueType)
 				}
 
 				schema = Schema{
