@@ -358,6 +358,9 @@ func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.No
 	}
 
 	result, err := traverser.Type(exprType, traverser.ActiveFile().Package).Result()
+	if err != nil {
+		return gengo.Param{}, err
+	}
 
 	bodyParam := gengo.Param{
 		IsBound: true,
