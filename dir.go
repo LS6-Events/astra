@@ -48,7 +48,10 @@ func (s *Service) MoveTempOutputDir(dirPath, outputDir string) error {
 
 	_, err := os.Stat(destinationPath)
 	if !errors.Is(err, fs.ErrNotExist) {
-		os.RemoveAll(destinationPath)
+		err := os.RemoveAll(destinationPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = os.Rename(sourcePath, destinationPath)

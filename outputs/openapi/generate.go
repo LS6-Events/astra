@@ -32,7 +32,7 @@ func Generate(filePath string) gengo.ServiceFunction {
 		paths := make(Paths)
 		s.Log.Debug().Msg("Adding paths")
 		for _, endpoint := range s.Routes {
-			s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Msg("Generating endpoint")
+			s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Msg("Generating endpoint")
 
 			endpoint.Path = utils.MapPathParams(endpoint.Path, func(param string) string {
 				if param[0] == ':' {
@@ -47,16 +47,16 @@ func Generate(filePath string) gengo.ServiceFunction {
 			}
 
 			for _, pathParam := range endpoint.PathParams {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding path parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding endpointPath parameter")
 				operation.Parameters = append(operation.Parameters, Parameter{
 					Name:     pathParam.Name,
-					In:       "path",
+					In:       "endpointPath",
 					Required: pathParam.IsRequired,
 				})
 			}
 
 			for _, queryParam := range endpoint.QueryParams {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
 				parameter := Parameter{
 					Name:     queryParam.Name,
 					In:       "query",
@@ -70,7 +70,7 @@ func Generate(filePath string) gengo.ServiceFunction {
 			}
 
 			for _, bodyParam := range endpoint.Body {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
 				var mediaType MediaType
 				schema := mapFieldToSchema(bodyParam.Field)
 				if bodyParam.Name != "" {
@@ -92,7 +92,7 @@ func Generate(filePath string) gengo.ServiceFunction {
 			}
 
 			for _, returnType := range endpoint.ReturnTypes {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
 				var mediaType MediaType
 				mediaType.Schema = mapFieldToSchema(returnType.Field)
 
@@ -113,30 +113,30 @@ func Generate(filePath string) gengo.ServiceFunction {
 				}
 			}
 
-			var path Path
+			var endpointPath Path
 			if _, ok := paths[endpoint.Path]; !ok {
-				path = Path{}
+				endpointPath = Path{}
 			} else {
-				path = paths[endpoint.Path]
+				endpointPath = paths[endpoint.Path]
 			}
 			switch endpoint.Method {
 			case "GET":
-				path.Get = &operation
+				endpointPath.Get = &operation
 			case "POST":
-				path.Post = &operation
+				endpointPath.Post = &operation
 			case "PUT":
-				path.Put = &operation
+				endpointPath.Put = &operation
 			case "PATCH":
-				path.Patch = &operation
+				endpointPath.Patch = &operation
 			case "DELETE":
-				path.Delete = &operation
+				endpointPath.Delete = &operation
 			case "HEAD":
-				path.Head = &operation
+				endpointPath.Head = &operation
 			case "OPTIONS":
-				path.Options = &operation
+				endpointPath.Options = &operation
 			}
 
-			paths[endpoint.Path] = path
+			paths[endpoint.Path] = endpointPath
 			s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Msg("Added path")
 		}
 		s.Log.Debug().Msg("Added paths")

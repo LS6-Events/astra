@@ -28,7 +28,6 @@ type Service struct {
 	Routes []Route `json:"routes" yaml:"routes"`
 
 	ToBeProcessed []Processable `json:"-"`
-	typesByName   map[string][]string
 
 	Components []Field `json:"components" yaml:"components"`
 
