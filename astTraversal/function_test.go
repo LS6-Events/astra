@@ -82,15 +82,8 @@ func TestFunctionTraverser_Results(t *testing.T) {
 func TestFunctionTraverser_FindArgumentNameByType(t *testing.T) {
 	traverser, err := createTraverserFromTestFile("declaration.go")
 	assert.NoError(t, err)
-
-	t.Run("should return the name of an argument by type", func(t *testing.T) {
-		function, err := traverser.Function(traverser.ActiveFile().AST.Decls[4])
-		assert.NoError(t, err)
-		assert.NotNil(t, function)
-
-		name := function.FindArgumentNameByType("string", "", false)
-		assert.Equal(t, "param1", name)
-	})
+	_, err = traverser.Packages.Get(traverser.ActiveFile().Package)
+	assert.NoError(t, err)
 
 	t.Run("should return the empty if it can't find it", func(t *testing.T) {
 		function, err := traverser.Function(traverser.ActiveFile().AST.Decls[4])

@@ -26,8 +26,8 @@ func MyFunc1() {
 	fmt.Print(var1, var2)
 }
 
-func MyFunc2(param1 string, param2 int) (string, *MyStruct) {
-	return fmt.Sprintf("%s %d", param1, param2), nil
+func MyFunc2(param1 MyStruct, param2 MyInt) (string, *MyStruct) {
+	return fmt.Sprintf("%s %d", param1.Name, param2), nil
 }
 
 var MyFunc3 = func() (int, error) {
