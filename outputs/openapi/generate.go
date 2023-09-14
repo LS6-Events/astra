@@ -32,7 +32,7 @@ func Generate(filePath string) gengo.ServiceFunction {
 		paths := make(Paths)
 		s.Log.Debug().Msg("Adding paths")
 		for _, endpoint := range s.Routes {
-			s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Msg("Generating endpoint")
+			s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Msg("Generating endpoint")
 
 			endpoint.Path = utils.MapPathParams(endpoint.Path, func(param string) string {
 				if param[0] == ':' {
@@ -47,90 +47,41 @@ func Generate(filePath string) gengo.ServiceFunction {
 			}
 
 			for _, pathParam := range endpoint.PathParams {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding path parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding endpointPath parameter")
 				operation.Parameters = append(operation.Parameters, Parameter{
 					Name:     pathParam.Name,
-					In:       "path",
+					In:       "endpointPath",
 					Required: pathParam.IsRequired,
 				})
 			}
 
 			for _, queryParam := range endpoint.QueryParams {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
 				parameter := Parameter{
 					Name:     queryParam.Name,
 					In:       "query",
 					Required: queryParam.IsRequired,
 					Explode:  true,
 					Style:    "form",
-				}
-
-				if queryParam.IsBound {
-					parameter.Schema = Schema{
-						Ref: makeComponentRef(queryParam.Type, queryParam.Package),
-					}
-				} else if queryParam.IsArray {
-					itemSchema := mapAcceptedType(queryParam.Type)
-					if !gengo.IsAcceptedType(queryParam.Type) {
-						itemSchema = Schema{
-							Ref: makeComponentRef(queryParam.Type, queryParam.Package),
-						}
-					}
-					parameter.Schema = Schema{
-						Type:  "array",
-						Items: &itemSchema,
-					}
-				} else if queryParam.IsMap {
-					var additionalProperties Schema
-					if !gengo.IsAcceptedType(queryParam.Type) {
-						additionalProperties.Ref = makeComponentRef(queryParam.Type, queryParam.Package)
-					} else {
-						additionalProperties = mapAcceptedType(queryParam.Type)
-					}
-					parameter.Schema = Schema{
-						Type:                 "object",
-						AdditionalProperties: &additionalProperties,
-					}
-				} else {
-					parameter.Schema = Schema{
-						Type: queryParam.Type,
-					}
+					Schema:   mapParamToSchema(queryParam),
 				}
 
 				operation.Parameters = append(operation.Parameters, parameter)
 			}
 
 			for _, bodyParam := range endpoint.Body {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
 				var mediaType MediaType
-				if bodyParam.IsBound {
+				schema := mapFieldToSchema(bodyParam.Field)
+				if bodyParam.Name != "" {
 					mediaType.Schema = Schema{
-						Ref: makeComponentRef(bodyParam.Type, bodyParam.Package),
-					}
-				} else if bodyParam.IsArray {
-					itemSchema := mapAcceptedType(bodyParam.Type)
-					if !gengo.IsAcceptedType(bodyParam.Type) {
-						itemSchema = Schema{
-							Ref: makeComponentRef(bodyParam.Type, bodyParam.Package),
-						}
-					}
-					mediaType.Schema = Schema{
-						Type:  "array",
-						Items: &itemSchema,
-					}
-				} else if bodyParam.IsMap {
-					var additionalProperties Schema
-					if !gengo.IsAcceptedType(bodyParam.Type) {
-						additionalProperties.Ref = makeComponentRef(bodyParam.Type, bodyParam.Package)
-					} else {
-						additionalProperties = mapAcceptedType(bodyParam.Type)
-					}
-					mediaType.Schema = Schema{
-						Type:                 "object",
-						AdditionalProperties: &additionalProperties,
+						Type: "object",
+						Properties: map[string]Schema{
+							bodyParam.Name: schema,
+						},
 					}
 				} else {
-					mediaType.Schema = mapAcceptedType(bodyParam.Type)
+					mediaType.Schema = schema
 				}
 
 				operation.RequestBody = &RequestBody{
@@ -141,37 +92,9 @@ func Generate(filePath string) gengo.ServiceFunction {
 			}
 
 			for _, returnType := range endpoint.ReturnTypes {
-				s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
 				var mediaType MediaType
-				if !gengo.IsAcceptedType(returnType.Field.Type) {
-					mediaType.Schema = Schema{
-						Ref: makeComponentRef(returnType.Field.Type, returnType.Field.Package),
-					}
-				} else {
-					mediaType.Schema = mapAcceptedType(returnType.Field.Type)
-					if returnType.Field.Type == "slice" {
-						itemSchema := Schema{
-							Type: mapAcceptedType(returnType.Field.SliceType).Type,
-						}
-						if !gengo.IsAcceptedType(returnType.Field.SliceType) {
-							itemSchema = Schema{
-								Ref: makeComponentRef(returnType.Field.SliceType, returnType.Field.Package),
-							}
-						}
-						mediaType.Schema.Items = &itemSchema
-					} else if returnType.Field.Type == "map" {
-						var additionalProperties Schema
-						if !gengo.IsAcceptedType(returnType.Field.MapValue) {
-							additionalProperties.Ref = makeComponentRef(returnType.Field.MapValue, returnType.Field.Package)
-						} else {
-							additionalProperties = mapAcceptedType(returnType.Field.MapValue)
-						}
-						mediaType.Schema = Schema{
-							Type:                 "object",
-							AdditionalProperties: &additionalProperties,
-						}
-					}
-				}
+				mediaType.Schema = mapFieldToSchema(returnType.Field)
 
 				var content map[string]MediaType
 				if mediaType.Schema.Type != "" || mediaType.Schema.Ref != "" {
@@ -190,30 +113,30 @@ func Generate(filePath string) gengo.ServiceFunction {
 				}
 			}
 
-			var path Path
+			var endpointPath Path
 			if _, ok := paths[endpoint.Path]; !ok {
-				path = Path{}
+				endpointPath = Path{}
 			} else {
-				path = paths[endpoint.Path]
+				endpointPath = paths[endpoint.Path]
 			}
 			switch endpoint.Method {
 			case "GET":
-				path.Get = &operation
+				endpointPath.Get = &operation
 			case "POST":
-				path.Post = &operation
+				endpointPath.Post = &operation
 			case "PUT":
-				path.Put = &operation
+				endpointPath.Put = &operation
 			case "PATCH":
-				path.Patch = &operation
+				endpointPath.Patch = &operation
 			case "DELETE":
-				path.Delete = &operation
+				endpointPath.Delete = &operation
 			case "HEAD":
-				path.Head = &operation
+				endpointPath.Head = &operation
 			case "OPTIONS":
-				path.Options = &operation
+				endpointPath.Options = &operation
 			}
 
-			paths[endpoint.Path] = path
+			paths[endpoint.Path] = endpointPath
 			s.Log.Debug().Str("path", endpoint.Path).Str("method", endpoint.Method).Msg("Added path")
 		}
 		s.Log.Debug().Msg("Added paths")
@@ -273,10 +196,10 @@ func Generate(filePath string) gengo.ServiceFunction {
 			} else if component.Type == "map" {
 				var additionalProperties Schema
 
-				if !gengo.IsAcceptedType(component.MapValue) {
-					additionalProperties.Ref = makeComponentRef(component.MapValue, component.Package)
+				if !gengo.IsAcceptedType(component.MapValueType) {
+					additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
 				} else {
-					additionalProperties = mapAcceptedType(component.MapValue)
+					additionalProperties = mapAcceptedType(component.MapValueType)
 				}
 
 				schema = Schema{

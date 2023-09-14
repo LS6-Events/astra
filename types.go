@@ -29,8 +29,7 @@ type ReturnType struct {
 // It also contains an IsBound field, which is used to denote whether the param is a struct reference
 type Param struct {
 	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
-	Type       string `json:"type,omitempty" yaml:"type,omitempty"`
-	Package    string `json:"package,omitempty" yaml:"package,omitempty"`
+	Field      Field  `json:"type,omitempty" yaml:"type,omitempty"`
 	IsRequired bool   `json:"isRequired,omitempty" yaml:"isRequired,omitempty"`
 	IsArray    bool   `json:"isArray,omitempty" yaml:"isArray,omitempty"`
 	IsMap      bool   `json:"isMap,omitempty" yaml:"isMap,omitempty"`
@@ -61,9 +60,12 @@ type Field struct {
 
 	SliceType string `json:"sliceType,omitempty" yaml:"sliceType,omitempty"`
 
-	MapKeyPkg string `json:"mapKeyPkg,omitempty" yaml:"mapKeyPkg,omitempty"`
-	MapKey    string `json:"mapKey,omitempty" yaml:"mapKey,omitempty"`
-	MapValue  string `json:"mapValue,omitempty" yaml:"mapValue,omitempty"`
+	ArrayType   string `json:"arrayType,omitempty" yaml:"arrayType,omitempty"`
+	ArrayLength int64  `json:"arrayLength,omitempty" yaml:"arrayLength,omitempty"`
+
+	MapKeyPackage string `json:"mapKeyPackage,omitempty" yaml:"mapKeyPackage,omitempty"`
+	MapKeyType    string `json:"mapKeyType,omitempty" yaml:"mapKeyType,omitempty"`
+	MapValueType  string `json:"mapValueType,omitempty" yaml:"mapValueType,omitempty"`
 
 	StructFields map[string]Field `json:"structFields,omitempty" yaml:"structFields,omitempty"`
 }

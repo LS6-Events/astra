@@ -13,22 +13,22 @@ func (s *Service) Clean() error {
 	}
 
 	for i := 0; i < len(s.Components); i++ {
-		f := s.Components[i]
+		s.Components[i] = s.cleanField(s.Components[i], mainPkg)
+	}
 
-		s.handleSpecialType(&f)
-
-		if f.Package == mainPkg {
-			f.Package = "main"
+	for i := 0; i < len(s.Routes); i++ {
+		for j := 0; j < len(s.Routes[i].ReturnTypes); j++ {
+			s.Routes[i].ReturnTypes[j].Field = s.cleanField(s.Routes[i].ReturnTypes[j].Field, mainPkg)
 		}
-
-		for k, v := range f.StructFields {
-			err := cleanField(k, v, mainPkg, f.StructFields)
-			if err != nil {
-				return err
-			}
+		for j := 0; j < len(s.Routes[i].PathParams); j++ {
+			s.Routes[i].PathParams[j].Field = s.cleanField(s.Routes[i].PathParams[j].Field, mainPkg)
 		}
-
-		s.Components[i] = f
+		for j := 0; j < len(s.Routes[i].QueryParams); j++ {
+			s.Routes[i].QueryParams[j].Field = s.cleanField(s.Routes[i].QueryParams[j].Field, mainPkg)
+		}
+		for j := 0; j < len(s.Routes[i].Body); j++ {
+			s.Routes[i].Body[j].Field = s.cleanField(s.Routes[i].Body[j].Field, mainPkg)
+		}
 	}
 
 	s.Log.Info().Msg("Cleaning up structs complete")
@@ -44,19 +44,19 @@ func (s *Service) Clean() error {
 	return nil
 }
 
-func cleanField(k string, f Field, mainPkg string, returnTypes map[string]Field) error {
+func (s *Service) cleanField(f Field, mainPkg string) Field {
+	s.HandleSpecialType(&f)
+
 	if f.Package == mainPkg {
 		f.Package = "main"
 	}
-
-	for k, v := range f.StructFields {
-		err := cleanField(k, v, mainPkg, f.StructFields)
-		if err != nil {
-			return err
-		}
+	if f.MapKeyPackage == mainPkg {
+		f.MapKeyPackage = "main"
 	}
 
-	returnTypes[k] = f
+	for k, v := range f.StructFields {
+		f.StructFields[k] = s.cleanField(v, mainPkg)
+	}
 
-	return nil
+	return f
 }

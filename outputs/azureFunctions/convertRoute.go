@@ -26,7 +26,7 @@ func convertRoute(route gengo.Route) string {
 	routeString := route.Path
 
 	for _, pathParams := range route.PathParams {
-		if azureType, ok := acceptedTypeMap[pathParams.Type]; ok {
+		if azureType, ok := acceptedTypeMap[pathParams.Field.Type]; ok {
 			if azureType == "" {
 				return ""
 			}
