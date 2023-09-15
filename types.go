@@ -1,6 +1,6 @@
-package gengo
+package astra
 
-// These are types that are used throughout the gengo package
+// These are types that are used throughout the astra package
 
 // Route is a route in the service and all of its potential options
 type Route struct {
@@ -37,7 +37,7 @@ type Param struct {
 	IsBound bool `json:"isBound,omitempty" yaml:"isBound,omitempty"` // I.e. is a struct reference
 }
 
-// Processable is a struct that is processable by the gengo package
+// Processable is a struct that is processable by the astra package
 // It just contains the name of the type and the package it came from
 type Processable struct {
 	Name string

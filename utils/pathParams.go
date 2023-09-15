@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 	"regexp"
 )
 
@@ -13,16 +13,16 @@ func getPathParamRegex() *regexp.Regexp {
 }
 
 // ExtractParamsFromPath extracts the parameters from a path
-func ExtractParamsFromPath(path string) []gengo.Param {
-	resultParams := make([]gengo.Param, 0)
+func ExtractParamsFromPath(path string) []astra.Param {
+	resultParams := make([]astra.Param, 0)
 
 	paramRegex := getPathParamRegex()
 	if paramRegex.MatchString(path) {
 		params := paramRegex.FindAllString(path, -1)
 		for _, param := range params {
-			resultParams = append(resultParams, gengo.Param{
+			resultParams = append(resultParams, astra.Param{
 				Name: param[1:],
-				Field: gengo.Field{
+				Field: astra.Field{
 					Type: "string",
 				},
 				IsRequired: param[0] == ':',

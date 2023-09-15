@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 import (
 	"errors"
@@ -7,20 +7,20 @@ import (
 	"path"
 )
 
-// This creates a new directory in the current working directory called .gengo
+// This creates a new directory in the current working directory called .astra
 // The idea is that this directory will be used to store the cache file and any other files that are needed for the generator
 // It will create a .gitignore file in the directory so that it is not committed to git
 
-const gengoDir = ".gengo"
+const astraDir = ".astra"
 
-// getGenGoDirPath returns the path to the .gengo directory
-func (s *Service) getGenGoDirPath() string {
-	return path.Join(s.WorkDir, gengoDir)
+// getAstraDirPath returns the path to the .astra directory
+func (s *Service) getAstraDirPath() string {
+	return path.Join(s.WorkDir, astraDir)
 }
 
-// setupGenGoDir creates the .gengo directory and the .gitignore file
-func (s *Service) setupGenGoDir() error {
-	if err := os.MkdirAll(s.getGenGoDirPath(), 0755); err != nil {
+// setupAstraDir creates the .astra directory and the .gitignore file
+func (s *Service) setupAstraDir() error {
+	if err := os.MkdirAll(s.getAstraDirPath(), 0755); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func (s *Service) setupGenGoDir() error {
 }
 
 func (s *Service) SetupTempOutputDir(dirPath string) (string, error) {
-	tempDir := path.Join(s.getGenGoDirPath(), dirPath)
+	tempDir := path.Join(s.getAstraDirPath(), dirPath)
 
 	err := os.Mkdir(tempDir, 0755)
 	if err != nil {
@@ -43,7 +43,7 @@ func (s *Service) SetupTempOutputDir(dirPath string) (string, error) {
 }
 
 func (s *Service) MoveTempOutputDir(dirPath, outputDir string) error {
-	sourcePath := path.Join(s.getGenGoDirPath(), dirPath)
+	sourcePath := path.Join(s.getAstraDirPath(), dirPath)
 	destinationPath := path.Join(s.WorkDir, outputDir)
 
 	_, err := os.Stat(destinationPath)
@@ -64,7 +64,7 @@ func (s *Service) MoveTempOutputDir(dirPath, outputDir string) error {
 
 // setupGitIgnore creates the .gitignore file, by default it will ignore all files in the directory
 func (s *Service) setupGitIgnore() error {
-	gitIgnorePath := path.Join(s.getGenGoDirPath(), ".gitignore")
+	gitIgnorePath := path.Join(s.getAstraDirPath(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); err == nil {
 		return nil
 	}
@@ -82,9 +82,9 @@ func (s *Service) setupGitIgnore() error {
 	return nil
 }
 
-// cleanupGenGoDir removes the .gengo directory
-func (s *Service) cleanupGenGoDir() error {
-	if err := os.RemoveAll(s.getGenGoDirPath()); err != nil {
+// cleanupAstraDir removes the .astra directory
+func (s *Service) cleanupAstraDir() error {
+	if err := os.RemoveAll(s.getAstraDirPath()); err != nil {
 		return err
 	}
 

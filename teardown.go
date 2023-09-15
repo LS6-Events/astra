@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Teardown tears down the service by cleaning up the temp dir
 // Teardown should be called after everything else in the service
@@ -7,7 +7,7 @@ func (s *Service) Teardown() error {
 
 	if !s.CacheEnabled && s.CLIMode == CLIModeNone {
 		s.Log.Info().Msg("Cleaning up temp dir")
-		err := s.cleanupGenGoDir()
+		err := s.cleanupAstraDir()
 		if err != nil {
 			s.Log.Error().Err(err).Msg("Error cleaning up temp dir")
 		} else {

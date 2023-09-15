@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // ConfigBuilder is a builder for the Config struct
 // It has methods to set the fields of the Config struct

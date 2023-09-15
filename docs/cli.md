@@ -1,25 +1,25 @@
 # CLI
 
-GenGo has also a command line interface (CLI) that can be used to generate code. It revolves around the idea that the setup function in the code is quick and easy to run, creates a file (by default `.gengo/cache.json`) that contains the information about the code, and then the CLI can be used to generate code from that file.
+Astra has also a command line interface (CLI) that can be used to generate code. It revolves around the idea that the setup function in the code is quick and easy to run, creates a file (by default `.astra/cache.json`) that contains the information about the code, and then the CLI can be used to generate code from that file.
 
 ## Setup
 
 First, you need to install the CLI:
 
 ```bash
-go install github.com/ls6-events/gengo/cli/gengo
+go install github.com/ls6-events/astra/cli/astra
 ```
 
 Next, you must import the CLI package into your code:
 
 ```go
-import "github.com/ls6-events/gengo/cli"
+import "github.com/ls6-events/astra/cli"
 ```
 
-And you must include the `cli.WithCLI()` option in your `gengo.New` function:
+And you must include the `cli.WithCLI()` option in your `astra.New` function:
 
 ```go
-gen := gengo.New(...<YOUR OPTIONS>..., cli.WithCLI())
+gen := astra.New(...<YOUR OPTIONS>..., cli.WithCLI())
 ````
 
 Then, you need to utilise the `SetupParse` function instead of `Parse` in your code. It should look similar to the following:
@@ -35,18 +35,18 @@ Finally, you must run the program once to generate the cache file. You can then 
 To use the CLI, you need to run the following command:
 
 ```bash
-gengo generate <options>
+astra generate <options>
 ```
 
 It has the following options:
-- `-c` or `--cache`: The path to the generated cache file. Defaults to `.gengo/cache.json`.
+- `-c` or `--cache`: The path to the generated cache file. Defaults to `.astra/cache.json`.
 - `-d` or `--dir`: The working directory where the code was generated (i.e where the `main.go` is located). Defaults to the current working directory.
 
 **Note:** The CLI at this current point in time cannot accept any additional configuration options. If you wish to configure the service differently (i.e. different output file location), you must do so in the code.
 
 ## How it works
 
-It leverages the new caching mechanism devised for the GenGo library. The `SetupParse` function will only use the router and it's routes to locate the handler function utilising the `reflect.ValueOf` function. It will then create a cache file (by default `.gengo/cache.json`) that contains the file name, line number and function name referencing these handlers. The CLI can then be used to generate code from that file.
+It leverages the new caching mechanism devised for the Astra library. The `SetupParse` function will only use the router and it's routes to locate the handler function utilising the `reflect.ValueOf` function. It will then create a cache file (by default `.astra/cache.json`) that contains the file name, line number and function name referencing these handlers. The CLI can then be used to generate code from that file.
 
 The file paths are calculated _relative to the current working directory_ so that it can be used with any project structure. The CLI will also use the current working directory to generate the code.
 
@@ -58,11 +58,11 @@ The following is an example of how to use the CLI. It looks similar to the examp
 package main
 
 import (
-	"github.com/ls6-events/gengo"
-	gengoGin "github.com/ls6-events/gengo/inputs/gin"
-	"github.com/ls6-events/gengo/outputs/openapi"
+	"github.com/ls6-events/astra"
+	astraGin "github.com/ls6-events/astra/inputs/gin"
+	"github.com/ls6-events/astra/outputs/openapi"
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/gengo/cli" // Note the new import!
+	"github.com/ls6-events/astra/cli" // Note the new import!
 )
 
 func main() {
@@ -76,10 +76,10 @@ func main() {
     
     // Same as before
     // Note the new WithCLI() option!
-    gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.yaml"), cli.WithCLI()) 
+    gen := astra.New(astraGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.yaml"), cli.WithCLI()) 
     
     // The appropriate configuration for your API
-    config := gengo.Config{
+    config := astra.Config{
         Title:   "Example API",
         Version: "1.0.0",
         Host:    "localhost",
@@ -103,14 +103,14 @@ func main() {
 
 ## CI/CD
 
-If you wish to use the CLI in a CI/CD pipeline, you must configure the options a bit more first. The reason behind this is the entire `.gengo` directory is git ignored by default, and we believe it wouldn't be ideal to have to commit the cache to the repository in this fashion. Therefore we recommend utilising a custom cache file with a custom output like so:
+If you wish to use the CLI in a CI/CD pipeline, you must configure the options a bit more first. The reason behind this is the entire `.astra` directory is git ignored by default, and we believe it wouldn't be ideal to have to commit the cache to the repository in this fashion. Therefore we recommend utilising a custom cache file with a custom output like so:
 ```go
-gen := gengo.New(...<YOUR OPTIONS>..., cache.WithCustomCachePath("./cache.json"))
+gen := astra.New(...<YOUR OPTIONS>..., cache.WithCustomCachePath("./cache.json"))
 ```
 This will enable the caching mechanism to work, and it will specify the output to which ever file you choose (`.json` by default, but it does support `.yaml`/`.yml`). You can then use the CLI to generate code from that file as such.
 
 ```bash
-gengo generate -c ./cache.json
+astra generate -c ./cache.json
 ```
 
 If you include these commands and the installation of the CLI in your CI/CD pipeline (such as GitHub Actions) then you can utilise the CLI to generate code as part of your pipeline.

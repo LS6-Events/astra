@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/inputs"
-	"github.com/ls6-events/gengo/outputs"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/inputs"
+	"github.com/ls6-events/astra/outputs"
 	"regexp"
 )
 
@@ -25,9 +25,9 @@ func main() {
 
 	r.Static("/swaggerui", "./swaggerui")
 
-	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./swaggerui/swagger.json"), gengo.WithPathDenyListRegex(regexp.MustCompile("^/swaggerui.*")))
+	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./swaggerui/swagger.json"), astra.WithPathDenyListRegex(regexp.MustCompile("^/swaggerui.*")))
 
-	config := gengo.Config{
+	config := astra.Config{
 		Title:   "Example API",
 		Version: "1.0.0",
 		Host:    "localhost",

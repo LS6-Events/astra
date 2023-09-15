@@ -2,9 +2,9 @@ package gin
 
 import (
 	"errors"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/astTraversal"
-	"github.com/ls6-events/gengo/utils"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"go/types"
 )
@@ -24,7 +24,7 @@ const (
 // And the package name and path are used to determine the package of the currently analysed function
 // The currRoute reference is used to manipulate the current route being analysed
 // The imports are used to determine the package of the context variable
-func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *gengo.Route, activeFile *astTraversal.FileNode, level int) error {
+func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *astra.Route, activeFile *astTraversal.FileNode, level int) error {
 	traverser := funcTraverser.Traverser
 
 	traverser.SetActiveFile(activeFile)
@@ -126,7 +126,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 					var result astTraversal.Result
 					result, err = traverser.Type(exprType, traverser.ActiveFile().Package).Result()
 
-					returnType := gengo.ReturnType{
+					returnType := astra.ReturnType{
 						StatusCode: statusCode,
 						Field:      parseResultToField(result),
 					}
@@ -142,9 +142,9 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 						return false
 					}
 
-					returnType := gengo.ReturnType{
+					returnType := astra.ReturnType{
 						StatusCode: statusCode,
-						Field: gengo.Field{
+						Field: astra.Field{
 							Type: "string",
 						},
 					}
@@ -157,9 +157,9 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 						return false
 					}
 
-					returnType := gengo.ReturnType{
+					returnType := astra.ReturnType{
 						StatusCode: statusCode,
-						Field: gengo.Field{
+						Field: astra.Field{
 							Type: "nil",
 						},
 					}
@@ -169,8 +169,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetQuery":
 					fallthrough
 				case "Query":
-					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{})
+					var queryParam astra.Param
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{})
 					if err != nil {
 						return false
 					}
@@ -180,8 +180,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetQueryArray":
 					fallthrough
 				case "QueryArray":
-					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
+					var queryParam astra.Param
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
 						IsArray: true,
 					})
 					if err != nil {
@@ -193,8 +193,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetQueryMap":
 					fallthrough
 				case "QueryMap":
-					var queryParam gengo.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
+					var queryParam astra.Param
+					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
 						IsMap: true,
 					})
 					if err != nil {
@@ -207,7 +207,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "ShouldBindQuery":
 					fallthrough
 				case "BindQuery":
-					var queryParam gengo.Param
+					var queryParam astra.Param
 					queryParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
@@ -219,7 +219,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "ShouldBind":
 					fallthrough
 				case "Bind":
-					var bodyParam gengo.Param
+					var bodyParam astra.Param
 					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
@@ -232,7 +232,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "ShouldBindJSON":
 					fallthrough
 				case "BindJSON":
-					var bodyParam gengo.Param
+					var bodyParam astra.Param
 					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
@@ -245,7 +245,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "ShouldBindXML":
 					fallthrough
 				case "BindXML":
-					var bodyParam gengo.Param
+					var bodyParam astra.Param
 					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
@@ -258,7 +258,7 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "ShouldBindYAML":
 					fallthrough
 				case "BindYAML":
-					var bodyParam gengo.Param
+					var bodyParam astra.Param
 					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
 					if err != nil {
 						return false
@@ -271,8 +271,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
-					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{})
+					var bodyParam astra.Param
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{})
 					if err != nil {
 						return false
 					}
@@ -283,8 +283,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetPostFormArray":
 					fallthrough
 				case "PostFormArray":
-					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
+					var bodyParam astra.Param
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
 						IsArray: true,
 					})
 					if err != nil {
@@ -297,8 +297,8 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetPostFormMap":
 					fallthrough
 				case "PostFormMap":
-					var bodyParam gengo.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], gengo.Param{
+					var bodyParam astra.Param
+					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
 						IsMap: true,
 					})
 					if err != nil {
@@ -325,24 +325,24 @@ func parseFunction(s *gengo.Service, funcTraverser *astTraversal.FunctionTravers
 	return nil
 }
 
-func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node, baseParam gengo.Param) (gengo.Param, error) {
+func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node, baseParam astra.Param) (astra.Param, error) {
 	expr := traverser.Expression(node)
 
 	name, err := expr.Value()
 	if err != nil {
 		traverser.Log.Error().Err(err).Msg("failed to parse expression")
-		return gengo.Param{}, err
+		return astra.Param{}, err
 	}
 
 	exprType, err := expr.Type()
 	if err != nil {
 		traverser.Log.Error().Err(err).Msg("failed to parse expression type")
-		return gengo.Param{}, err
+		return astra.Param{}, err
 	}
 
-	return gengo.Param{
+	return astra.Param{
 		Name: name,
-		Field: gengo.Field{
+		Field: astra.Field{
 			Type: exprType.String(),
 		},
 		IsArray:    baseParam.IsArray,
@@ -351,18 +351,18 @@ func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.N
 	}, nil
 }
 
-func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node) (gengo.Param, error) {
+func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node) (astra.Param, error) {
 	exprType, err := traverser.Expression(node).Type()
 	if err != nil {
-		return gengo.Param{}, err
+		return astra.Param{}, err
 	}
 
 	result, err := traverser.Type(exprType, traverser.ActiveFile().Package).Result()
 	if err != nil {
-		return gengo.Param{}, err
+		return astra.Param{}, err
 	}
 
-	bodyParam := gengo.Param{
+	bodyParam := astra.Param{
 		IsBound: true,
 		Field:   parseResultToField(result),
 	}
@@ -370,8 +370,8 @@ func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.No
 	return bodyParam, nil
 }
 
-func parseResultToField(result astTraversal.Result) gengo.Field {
-	field := gengo.Field{
+func parseResultToField(result astTraversal.Result) astra.Field {
+	field := astra.Field{
 		Type:         result.Type,
 		Name:         result.Name,
 		IsRequired:   result.IsRequired,
@@ -388,21 +388,21 @@ func parseResultToField(result astTraversal.Result) gengo.Field {
 	// If the slice type is populated and not a primitive type, we need to get the package path for the slice
 	// If the array type is populated and not a primitive type, we need to get the package path for the array
 	// If the map value type is populated and not a primitive type, we need to get the package path for the map value
-	if !gengo.IsAcceptedType(result.Type) || result.Name != "" ||
-		(result.SliceType != "" && !gengo.IsAcceptedType(result.SliceType)) ||
-		(result.ArrayType != "" && !gengo.IsAcceptedType(result.ArrayType)) ||
-		(result.MapValueType != "" && !gengo.IsAcceptedType(result.MapValueType)) {
+	if !astra.IsAcceptedType(result.Type) || result.Name != "" ||
+		(result.SliceType != "" && !astra.IsAcceptedType(result.SliceType)) ||
+		(result.ArrayType != "" && !astra.IsAcceptedType(result.ArrayType)) ||
+		(result.MapValueType != "" && !astra.IsAcceptedType(result.MapValueType)) {
 		field.Package = result.Package.Path()
 	}
 
 	// If the map key type is populated and not a primitive type, we need to get the package path for the map key
-	if result.MapKeyType != "" && !gengo.IsAcceptedType(result.MapKeyType) {
+	if result.MapKeyType != "" && !astra.IsAcceptedType(result.MapKeyType) {
 		field.MapKeyPackage = result.MapKeyPackage.Path()
 	}
 
 	// If the struct fields are populated, we need to parse them
 	if result.StructFields != nil {
-		field.StructFields = make(map[string]gengo.Field)
+		field.StructFields = make(map[string]astra.Field)
 		for name, value := range result.StructFields {
 			field.StructFields[name] = parseResultToField(value)
 		}
@@ -411,7 +411,7 @@ func parseResultToField(result astTraversal.Result) gengo.Field {
 	return field
 }
 
-func addComponent(s *gengo.Service) func(astTraversal.Result) error {
+func addComponent(s *astra.Service) func(astTraversal.Result) error {
 	return func(result astTraversal.Result) error {
 		field := parseResultToField(result)
 

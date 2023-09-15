@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Config is the configuration for the generator
 // It matches very closely to the OpenAPI specification

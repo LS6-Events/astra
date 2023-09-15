@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 import (
 	"fmt"
@@ -11,14 +11,14 @@ import (
 // This is required so that the generator can parse the types in the main package should they be required, and follow any functions that are required
 // The package is cleaned up after the generator has finished running
 
-const mainPackageReplacement = "gengomain"
-const mainPackageReplacementPath = gengoDir + "/" + mainPackageReplacement
+const mainPackageReplacement = "astramain"
+const mainPackageReplacementPath = astraDir + "/" + mainPackageReplacement
 
 // setupTempMainPackage copies the main package to a temporary directory and replaces the package name with a different name
 func (s *Service) setupTempMainPackage() error {
 	var pkgName string
 
-	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
+	newMainPkgPath := path.Join(s.getAstraDirPath(), mainPackageReplacement)
 	if _, err := os.Stat(newMainPkgPath); err == nil {
 		err := os.RemoveAll(newMainPkgPath)
 		if err != nil {
@@ -71,7 +71,7 @@ func (s *Service) setupTempMainPackage() error {
 
 // cleanupTempMainPackage removes the temporary main package
 func (s *Service) cleanupTempMainPackage() error {
-	newMainPkgPath := path.Join(s.getGenGoDirPath(), mainPackageReplacement)
+	newMainPkgPath := path.Join(s.getAstraDirPath(), mainPackageReplacement)
 	if _, err := os.Stat(newMainPkgPath); err == nil {
 		err := os.RemoveAll(newMainPkgPath)
 		if err != nil {

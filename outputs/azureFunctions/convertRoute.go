@@ -1,7 +1,7 @@
 package azureFunctions
 
 import (
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ var acceptedTypeMap = map[string]string{
 	"uuid.UUID": "guid",
 }
 
-func convertRoute(route gengo.Route) string {
+func convertRoute(route astra.Route) string {
 	routeString := route.Path
 
 	for _, pathParams := range route.PathParams {

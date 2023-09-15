@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // ServiceFunction is the function used by the inputs/outputs to interact with the service
 type ServiceFunction func(service *Service) error

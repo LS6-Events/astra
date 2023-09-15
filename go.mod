@@ -1,4 +1,4 @@
-module github.com/ls6-events/gengo
+module github.com/ls6-events/astra
 
 go 1.19
 

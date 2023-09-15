@@ -1,13 +1,13 @@
 package openapi
 
-import "github.com/ls6-events/gengo"
+import "github.com/ls6-events/astra"
 
-func mapParamToSchema(param gengo.Param) Schema {
+func mapParamToSchema(param astra.Param) Schema {
 	if param.IsBound {
 		return mapFieldToSchema(param.Field)
 	} else if param.IsArray {
 		itemSchema := mapAcceptedType(param.Field.Type)
-		if !gengo.IsAcceptedType(param.Field.Type) {
+		if !astra.IsAcceptedType(param.Field.Type) {
 			itemSchema = Schema{
 				Ref: makeComponentRef(param.Field.Type, param.Field.Package),
 			}
@@ -18,7 +18,7 @@ func mapParamToSchema(param gengo.Param) Schema {
 		}
 	} else if param.IsMap {
 		var additionalProperties Schema
-		if !gengo.IsAcceptedType(param.Field.Type) {
+		if !astra.IsAcceptedType(param.Field.Type) {
 			additionalProperties.Ref = makeComponentRef(param.Field.Type, param.Field.Package)
 		} else {
 			additionalProperties = mapAcceptedType(param.Field.Type)
@@ -32,8 +32,8 @@ func mapParamToSchema(param gengo.Param) Schema {
 	}
 }
 
-func mapFieldToSchema(field gengo.Field) Schema {
-	if !gengo.IsAcceptedType(field.Type) {
+func mapFieldToSchema(field astra.Field) Schema {
+	if !astra.IsAcceptedType(field.Type) {
 		return Schema{
 			Ref: makeComponentRef(field.Type, field.Package),
 		}
@@ -43,7 +43,7 @@ func mapFieldToSchema(field gengo.Field) Schema {
 			itemSchema := Schema{
 				Type: mapAcceptedType(field.SliceType).Type,
 			}
-			if !gengo.IsAcceptedType(field.SliceType) {
+			if !astra.IsAcceptedType(field.SliceType) {
 				itemSchema = Schema{
 					Ref: makeComponentRef(field.SliceType, field.Package),
 				}
@@ -51,7 +51,7 @@ func mapFieldToSchema(field gengo.Field) Schema {
 			schema.Items = &itemSchema
 		} else if field.Type == "map" {
 			var additionalProperties Schema
-			if !gengo.IsAcceptedType(field.MapValueType) {
+			if !astra.IsAcceptedType(field.MapValueType) {
 				additionalProperties.Ref = makeComponentRef(field.MapValueType, field.Package)
 			} else {
 				additionalProperties = mapAcceptedType(field.MapValueType)

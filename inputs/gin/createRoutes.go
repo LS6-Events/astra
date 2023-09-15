@@ -2,7 +2,7 @@ package gin
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 	"reflect"
 	"runtime"
 )
@@ -11,8 +11,8 @@ import (
 // It will only create the routes and refer to the handler function by name, file and line number
 // The routes will be populated later by parseRoutes
 // It will individually call createRoute for each route
-func CreateRoutes(router *gin.Engine) gengo.ServiceFunction {
-	return func(s *gengo.Service) error {
+func CreateRoutes(router *gin.Engine) astra.ServiceFunction {
+	return func(s *astra.Service) error {
 		s.Log.Debug().Msg("Populating service with gin routes")
 		for _, route := range router.Routes() {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")

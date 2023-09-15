@@ -2,9 +2,9 @@ package gin
 
 import (
 	"fmt"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/astTraversal"
-	"github.com/ls6-events/gengo/utils"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"path"
 	"strings"
@@ -16,7 +16,7 @@ import (
 // It will open the file as an AST and find the handler function using the line number and function name
 // It can also find the path parameters from the handler function
 // It calls the parseFunction function to parse the handler function
-func parseRoute(s *gengo.Service, baseRoute *gengo.Route) error {
+func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", baseRoute.File).Logger()
 
 	traverser := astTraversal.New(s.WorkDir).SetLog(&log)

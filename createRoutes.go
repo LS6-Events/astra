@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // CreateRoutes creates routes from the inputs
 func (s *Service) CreateRoutes() error {

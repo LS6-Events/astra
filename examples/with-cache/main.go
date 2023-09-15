@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/cache"
-	"github.com/ls6-events/gengo/inputs"
-	"github.com/ls6-events/gengo/outputs"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/cache"
+	"github.com/ls6-events/astra/inputs"
+	"github.com/ls6-events/astra/outputs"
 )
 
 func main() {
@@ -24,11 +24,11 @@ func main() {
 	})
 
 	// Normally, you would use the following option to add the cache to the generated code:
-	// gen := gengo.New(gengoGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCache())
+	// gen := astra.New(astraGin.WithGinInput(r), openapi.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCache())
 	// However, the folder by default is git ignored, so we will use the following option instead:
-	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCustomCachePath("cache.json"))
+	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cache.WithCustomCachePath("cache.json"))
 
-	config := gengo.Config{
+	config := astra.Config{
 		Title:   "Example API with Cache",
 		Version: "1.0.0",
 		Host:    "localhost",

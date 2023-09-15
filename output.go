@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Output is the output for the generator
 // It takes in a configuration object to allow the caching mechanism to store the file paths for the outputs

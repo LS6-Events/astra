@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // AddRoute adds a route to the service
 func (s *Service) AddRoute(route Route) {

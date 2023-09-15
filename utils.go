@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // strSliceContains checks if a string slice contains a value
 // Simple utility function

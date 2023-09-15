@@ -2,11 +2,11 @@ module azurefunctions
 
 go 1.20
 
-replace github.com/ls6-events/gengo => ../../
+replace github.com/ls6-events/astra => ../../
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/ls6-events/gengo v0.0.0-00010101000000-000000000000
+	github.com/ls6-events/astra v0.0.0-00010101000000-000000000000
 )
 
 require (

@@ -126,6 +126,6 @@ func TestPackageNode_FindASTForType(t *testing.T) {
 		// Find the AST for the type "otherpkg1.Foo"
 		_, _, err := traverser.ActiveFile().Package.FindASTForType("otherpkg1.Foo")
 		assert.Error(t, err)
-		assert.ErrorContains(t, err, "type otherpkg1.Foo not found in package github.com/ls6-events/gengo/testfiles")
+		assert.ErrorContains(t, err, "type otherpkg1.Foo not found in package github.com/ls6-events/astra/testfiles")
 	})
 }

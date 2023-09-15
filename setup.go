@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 import (
 	"os"
@@ -10,7 +10,7 @@ func (s *Service) Setup() error {
 	s.Log.Info().Msg("Setting up")
 
 	s.Log.Info().Msg("Creating temp dir")
-	err := s.setupGenGoDir()
+	err := s.setupAstraDir()
 	if err != nil {
 		s.Log.Error().Err(err).Msg("Error creating temp dir")
 		return err

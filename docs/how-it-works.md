@@ -1,6 +1,6 @@
 # How it works
 
-GenGo utilises the inbuilt Go AST (Abstract Syntax Tree) to parse the source code of your project. It then extracts the types from the source code and outputs them in the desired format. The documentation for the AST can be found [here](https://golang.org/pkg/go/ast/). The AST is a tree representation of the source code, which can be traversed to extract the types. We can then utilise the [Go tools packages library](https://pkg.go.dev/golang.org/x/tools/go/packages) to extract the types from the source code of the packages wherever they are located on the dependency tree.
+Astra utilises the inbuilt Go AST (Abstract Syntax Tree) to parse the source code of your project. It then extracts the types from the source code and outputs them in the desired format. The documentation for the AST can be found [here](https://golang.org/pkg/go/ast/). The AST is a tree representation of the source code, which can be traversed to extract the types. We can then utilise the [Go tools packages library](https://pkg.go.dev/golang.org/x/tools/go/packages) to extract the types from the source code of the packages wherever they are located on the dependency tree.
 
 We have methods to extract types from the following:
 * Functions in your code
@@ -28,7 +28,7 @@ If caching is enabled, after each of these steps the caching process is run to m
 
 ### Setup
 
-The setup process creates the temporary directory `.gengo` at the current working directory. This temporary directory is used as a temporary storage for a copy of the main directory to be used in package traversal and also holds the cache files. The temporary directory is deleted at the end of the process.
+The setup process creates the temporary directory `.astra` at the current working directory. This temporary directory is used as a temporary storage for a copy of the main directory to be used in package traversal and also holds the cache files. The temporary directory is deleted at the end of the process.
 
 ### Create Routes
 

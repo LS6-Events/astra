@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Clean cleans up the structs
 // At the moment it only changes the package name of the main package to "main"

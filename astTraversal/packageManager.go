@@ -1,7 +1,7 @@
 package astTraversal
 
 import (
-	"github.com/ls6-events/gengo/utils"
+	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
 	"strings"

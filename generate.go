@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Generate generates the outputs utilising the stored data in the service
 func (s *Service) Generate() error {

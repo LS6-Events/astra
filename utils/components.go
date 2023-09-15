@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 )
 
 // AddComponent adds a component to a slice of components if it doesn't already exist
 // It uses the field type and package to determine if the component already exists
-func AddComponent(prev []gengo.Field, n ...gengo.Field) []gengo.Field {
+func AddComponent(prev []astra.Field, n ...astra.Field) []astra.Field {
 	for _, newComponent := range n {
 		if len(prev) == 0 {
 			prev = append(prev, newComponent)

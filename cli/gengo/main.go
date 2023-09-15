@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ls6-events/gengo/cli/gengo/cmd"
+	"github.com/ls6-events/astra/cli/astra/cmd"
 	"os"
 )
 
