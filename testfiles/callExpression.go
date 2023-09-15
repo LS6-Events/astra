@@ -4,7 +4,7 @@ package testfiles
 
 import (
 	"fmt"
-	"github.com/ls6-events/gengo/testfiles/otherpkg1"
+	"github.com/ls6-events/astra/testfiles/otherpkg1"
 	"strings"
 )
 

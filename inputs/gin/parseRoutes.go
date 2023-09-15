@@ -1,15 +1,15 @@
 package gin
 
 import (
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 )
 
 // ParseRoutes parses routes from a gin routes
 // It will populate the routes with the handler function
 // It will individually call parseRoute for each route
 // createRoutes must be called before this
-func ParseRoutes() gengo.ServiceFunction {
-	return func(s *gengo.Service) error {
+func ParseRoutes() astra.ServiceFunction {
+	return func(s *astra.Service) error {
 		s.Log.Debug().Msg("Populating routes from gin routes")
 		for _, route := range s.Routes {
 			s.Log.Debug().Str("path", route.Path).Str("method", route.Method).Msg("Populating route")

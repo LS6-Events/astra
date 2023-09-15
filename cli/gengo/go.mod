@@ -1,11 +1,11 @@
-module github.com/ls6-events/gengo/cli/gengo
+module github.com/ls6-events/astra/cli/astra
 
 go 1.19
 
-replace github.com/ls6-events/gengo => ../../
+replace github.com/ls6-events/astra => ../../
 
 require (
-	github.com/ls6-events/gengo v0.0.0-00010101000000-000000000000
+	github.com/ls6-events/astra v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.7.0
 )
 

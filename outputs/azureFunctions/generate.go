@@ -2,7 +2,7 @@ package azureFunctions
 
 import (
 	"encoding/json"
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 	"os"
 	"path"
 	"strings"
@@ -23,8 +23,8 @@ type AzureFunctionsOutput struct {
 	Bindings []AzureFunctionsBinding `json:"bindings"`
 }
 
-func Generate(directoryPath string) gengo.ServiceFunction {
-	return func(s *gengo.Service) error {
+func Generate(directoryPath string) astra.ServiceFunction {
+	return func(s *astra.Service) error {
 		s.Log.Debug().Msg("Generating Azure Functions output")
 
 		tempOutputDirectoryPath, err := s.SetupTempOutputDir(tempOutputDir)

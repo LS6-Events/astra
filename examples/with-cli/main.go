@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/cli"
-	"github.com/ls6-events/gengo/inputs"
-	"github.com/ls6-events/gengo/outputs"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/cli"
+	"github.com/ls6-events/astra/inputs"
+	"github.com/ls6-events/astra/outputs"
 )
 
 func main() {
@@ -23,9 +23,9 @@ func main() {
 		})
 	})
 
-	gen := gengo.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
+	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
 
-	config := gengo.Config{
+	config := astra.Config{
 		Title:   "Example API with Cache",
 		Version: "1.0.0",
 		Host:    "localhost",

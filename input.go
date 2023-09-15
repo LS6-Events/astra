@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // Input is the input for the generator
 type Input struct {

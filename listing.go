@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 import "regexp"
 

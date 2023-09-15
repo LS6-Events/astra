@@ -2,23 +2,23 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/cli"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/cli"
 	"github.com/spf13/cobra"
 	"os"
 	"path"
 )
 
 var (
-	cacheFile string = ".gengo/cache.json" // Location of the cache.json file
+	cacheFile string = ".astra/cache.json" // Location of the cache.json file
 	cwd       string = "."                 // Current working directory (where main.go is located)
 )
 
 // generateCmd represents the generate command
 // It is used to generate the service from a cache file
 // It requires the cache file to be passed in, and the working directory of the main.go file
-// By default the cache file is .gengo/cache.json and the working directory is the current directory
-// Example: gengo generate -c .gengo/cache.json -d .
+// By default the cache file is .astra/cache.json and the working directory is the current directory
+// Example: astra generate -c .astra/cache.json -d .
 var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generate the service",
@@ -35,7 +35,7 @@ var generateCmd = &cobra.Command{
 			cwd = path.Join(wd, cwd)
 		}
 
-		s := gengo.New(cli.WithCLIBuilder(), gengo.WithCustomWorkDir(cwd))
+		s := astra.New(cli.WithCLIBuilder(), astra.WithCustomWorkDir(cwd))
 
 		err := s.LoadCacheFromCustomPath(cacheFile)
 		if err != nil {

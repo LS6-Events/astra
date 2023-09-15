@@ -2,7 +2,7 @@ package json
 
 import (
 	"encoding/json"
-	"github.com/ls6-events/gengo"
+	"github.com/ls6-events/astra"
 	"os"
 	"path"
 	"strings"
@@ -11,14 +11,14 @@ import (
 // JSONOutput is the output of the JSON output
 // It will in essence be a copy of the service's output (routes and components)
 type JSONOutput struct {
-	Routes     []gengo.Route `json:"routes"`
-	Components []gengo.Field `json:"components"`
+	Routes     []astra.Route `json:"routes"`
+	Components []astra.Field `json:"components"`
 }
 
 // generate the JSON output
 // It will marshal the JSONOutput struct and write it to a file
-func Generate(filePath string) gengo.ServiceFunction {
-	return func(s *gengo.Service) error {
+func Generate(filePath string) astra.ServiceFunction {
+	return func(s *astra.Service) error {
 		s.Log.Info().Msg("Generating JSON output")
 		output := JSONOutput{
 			Routes:     s.Routes,

@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 // ParseRoutes iterates over the inputs and parses the routes from them
 // CreateRoutes should be called before ParseRoutes

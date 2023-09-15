@@ -1,4 +1,4 @@
-package gengo
+package astra
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ func (s *Service) Cache() error {
 	if s.CachePath != "" {
 		cachePath = s.CachePath
 	} else {
-		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
+		cachePath = path.Join(s.getAstraDirPath(), cacheFileName)
 	}
 
 	if _, err := os.Stat(cachePath); err == nil {
@@ -61,7 +61,7 @@ func (s *Service) LoadCache() error {
 	if s.CachePath != "" {
 		cachePath = s.CachePath
 	} else {
-		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
+		cachePath = path.Join(s.getAstraDirPath(), cacheFileName)
 	}
 
 	if _, err := os.Stat(cachePath); err != nil {
@@ -115,7 +115,7 @@ func (s *Service) ClearCache() error {
 	if s.CachePath != "" {
 		cachePath = s.CachePath
 	} else {
-		cachePath = path.Join(s.getGenGoDirPath(), cacheFileName)
+		cachePath = path.Join(s.getAstraDirPath(), cacheFileName)
 	}
 
 	if _, err := os.Stat(cachePath); err != nil {

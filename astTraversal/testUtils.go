@@ -15,7 +15,7 @@ func createTraverserFromTestFile(testFilePath string) (*BaseTraverser, error) {
 		return nil, err
 	}
 
-	for path.Base(wd) != "gengo" {
+	for path.Base(wd) != "astra" {
 		wd = path.Dir(wd)
 	}
 
@@ -30,7 +30,7 @@ func createTraverserFromTestFile(testFilePath string) (*BaseTraverser, error) {
 
 	traverser := New(wd)
 
-	packagePath := "github.com/ls6-events/gengo/" + relativeTestFilePath
+	packagePath := "github.com/ls6-events/astra/" + relativeTestFilePath
 
 	fileNode := &FileNode{
 		AST:      file,

@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/inputs"
-	"github.com/ls6-events/gengo/outputs"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/inputs"
+	"github.com/ls6-events/astra/outputs"
 )
 
 // These functions are used to rebind the inputs and outputs to the service, as the JSON unmarshalling does not call the functions to bind the inputs and outputs, and loses all their referenced functions
 
 // rebindOptions is used to rebind the inputs and outputs to the service
-func rebindOptions(s *gengo.Service) error {
+func rebindOptions(s *astra.Service) error {
 	err := rebindInputs(s)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func rebindOptions(s *gengo.Service) error {
 
 // rebindInputs is used to rebind the inputs to the service
 // It will have to be updated if more input modes are added
-func rebindInputs(s *gengo.Service) error {
+func rebindInputs(s *astra.Service) error {
 	inputsCopy := s.Inputs
 	s.Inputs = nil
 	for _, input := range inputsCopy {
@@ -33,7 +33,7 @@ func rebindInputs(s *gengo.Service) error {
 		case inputs.InputModeGin:
 			inputs.WithGinInput(nil)(s)
 		default:
-			return gengo.ErrInputModeNotFound
+			return astra.ErrInputModeNotFound
 		}
 	}
 
@@ -43,31 +43,31 @@ func rebindInputs(s *gengo.Service) error {
 // rebindOutputs is used to rebind the outputs to the service
 // It will have to be updated if more output modes are added
 // It utilises the configuration keys to get the file path for the output
-func rebindOutputs(s *gengo.Service) error {
+func rebindOutputs(s *astra.Service) error {
 	outputsCopy := s.Outputs
 	s.Outputs = nil
 	for _, output := range outputsCopy {
 		switch output.Mode {
 		case outputs.OutputModeAzureFunctions:
-			directoryPath, ok := output.Configuration[gengo.IOConfigurationKeyDirectoryPath].(string)
+			directoryPath, ok := output.Configuration[astra.IOConfigurationKeyDirectoryPath].(string)
 			if ok || directoryPath == "" {
-				return gengo.ErrOutputDirectoryPathRequired
+				return astra.ErrOutputDirectoryPathRequired
 			}
 			outputs.WithAzureFunctionsOutput(directoryPath)(s)
 		case outputs.OutputModeJSON:
-			filePath, ok := output.Configuration[gengo.IOConfigurationKeyFilePath].(string)
+			filePath, ok := output.Configuration[astra.IOConfigurationKeyFilePath].(string)
 			if !ok || filePath == "" {
-				return gengo.ErrOutputFilePathRequired
+				return astra.ErrOutputFilePathRequired
 			}
 			outputs.WithJSONOutput(filePath)(s)
 		case outputs.OutputModeOpenAPI:
-			filePath, ok := output.Configuration[gengo.IOConfigurationKeyFilePath].(string)
+			filePath, ok := output.Configuration[astra.IOConfigurationKeyFilePath].(string)
 			if !ok || filePath == "" {
-				return gengo.ErrOutputFilePathRequired
+				return astra.ErrOutputFilePathRequired
 			}
 			outputs.WithOpenAPIOutput(filePath)(s)
 		default:
-			return gengo.ErrOutputModeNotFound
+			return astra.ErrOutputModeNotFound
 		}
 	}
 

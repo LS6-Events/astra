@@ -1,22 +1,22 @@
 package cmd
 
 import (
-	"github.com/ls6-events/gengo"
-	"github.com/ls6-events/gengo/inputs"
-	"github.com/ls6-events/gengo/outputs"
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/inputs"
+	"github.com/ls6-events/astra/outputs"
 	"github.com/spf13/cobra"
 	"withcobra/routes"
 )
 
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Generate the OpenAPI specification using gengo",
+	Short: "Generate the OpenAPI specification using astra",
 	Run: func(cmd *cobra.Command, args []string) {
 		router := routes.GetRouter()
 
-		gen := gengo.New(inputs.WithGinInput(router), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
+		gen := astra.New(inputs.WithGinInput(router), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
-		config := gengo.Config{
+		config := astra.Config{
 			Title:   "Example API with Cache",
 			Version: "1.0.0",
 			Host:    "localhost",
