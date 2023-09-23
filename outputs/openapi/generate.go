@@ -113,6 +113,10 @@ func Generate(filePath string) astra.ServiceFunction {
 				}
 			}
 
+			if endpoint.Doc != "" {
+				operation.Description = endpoint.Doc
+			}
+
 			var endpointPath Path
 			if _, ok := paths[endpoint.Path]; !ok {
 				endpointPath = Path{}
@@ -149,6 +153,7 @@ func Generate(filePath string) astra.ServiceFunction {
 		for _, component := range s.Components {
 			s.Log.Debug().Str("name", component.Name).Msg("Adding component")
 			var schema Schema
+
 			if component.Type == "struct" {
 				embeddedProperties := make([]Schema, 0)
 				schema = Schema{
@@ -156,6 +161,8 @@ func Generate(filePath string) astra.ServiceFunction {
 					Properties: make(map[string]Schema),
 				}
 				for key, field := range component.StructFields {
+					// We should aim to use doc comments in the future
+					// However https://github.com/OAI/OpenAPI-Specification/issues/1514
 					if field.IsEmbedded {
 						embeddedProperties = append(embeddedProperties, Schema{
 							Ref: makeComponentRef(field.Type, field.Package),
@@ -209,6 +216,11 @@ func Generate(filePath string) astra.ServiceFunction {
 			} else {
 				schema = mapAcceptedType(component.Type)
 			}
+
+			if component.Doc != "" {
+				schema.Description = component.Doc
+			}
+
 			components.Schemas[makeComponentRefName(component.Name, component.Package)] = schema
 		}
 		s.Log.Debug().Msg("Added components")

@@ -15,6 +15,7 @@ type Route struct {
 	QueryParams []Param      `json:"queryParams,omitempty" yaml:"queryParams,omitempty"`
 	Body        []Param      `json:"body,omitempty" yaml:"body,omitempty"`
 	ReturnTypes []ReturnType `json:"returnTypes,omitempty" yaml:"returnTypes,omitempty"`
+	Doc         string       `json:"doc,omitempty" yaml:"doc,omitempty"`
 }
 
 // ReturnType is a return type for a route
@@ -68,4 +69,6 @@ type Field struct {
 	MapValueType  string `json:"mapValueType,omitempty" yaml:"mapValueType,omitempty"`
 
 	StructFields map[string]Field `json:"structFields,omitempty" yaml:"structFields,omitempty"`
+
+	Doc string `json:"doc,omitempty" yaml:"doc,omitempty"`
 }

@@ -1,5 +1,7 @@
 package astTraversal
 
+import "go/doc"
+
 type Result struct {
 	// Type is the type of the result
 	Type string
@@ -44,4 +46,7 @@ type Result struct {
 
 	// StructFields is a map of struct fields (e.g. for a struct { Foo string })
 	StructFields map[string]Result
+
+	// Doc is the documentation of the result
+	Doc *doc.Type
 }
