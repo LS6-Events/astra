@@ -1,8 +1,8 @@
 package astTraversal
 
 import (
+	"go/doc"
 	"go/types"
-	"reflect"
 	"strings"
 )
 
@@ -40,7 +40,14 @@ func (t *TypeTraverser) Result() (Result, error) {
 			if err != nil {
 				return Result{}, err
 			}
+
 			namedUnderlyingResult.Name = n.Obj().Name()
+
+			namedUnderlyingResult.Doc, err = t.Doc()
+			if err != nil {
+				return Result{}, err
+			}
+
 			err = t.Traverser.addComponent(namedUnderlyingResult)
 			if err != nil {
 				return Result{}, err
@@ -98,51 +105,14 @@ func (t *TypeTraverser) Result() (Result, error) {
 		fields := make(map[string]Result)
 		for i := 0; i < n.NumFields(); i++ {
 			f := n.Field(i)
-
-			isRequired := false
 			isEmbedded := f.Embedded()
-			isShown := true
-			name := f.Id()
 
 			// Get if "binding:required" tag is present and json/yaml/xml/form as well
 			tag := n.Tag(i)
-			if tag != "" {
-				binding := reflect.StructTag(tag).Get("binding")
-				if binding != "" {
-					isRequired = strings.Contains(binding, "required")
-				}
+			name, isRequired, isShown := ParseStructTag(tag)
 
-				yaml := reflect.StructTag(tag).Get("yaml")
-				if yaml != "" && yaml != "-" {
-					isShown = true
-					name = strings.Split(yaml, ",")[0]
-				} else if yaml == "-" && isShown {
-					isShown = false
-				}
-
-				xml := reflect.StructTag(tag).Get("xml")
-				if xml != "" && xml != "-" {
-					isShown = true
-					name = strings.Split(xml, ",")[0]
-				} else if xml == "-" && isShown {
-					isShown = false
-				}
-
-				form := reflect.StructTag(tag).Get("form")
-				if form != "" && form != "-" {
-					isShown = true
-					name = strings.Split(form, ",")[0]
-				} else if form == "-" && isShown {
-					isShown = false
-				}
-
-				json := reflect.StructTag(tag).Get("json")
-				if json != "" && json != "-" {
-					isShown = true
-					name = strings.Split(json, ",")[0]
-				} else if json == "-" && isShown {
-					isShown = false
-				}
+			if name == "" {
+				name = f.Id()
 			}
 
 			if !f.Exported() {
@@ -180,4 +150,22 @@ func (t *TypeTraverser) Result() (Result, error) {
 	} else {
 		return Result{}, ErrInvalidNodeType
 	}
+}
+
+func (t *TypeTraverser) Doc() (*doc.Type, error) {
+	pkgDoc, err := t.Package.GoDoc()
+	if err != nil {
+		return nil, err
+	}
+
+	splitNode := strings.Split(t.Node.String(), ".")
+	nodeName := splitNode[len(splitNode)-1]
+
+	for _, typ := range pkgDoc.Types {
+		if typ.Name == nodeName {
+			return typ, nil
+		}
+	}
+
+	return nil, nil
 }

@@ -2,6 +2,7 @@ package astTraversal
 
 import (
 	"go/ast"
+	"go/doc"
 	"go/types"
 )
 
@@ -9,10 +10,12 @@ type FunctionTraverser struct {
 	Traverser *BaseTraverser
 	Node      *ast.FuncLit
 	File      *FileNode
+	DeclNode  *ast.FuncDecl
 }
 
 func (t *BaseTraverser) Function(node ast.Node) (*FunctionTraverser, error) {
 	var funcLit *ast.FuncLit
+	var funcDecl *ast.FuncDecl
 	switch n := node.(type) {
 	case *ast.FuncLit:
 		funcLit = n
@@ -21,6 +24,7 @@ func (t *BaseTraverser) Function(node ast.Node) (*FunctionTraverser, error) {
 			Type: n.Type,
 			Body: n.Body,
 		}
+		funcDecl = n
 	default:
 		return nil, ErrInvalidNodeType
 	}
@@ -29,6 +33,7 @@ func (t *BaseTraverser) Function(node ast.Node) (*FunctionTraverser, error) {
 		Traverser: t,
 		Node:      funcLit,
 		File:      t.ActiveFile(),
+		DeclNode:  funcDecl,
 	}, nil
 }
 
@@ -69,4 +74,19 @@ func (f *FunctionTraverser) FindArgumentNameByType(typeName string, packagePath 
 	}
 
 	return ""
+}
+
+func (f *FunctionTraverser) GoDoc() (*doc.Func, error) {
+	pkgDoc, err := f.File.Package.GoDoc()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, fun := range pkgDoc.Funcs {
+		if fun.Name == f.DeclNode.Name.Name {
+			return fun, nil
+		}
+	}
+
+	return nil, nil
 }

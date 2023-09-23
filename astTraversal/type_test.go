@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go/token"
 	"go/types"
+	"strings"
 	"testing"
 )
 
@@ -82,5 +83,31 @@ func TestTypeTraverser_Result(t *testing.T) {
 		assert.True(t, ok)
 		assert.Equal(t, "int", ageField.Type)
 		assert.True(t, ageField.IsRequired)
+	})
+}
+
+func TestTypeTraverser_Doc(t *testing.T) {
+	baseTraverser, err := createTraverserFromTestFile("usefulTypes.go")
+	assert.NoError(t, err)
+
+	_, err = baseTraverser.Packages.Get(baseTraverser.ActiveFile().Package)
+	assert.NoError(t, err)
+
+	t.Run("Basic", func(t *testing.T) {
+		tt := baseTraverser.Type(types.Typ[types.Int], baseTraverser.ActiveFile().Package)
+		doc, err := tt.Doc()
+		assert.Nil(t, err)
+		assert.Nil(t, doc)
+	})
+
+	t.Run("Named", func(t *testing.T) {
+		// The only test that requires us having to use the testfiles package - looking at MyStruct in usefulTypes.go
+		namedType, err := baseTraverser.ActiveFile().Package.FindObjectForName("MyStruct")
+		assert.NoError(t, err)
+
+		tt := baseTraverser.Type(namedType.Type(), baseTraverser.ActiveFile().Package)
+		doc, err := tt.Doc()
+		assert.Nil(t, err)
+		assert.Equal(t, "MyStruct is a struct", strings.TrimSpace(doc.Doc))
 	})
 }

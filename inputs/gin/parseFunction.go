@@ -7,6 +7,7 @@ import (
 	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"go/types"
+	"strings"
 )
 
 const (
@@ -29,6 +30,14 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 
 	traverser.SetActiveFile(activeFile)
 	traverser.SetAddComponentFunction(addComponent(s))
+
+	if level == 0 {
+		funcDoc, err := funcTraverser.GoDoc()
+		if err != nil {
+			return err
+		}
+		currRoute.Doc = strings.TrimSpace(funcDoc.Doc)
+	}
 
 	ctxName := funcTraverser.FindArgumentNameByType(GinContextType, GinPackagePath, GinContextIsPointer)
 	if ctxName == "" {
@@ -383,6 +392,11 @@ func parseResultToField(result astTraversal.Result) astra.Field {
 		MapValueType: result.MapValueType,
 	}
 
+	// If the godoc is populated, we need to parse the response
+	if result.Doc != nil {
+		field.Doc = strings.TrimSpace(result.Doc.Doc)
+	}
+
 	// If the type is not a primitive type, we need to get the package path
 	// If the type is named, it is referring to a type
 	// If the slice type is populated and not a primitive type, we need to get the package path for the slice
@@ -404,7 +418,48 @@ func parseResultToField(result astTraversal.Result) astra.Field {
 	if result.StructFields != nil {
 		field.StructFields = make(map[string]astra.Field)
 		for name, value := range result.StructFields {
-			field.StructFields[name] = parseResultToField(value)
+
+			// Check if the result's Doc and Decl are populated.
+			// If they are, iterate over each spec in the Decl's specs.
+			// If the spec is a TypeSpec and its Type is a StructType,
+			// iterate over each field in the StructType's fields.
+			// If the field's name matches the given name and its Doc is not empty,
+			// store the trimmed Doc text in the 'doc' variable and break out of the loops.
+			var doc string
+			if result.Doc != nil && result.Doc.Decl != nil {
+				for _, spec := range result.Doc.Decl.Specs {
+					if typeSpec, ok := spec.(*ast.TypeSpec); ok {
+						if structType, ok := typeSpec.Type.(*ast.StructType); ok {
+							for _, structField := range structType.Fields.List {
+								fieldName, _, isShown := astTraversal.ParseStructTag(strings.Trim(structField.Tag.Value, "`"))
+								if !isShown {
+									continue
+								}
+
+								if fieldName == "" {
+									fieldName = structField.Names[0].Name
+								}
+
+								if fieldName == name {
+									fieldDoc := strings.TrimSpace(structField.Doc.Text())
+									if fieldDoc != "" {
+										doc = fieldDoc
+										break
+									}
+								}
+							}
+
+							if doc != "" {
+								break
+							}
+						}
+					}
+				}
+			}
+
+			structField := parseResultToField(value)
+			structField.Doc = doc
+			field.StructFields[name] = structField
 		}
 	}
 
