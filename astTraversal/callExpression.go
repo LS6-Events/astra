@@ -58,7 +58,20 @@ func (c *CallExpressionTraverser) Args() []ast.Expr {
 }
 
 func (c *CallExpressionTraverser) Type() (*types.Func, error) {
-	obj, err := c.File.Package.FindObjectForIdent(c.Node.Fun.(*ast.SelectorExpr).Sel)
+	if c.Node.Fun == nil {
+		return nil, ErrInvalidNodeType
+	}
+
+	var obj types.Object
+	var err error
+	switch c.Node.Fun.(type) {
+	case *ast.Ident:
+		obj, err = c.File.Package.FindObjectForIdent(c.Node.Fun.(*ast.Ident))
+	case *ast.SelectorExpr:
+		obj, err = c.File.Package.FindObjectForIdent(c.Node.Fun.(*ast.SelectorExpr).Sel)
+	default:
+		err = ErrInvalidNodeType
+	}
 	if err != nil {
 		return nil, err
 	}
