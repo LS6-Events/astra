@@ -153,7 +153,7 @@ func (t *TypeTraverser) Result() (Result, error) {
 }
 
 func (t *TypeTraverser) Doc() (*doc.Type, error) {
-	pkgDoc, err := t.Package.GoDoc()
+	pkgDoc, err := t.Traverser.Packages.GoDoc(t.Package)
 	if err != nil {
 		return nil, err
 	}

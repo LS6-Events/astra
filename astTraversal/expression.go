@@ -29,7 +29,7 @@ func (e *ExpressionTraverser) SetReturnNum(returnNum int) *ExpressionTraverser {
 	return e
 }
 
-func (e *ExpressionTraverser) ReservedFunctions(callExpr *ast.CallExpr) (types.Type, error) {
+func (e *ExpressionTraverser) BuiltInFunctions(callExpr *ast.CallExpr) (types.Type, error) {
 	if ident, ok := callExpr.Fun.(*ast.Ident); ok {
 		switch ident.Name {
 		case "new":
@@ -149,7 +149,7 @@ func (e *ExpressionTraverser) Type() (types.Type, error) {
 	case *ast.BasicLit:
 		return e.File.Package.FindTypeForExpr(n)
 	case *ast.CallExpr:
-		result, err := e.ReservedFunctions(n)
+		result, err := e.BuiltInFunctions(n)
 		if err != nil {
 			return nil, err
 		}

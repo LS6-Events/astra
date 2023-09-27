@@ -1,4 +1,4 @@
-package utils
+package astTraversal
 
 import (
 	"fmt"
@@ -14,9 +14,32 @@ func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	if pkg, ok := cachedPackages[pkgPath]; ok {
 		return pkg, nil
 	}
+
+	pkg, err := LoadPackageNoCache(pkgPath, workDir)
+	if err != nil {
+		return nil, err
+	}
+
+	cachedPackages[pkgPath] = pkg
+
+	return pkg, nil
+}
+
+// LoadPackageNoCache loads a package from a path
+// It will never use the cache
+func LoadPackageNoCache(pkgPath string, workDir string) (*packages.Package, error) {
 	pkgs, err := packages.Load(&packages.Config{
-		Mode: packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo | packages.NeedImports | packages.NeedDeps | packages.NeedName,
-		Dir:  workDir,
+		Mode: packages.NeedName |
+			packages.NeedFiles |
+			packages.NeedImports |
+			packages.NeedDeps |
+			packages.NeedExportFile |
+			packages.NeedTypes |
+			packages.NeedSyntax |
+			packages.NeedTypesInfo |
+			packages.NeedTypesSizes |
+			packages.NeedModule,
+		Dir: workDir,
 	}, pkgPath)
 	if err != nil {
 		return nil, err
@@ -40,8 +63,6 @@ func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	if len(pkgs) == 0 {
 		return nil, fmt.Errorf("package %s not found", pkgPath)
 	}
-
-	cachedPackages[pkgPath] = pkgs[0]
 
 	return pkgs[0], nil
 }

@@ -49,7 +49,7 @@ func (d *DeclarationTraverser) Value() (ast.Node, error) {
 }
 
 func (d *DeclarationTraverser) GoDoc() (*doc.Value, error) {
-	pkgDoc, err := d.File.Package.GoDoc()
+	pkgDoc, err := d.Traverser.Packages.GoDoc(d.File.Package)
 	if err != nil {
 		return nil, err
 	}

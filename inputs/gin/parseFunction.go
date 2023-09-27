@@ -36,7 +36,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 		if err != nil {
 			return err
 		}
-		currRoute.Doc = strings.TrimSpace(funcDoc.Doc)
+		if funcDoc != nil {
+			currRoute.Doc = strings.TrimSpace(funcDoc.Doc)
+		}
 	}
 
 	ctxName := funcTraverser.FindArgumentNameByType(GinContextType, GinPackagePath, GinContextIsPointer)
@@ -431,13 +433,19 @@ func parseResultToField(result astTraversal.Result) astra.Field {
 					if typeSpec, ok := spec.(*ast.TypeSpec); ok {
 						if structType, ok := typeSpec.Type.(*ast.StructType); ok {
 							for _, structField := range structType.Fields.List {
-								fieldName, _, isShown := astTraversal.ParseStructTag(strings.Trim(structField.Tag.Value, "`"))
-								if !isShown {
-									continue
+								var fieldName string
+								var isShown bool
+								if structField.Tag == nil && len(structField.Names) == 0 {
+									isShown = false
+								} else if structField.Tag == nil {
+									fieldName = structField.Names[0].Name
+									isShown = true
+								} else {
+									fieldName, _, isShown = astTraversal.ParseStructTag(strings.Trim(structField.Tag.Value, "`"))
 								}
 
-								if fieldName == "" {
-									fieldName = structField.Names[0].Name
+								if !isShown {
+									continue
 								}
 
 								if fieldName == name {

@@ -194,15 +194,3 @@ func (p *PackageNode) ASTAtPos(pos token.Pos) (ast.Node, error) {
 
 	return nil, fmt.Errorf("node at %s not found in package %s", node, p.Path())
 }
-
-func (p *PackageNode) GoDoc() (*doc.Package, error) {
-	if p.Doc == nil {
-		var err error
-		p.Doc, err = doc.NewFromFiles(p.Package.Fset, p.Package.Syntax, p.Path(), doc.AllDecls)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return p.Doc, nil
-}

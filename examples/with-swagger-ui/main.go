@@ -28,7 +28,7 @@ func main() {
 	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./swaggerui/swagger.json"), astra.WithPathDenyListRegex(regexp.MustCompile("^/swaggerui.*")))
 
 	config := astra.Config{
-		Title:   "Example API",
+		Title:   "Example API with Swagger UI",
 		Version: "1.0.0",
 		Host:    "localhost",
 		Port:    8000,

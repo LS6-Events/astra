@@ -50,7 +50,7 @@ func Generate(filePath string) astra.ServiceFunction {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding endpointPath parameter")
 				operation.Parameters = append(operation.Parameters, Parameter{
 					Name:     pathParam.Name,
-					In:       "endpointPath",
+					In:       "path",
 					Required: pathParam.IsRequired,
 				})
 			}

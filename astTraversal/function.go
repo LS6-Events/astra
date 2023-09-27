@@ -77,13 +77,13 @@ func (f *FunctionTraverser) FindArgumentNameByType(typeName string, packagePath 
 }
 
 func (f *FunctionTraverser) GoDoc() (*doc.Func, error) {
-	pkgDoc, err := f.File.Package.GoDoc()
+	pkgDoc, err := f.Traverser.Packages.GoDoc(f.File.Package)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, fun := range pkgDoc.Funcs {
-		if fun.Name == f.DeclNode.Name.Name {
+		if f.DeclNode != nil && fun.Name == f.DeclNode.Name.Name {
 			return fun, nil
 		}
 	}

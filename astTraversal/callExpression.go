@@ -64,11 +64,11 @@ func (c *CallExpressionTraverser) Type() (*types.Func, error) {
 
 	var obj types.Object
 	var err error
-	switch c.Node.Fun.(type) {
+	switch nodeFun := c.Node.Fun.(type) {
 	case *ast.Ident:
-		obj, err = c.File.Package.FindObjectForIdent(c.Node.Fun.(*ast.Ident))
+		obj, err = c.File.Package.FindObjectForIdent(nodeFun)
 	case *ast.SelectorExpr:
-		obj, err = c.File.Package.FindObjectForIdent(c.Node.Fun.(*ast.SelectorExpr).Sel)
+		obj, err = c.File.Package.FindObjectForIdent(nodeFun.Sel)
 	default:
 		err = ErrInvalidNodeType
 	}
@@ -76,7 +76,14 @@ func (c *CallExpressionTraverser) Type() (*types.Func, error) {
 		return nil, err
 	}
 
-	return obj.(*types.Func), nil
+	switch objType := obj.(type) {
+	case *types.Func:
+		return objType, nil
+	case *types.Builtin:
+		return nil, ErrBuiltInFunction
+	}
+
+	return nil, ErrInvalidNodeType
 }
 
 func (c *CallExpressionTraverser) ReturnType(returnNum int) (types.Type, error) {

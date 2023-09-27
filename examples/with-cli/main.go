@@ -26,7 +26,7 @@ func main() {
 	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"), cli.WithCLI())
 
 	config := astra.Config{
-		Title:   "Example API with Cache",
+		Title:   "Example API with CLI",
 		Version: "1.0.0",
 		Host:    "localhost",
 		Port:    8000,

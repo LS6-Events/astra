@@ -2,8 +2,6 @@ module github.com/ls6-events/astra/cli/astra
 
 go 1.21
 
-toolchain go1.21.0
-
 replace github.com/ls6-events/astra => ../../
 
 require (
