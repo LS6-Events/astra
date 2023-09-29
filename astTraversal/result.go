@@ -1,7 +1,5 @@
 package astTraversal
 
-import "go/doc"
-
 type Result struct {
 	// Type is the type of the result
 	Type string
@@ -48,5 +46,5 @@ type Result struct {
 	StructFields map[string]Result
 
 	// Doc is the documentation of the result
-	Doc *doc.Type
+	Doc string
 }

@@ -32,12 +32,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 	traverser.SetAddComponentFunction(addComponent(s))
 
 	if level == 0 {
-		funcDoc, err := funcTraverser.GoDoc()
+		funcDoc, err := funcTraverser.Doc()
 		if err != nil {
 			return err
 		}
-		if funcDoc != nil {
-			currRoute.Doc = strings.TrimSpace(funcDoc.Doc)
+		if funcDoc != "" {
+			currRoute.Doc = strings.TrimSpace(funcDoc)
 		}
 	}
 
@@ -395,8 +395,8 @@ func parseResultToField(result astTraversal.Result) astra.Field {
 	}
 
 	// If the godoc is populated, we need to parse the response
-	if result.Doc != nil {
-		field.Doc = strings.TrimSpace(result.Doc.Doc)
+	if result.Doc != "" {
+		field.Doc = strings.TrimSpace(result.Doc)
 	}
 
 	// If the type is not a primitive type, we need to get the package path
@@ -420,53 +420,7 @@ func parseResultToField(result astTraversal.Result) astra.Field {
 	if result.StructFields != nil {
 		field.StructFields = make(map[string]astra.Field)
 		for name, value := range result.StructFields {
-
-			// Check if the result's Doc and Decl are populated.
-			// If they are, iterate over each spec in the Decl's specs.
-			// If the spec is a TypeSpec and its Type is a StructType,
-			// iterate over each field in the StructType's fields.
-			// If the field's name matches the given name and its Doc is not empty,
-			// store the trimmed Doc text in the 'doc' variable and break out of the loops.
-			var doc string
-			if result.Doc != nil && result.Doc.Decl != nil {
-				for _, spec := range result.Doc.Decl.Specs {
-					if typeSpec, ok := spec.(*ast.TypeSpec); ok {
-						if structType, ok := typeSpec.Type.(*ast.StructType); ok {
-							for _, structField := range structType.Fields.List {
-								var fieldName string
-								var isShown bool
-								if structField.Tag == nil && len(structField.Names) == 0 {
-									isShown = false
-								} else if structField.Tag == nil {
-									fieldName = structField.Names[0].Name
-									isShown = true
-								} else {
-									fieldName, _, isShown = astTraversal.ParseStructTag(strings.Trim(structField.Tag.Value, "`"))
-								}
-
-								if !isShown {
-									continue
-								}
-
-								if fieldName == name {
-									fieldDoc := strings.TrimSpace(structField.Doc.Text())
-									if fieldDoc != "" {
-										doc = fieldDoc
-										break
-									}
-								}
-							}
-
-							if doc != "" {
-								break
-							}
-						}
-					}
-				}
-			}
-
 			structField := parseResultToField(value)
-			structField.Doc = doc
 			field.StructFields[name] = structField
 		}
 	}

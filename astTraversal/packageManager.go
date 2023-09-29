@@ -2,7 +2,6 @@ package astTraversal
 
 import (
 	"go/ast"
-	"go/doc"
 	"golang.org/x/tools/go/packages"
 	"strings"
 	"sync"
@@ -144,31 +143,4 @@ func (pm *PackageManager) MapImportSpecs(imports []*ast.ImportSpec) []FileImport
 	}
 
 	return fileImports
-}
-
-func (pm *PackageManager) GoDoc(p *PackageNode) (*doc.Package, error) {
-	if p.Doc == nil {
-		// We have to reload the package to get the doc
-		// This is due to the doc package overwriting the syntax field / the ASTs
-		// For the record, I hate this
-		path := p.Path()
-		for _, loader := range pm.pathLoaders {
-			newPath, err := loader(path)
-			if err == nil {
-				path = newPath
-				break
-			}
-		}
-
-		pkg, err := LoadPackageNoCache(path, pm.workDir)
-		if err != nil {
-			return nil, err
-		}
-		p.Doc, err = doc.NewFromFiles(pkg.Fset, pkg.Syntax, p.Path(), doc.AllDecls)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return p.Doc, nil
 }

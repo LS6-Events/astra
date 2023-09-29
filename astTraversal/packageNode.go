@@ -3,7 +3,6 @@ package astTraversal
 import (
 	"fmt"
 	"go/ast"
-	"go/doc"
 	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -15,7 +14,6 @@ type PackageNode struct {
 	Package *packages.Package
 	Edges   []*PackageNode
 	Files   []*FileNode
-	Doc     *doc.Package
 }
 
 func (p *PackageNode) Path() string {
