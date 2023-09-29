@@ -108,6 +108,6 @@ func TestTypeTraverser_Doc(t *testing.T) {
 		tt := baseTraverser.Type(namedType.Type(), baseTraverser.ActiveFile().Package)
 		doc, err := tt.Doc()
 		assert.Nil(t, err)
-		assert.Equal(t, "MyStruct is a struct", strings.TrimSpace(doc.Doc))
+		assert.Equal(t, "MyStruct is a struct", strings.TrimSpace(doc))
 	})
 }
