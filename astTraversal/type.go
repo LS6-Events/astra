@@ -127,13 +127,22 @@ func (t *TypeTraverser) Result() (Result, error) {
 				return Result{}, err
 			}
 
-			pos := f.Pos()
+			if structFieldResult.Package != nil {
+				_, err = t.Traverser.Packages.Get(structFieldResult.Package)
+				if err != nil {
+					return Result{}, err
+				}
 
-			node, err := t.Package.ASTAtPos(pos)
-			if err != nil || node == nil {
-				t.Traverser.Log.Warn().Err(err).Msgf("failed to get AST at position %d for field %s", pos, f.Id())
-			} else if field, ok := node.(*ast.Field); ok {
-				structFieldResult.Doc = FormatDoc(field.Doc.Text())
+				pos := f.Pos()
+
+				// TODO - this isn't working entirely well for external packages
+				// Needs investigation
+				node, err := structFieldResult.Package.ASTAtPos(pos)
+				if err != nil || node == nil {
+					t.Traverser.Log.Warn().Err(err).Msgf("failed to get AST at position %d for field %s", pos, f.Id())
+				} else if field, ok := node.(*ast.Field); ok {
+					structFieldResult.Doc = FormatDoc(field.Doc.Text())
+				}
 			}
 
 			structFieldResult.IsRequired = isRequired

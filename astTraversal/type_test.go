@@ -97,7 +97,7 @@ func TestTypeTraverser_Doc(t *testing.T) {
 		tt := baseTraverser.Type(types.Typ[types.Int], baseTraverser.ActiveFile().Package)
 		doc, err := tt.Doc()
 		assert.Nil(t, err)
-		assert.Nil(t, doc)
+		assert.Empty(t, doc)
 	})
 
 	t.Run("Named", func(t *testing.T) {
