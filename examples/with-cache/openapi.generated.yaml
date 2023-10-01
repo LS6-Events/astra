@@ -30,6 +30,11 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/withcache_types.Post'
         post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/withcache_types.PostDTO'
             responses:
                 "200":
                     description: ""
@@ -67,6 +72,11 @@ paths:
                 - name: id
                   in: path
                   required: true
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/withcache_types.PostDTO'
             responses:
                 "200":
                     description: ""
@@ -110,7 +120,7 @@ components:
                     type: integer
                 last_name:
                     type: string
-        withcache_types.Post:
+        withcache_types.Comment:
             type: object
             properties:
                 author:
@@ -119,7 +129,27 @@ components:
                     type: string
                 id:
                     type: integer
+        withcache_types.Post:
+            type: object
+            properties:
+                author:
+                    $ref: '#/components/schemas/withcache_types.Author'
+                body:
+                    type: string
+                comments:
+                    type: array
+                id:
+                    type: integer
                 name:
                     type: string
                 published_at:
                     $ref: '#/components/schemas/time.Time'
+        withcache_types.PostDTO:
+            type: object
+            properties:
+                author_id:
+                    type: integer
+                body:
+                    type: string
+                name:
+                    type: string

@@ -22,6 +22,7 @@ For example, if you had a Go backend that used the [Gin](https://www.github.com/
 * Support for denying functions from being parsed
 * Support for custom logging
 * Support for custom status codes _they must be defined as constants/only defined once (`http.StatusX` is perfect, or `200`)_
+* Support for comments in struct fields and above named types
 
 ## Supported Formats
 

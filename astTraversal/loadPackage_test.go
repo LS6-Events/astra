@@ -1,4 +1,4 @@
-package utils
+package astTraversal
 
 import (
 	"github.com/stretchr/testify/assert"

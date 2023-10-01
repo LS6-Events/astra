@@ -2,7 +2,6 @@ package astTraversal
 
 import (
 	"go/ast"
-	"go/doc"
 	"go/types"
 )
 
@@ -76,17 +75,10 @@ func (f *FunctionTraverser) FindArgumentNameByType(typeName string, packagePath 
 	return ""
 }
 
-func (f *FunctionTraverser) GoDoc() (*doc.Func, error) {
-	pkgDoc, err := f.File.Package.GoDoc()
-	if err != nil {
-		return nil, err
+func (f *FunctionTraverser) Doc() (string, error) {
+	if f.DeclNode == nil || f.DeclNode.Doc == nil {
+		return "", nil
 	}
 
-	for _, fun := range pkgDoc.Funcs {
-		if fun.Name == f.DeclNode.Name.Name {
-			return fun, nil
-		}
-	}
-
-	return nil, nil
+	return FormatDoc(f.DeclNode.Doc.Text()), nil
 }

@@ -30,6 +30,11 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/azurefunctions_types.Post'
         post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/azurefunctions_types.PostDTO'
             responses:
                 "200":
                     description: ""
@@ -67,6 +72,11 @@ paths:
                 - name: id
                   in: path
                   required: true
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/azurefunctions_types.PostDTO'
             responses:
                 "200":
                     description: ""
@@ -105,7 +115,7 @@ components:
                     type: integer
                 last_name:
                     type: string
-        azurefunctions_types.Post:
+        azurefunctions_types.Comment:
             type: object
             properties:
                 author:
@@ -114,10 +124,30 @@ components:
                     type: string
                 id:
                     type: integer
+        azurefunctions_types.Post:
+            type: object
+            properties:
+                author:
+                    $ref: '#/components/schemas/azurefunctions_types.Author'
+                body:
+                    type: string
+                comments:
+                    type: array
+                id:
+                    type: integer
                 name:
                     type: string
                 published_at:
                     $ref: '#/components/schemas/time.Time'
+        azurefunctions_types.PostDTO:
+            type: object
+            properties:
+                author_id:
+                    type: integer
+                body:
+                    type: string
+                name:
+                    type: string
         github.com_gin-gonic_gin.H:
             type: object
             additionalProperties: {}

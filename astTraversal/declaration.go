@@ -2,7 +2,6 @@ package astTraversal
 
 import (
 	"go/ast"
-	"go/doc"
 )
 
 type DeclarationTraverser struct {
@@ -48,40 +47,11 @@ func (d *DeclarationTraverser) Value() (ast.Node, error) {
 	}
 }
 
-func (d *DeclarationTraverser) GoDoc() (*doc.Value, error) {
-	pkgDoc, err := d.File.Package.GoDoc()
-	if err != nil {
-		return nil, err
-	}
-
+func (d *DeclarationTraverser) Doc() (string, error) {
 	switch n := d.Decl.(type) {
-	case *ast.ValueSpec:
-		var index int
-		for i, name := range n.Names {
-			if d.VarName == d.Traverser.ExtractVarName(name).Type {
-				index = i
-			}
-		}
-
-		for _, constDoc := range pkgDoc.Consts {
-			for _, name := range constDoc.Names {
-				if name == n.Names[index].Name {
-					return constDoc, nil
-				}
-			}
-		}
-
-		for _, varDoc := range pkgDoc.Vars {
-			for _, name := range varDoc.Names {
-				if name == n.Names[index].Name {
-					return varDoc, nil
-				}
-			}
-		}
-	case *ast.AssignStmt:
-		// GoDoc for assignment statements is not supported
-		return nil, nil
+	case *ast.GenDecl:
+		return FormatDoc(n.Doc.Text()), nil
+	default:
+		return "", nil
 	}
-
-	return nil, nil
 }

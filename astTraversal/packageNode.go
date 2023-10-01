@@ -3,7 +3,6 @@ package astTraversal
 import (
 	"fmt"
 	"go/ast"
-	"go/doc"
 	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -15,7 +14,6 @@ type PackageNode struct {
 	Package *packages.Package
 	Edges   []*PackageNode
 	Files   []*FileNode
-	Doc     *doc.Package
 }
 
 func (p *PackageNode) Path() string {
@@ -193,16 +191,4 @@ func (p *PackageNode) ASTAtPos(pos token.Pos) (ast.Node, error) {
 	}
 
 	return nil, fmt.Errorf("node at %s not found in package %s", node, p.Path())
-}
-
-func (p *PackageNode) GoDoc() (*doc.Package, error) {
-	if p.Doc == nil {
-		var err error
-		p.Doc, err = doc.NewFromFiles(p.Package.Fset, p.Package.Syntax, p.Path(), doc.AllDecls)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return p.Doc, nil
 }

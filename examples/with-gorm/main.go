@@ -43,7 +43,7 @@ func main() {
 	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
 	config := astra.Config{
-		Title:   "Example API",
+		Title:   "Example API with GORM",
 		Version: "1.0.0",
 		Host:    "localhost",
 		Port:    8000,

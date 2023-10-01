@@ -1,7 +1,6 @@
 package astTraversal
 
 import (
-	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
 	"strings"
@@ -72,7 +71,7 @@ func (pm *PackageManager) Get(n *PackageNode) (*packages.Package, error) {
 				break
 			}
 		}
-		pkg, err := utils.LoadPackage(path, pm.workDir)
+		pkg, err := LoadPackage(path, pm.workDir)
 		if err != nil {
 			return nil, err
 		}

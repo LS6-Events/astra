@@ -97,7 +97,7 @@ func TestTypeTraverser_Doc(t *testing.T) {
 		tt := baseTraverser.Type(types.Typ[types.Int], baseTraverser.ActiveFile().Package)
 		doc, err := tt.Doc()
 		assert.Nil(t, err)
-		assert.Nil(t, doc)
+		assert.Empty(t, doc)
 	})
 
 	t.Run("Named", func(t *testing.T) {
@@ -108,6 +108,6 @@ func TestTypeTraverser_Doc(t *testing.T) {
 		tt := baseTraverser.Type(namedType.Type(), baseTraverser.ActiveFile().Package)
 		doc, err := tt.Doc()
 		assert.Nil(t, err)
-		assert.Equal(t, "MyStruct is a struct", strings.TrimSpace(doc.Doc))
+		assert.Equal(t, "MyStruct is a struct", strings.TrimSpace(doc))
 	})
 }

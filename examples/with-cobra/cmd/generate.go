@@ -17,7 +17,7 @@ var generateCmd = &cobra.Command{
 		gen := astra.New(inputs.WithGinInput(router), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
 		config := astra.Config{
-			Title:   "Example API with Cache",
+			Title:   "Example API with Cobra",
 			Version: "1.0.0",
 			Host:    "localhost",
 			Port:    8000,
