@@ -28,28 +28,31 @@ func (t *TypeTraverser) Result() (Result, error) {
 			Package: t.Package,
 		}
 	case *types.Named:
-		pkg := t.Traverser.Packages.FindOrAdd(n.Obj().Pkg().Path())
-		_, err := t.Traverser.Packages.Get(pkg)
-		if err != nil {
-			return Result{}, err
-		}
-
-		if t.Traverser.shouldAddComponent {
-			namedUnderlyingResult, err := t.Traverser.Type(n.Underlying(), pkg).Result()
+		var pkg *PackageNode
+		if n.Obj().Pkg() != nil {
+			pkg = t.Traverser.Packages.FindOrAdd(n.Obj().Pkg().Path())
+			_, err := t.Traverser.Packages.Get(pkg)
 			if err != nil {
 				return Result{}, err
 			}
 
-			namedUnderlyingResult.Name = n.Obj().Name()
+			if t.Traverser.shouldAddComponent {
+				namedUnderlyingResult, err := t.Traverser.Type(n.Underlying(), pkg).Result()
+				if err != nil {
+					return Result{}, err
+				}
 
-			namedUnderlyingResult.Doc, err = t.Doc()
-			if err != nil {
-				return Result{}, err
-			}
+				namedUnderlyingResult.Name = n.Obj().Name()
 
-			err = t.Traverser.addComponent(namedUnderlyingResult)
-			if err != nil {
-				return Result{}, err
+				namedUnderlyingResult.Doc, err = t.Doc()
+				if err != nil {
+					return Result{}, err
+				}
+
+				err = t.Traverser.addComponent(namedUnderlyingResult)
+				if err != nil {
+					return Result{}, err
+				}
 			}
 		}
 

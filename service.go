@@ -27,16 +27,18 @@ type Service struct {
 
 	Routes []Route `json:"routes" yaml:"routes"`
 
-	ToBeProcessed []Processable `json:"-"`
+	ToBeProcessed []Processable `json:"-" yaml:"-"`
 
 	Components []Field `json:"components" yaml:"components"`
 
 	tempMainPackageName string
-	WorkDir             string `json:"-"`
+	WorkDir             string `json:"-" yaml:"-"`
 
 	CacheEnabled bool    `json:"-"`
 	CachePath    string  `json:"-"`
 	CLIMode      CLIMode `json:"-"`
 
-	PathDenyList []func(string) bool `json:"-"`
+	PathDenyList []func(string) bool `json:"-" yaml:"-"`
+
+	CustomFuncs []CustomFunc `json:"-" yaml:"-"`
 }
