@@ -182,6 +182,7 @@ type Schema struct {
 	Required             []string          `json:"required,omitempty" yaml:"required,omitempty"`
 	Enum                 []interface{}     `json:"enum,omitempty" yaml:"enum,omitempty"`
 	Type                 string            `json:"type,omitempty" yaml:"type,omitempty"`
+	Format               string            `json:"format,omitempty" yaml:"format,omitempty"`
 	AllOf                []Schema          `json:"allOf,omitempty" yaml:"allOf,omitempty"`
 	OneOf                []Schema          `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
 	AnyOf                []Schema          `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`

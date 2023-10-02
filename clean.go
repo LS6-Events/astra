@@ -45,7 +45,8 @@ func (s *Service) Clean() error {
 }
 
 func (s *Service) cleanField(f Field, mainPkg string) Field {
-	s.HandleSpecialType(&f)
+	s.HandleSubstituteTypes(&f)
+	s.HandlePassthroughTypes(&f)
 
 	if f.Package == mainPkg {
 		f.Package = "main"

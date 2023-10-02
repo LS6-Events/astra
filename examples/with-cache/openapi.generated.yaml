@@ -111,6 +111,7 @@ components:
             additionalProperties: {}
         time.Time:
             type: string
+            format: date-time
         withcache_types.Author:
             type: object
             properties:
@@ -118,6 +119,7 @@ components:
                     type: string
                 id:
                     type: integer
+                    format: int32
                 last_name:
                     type: string
         withcache_types.Comment:
@@ -129,6 +131,7 @@ components:
                     type: string
                 id:
                     type: integer
+                    format: int32
         withcache_types.Post:
             type: object
             properties:
@@ -140,6 +143,7 @@ components:
                     type: array
                 id:
                     type: integer
+                    format: int32
                 name:
                     type: string
                 published_at:
@@ -149,6 +153,7 @@ components:
             properties:
                 author_id:
                     type: integer
+                    format: int32
                 body:
                     type: string
                 name:

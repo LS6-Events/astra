@@ -9,100 +9,110 @@ type openAPIJSONType struct {
 // acceptedTypeMap is the map of the standard go types that are accepted by OpenAPI
 // It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format
 var acceptedTypeMap = map[string]openAPIJSONType{
-	"string": openAPIJSONType{
+	"string": {
 		Type: "string",
 	},
-	"int": openAPIJSONType{
+	"int": {
 		Type:   "integer",
 		Format: "int32",
 	},
-	"int8": openAPIJSONType{
+	"int8": {
 		Type:   "integer",
 		Format: "int8",
 	},
-	"int16": openAPIJSONType{
+	"int16": {
 		Type:   "integer",
 		Format: "int16",
 	},
-	"int32": openAPIJSONType{
+	"int32": {
 		Type:   "integer",
 		Format: "int32",
 	},
-	"int64": openAPIJSONType{
+	"int64": {
 		Type:   "integer",
 		Format: "int64",
 	},
-	"uint": openAPIJSONType{
+	"uint": {
 		Type:   "integer",
 		Format: "uint",
 	},
-	"uint8": openAPIJSONType{
+	"uint8": {
 		Type:   "integer",
 		Format: "uint8",
 	},
-	"uint16": openAPIJSONType{
+	"uint16": {
 		Type:   "integer",
 		Format: "uint16",
 	},
-	"uint32": openAPIJSONType{
+	"uint32": {
 		Type:   "integer",
 		Format: "uint32",
 	},
-	"uint64": openAPIJSONType{
+	"uint64": {
 		Type:   "integer",
 		Format: "uint64",
 	},
-	"float": openAPIJSONType{
+	"float": {
 		Type:   "number",
 		Format: "float",
 	},
-	"float32": openAPIJSONType{
+	"float32": {
 		Type:   "number",
 		Format: "float32",
 	},
-	"float64": openAPIJSONType{
+	"float64": {
 		Type:   "number",
 		Format: "float64",
 	},
-	"bool": openAPIJSONType{
+	"bool": {
 		Type: "boolean",
 	},
-	"byte": openAPIJSONType{
+	"byte": {
 		Type:   "string",
 		Format: "byte",
 	},
-	"rune": openAPIJSONType{
+	"rune": {
 		Type:   "string",
 		Format: "rune",
 	},
-	"struct": openAPIJSONType{
+	"struct": {
 		Type: "object",
 	},
-	"map": openAPIJSONType{
+	"map": {
 		Type: "object",
 	},
-	"slice": openAPIJSONType{
+	"slice": {
 		Type: "array",
 	},
-	"any": openAPIJSONType{
+	"any": {
 		Type: "",
 	},
-	"nil": openAPIJSONType{
+	"nil": {
 		Type: "",
+	},
+
+	// Passthrough types
+	"time.Time": {
+		Type:   "string",
+		Format: "date-time",
+	},
+	"github.com/google/uuid.UUID": {
+		Type:   "string",
+		Format: "uuid",
 	},
 }
 
 // mapAcceptedType maps the accepted type to the OpenAPI type
 // It returns a Schema with the type set to the OpenAPI type
 // If not found, it returns an empty Schema
-// TODO: Add support for format field in Schema
 func mapAcceptedType(acceptedType string) Schema {
 	if acceptedType, ok := acceptedTypeMap[acceptedType]; ok {
 		if acceptedType.Type == "" {
 			return Schema{}
 		}
 		return Schema{
-			Type: acceptedType.Type,
+			Type:   acceptedType.Type,
+			Format: acceptedType.Format,
 		}
 	}
 
