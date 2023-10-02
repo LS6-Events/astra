@@ -191,7 +191,8 @@
         "additionalProperties": {}
       },
       "time.Time": {
-        "type": "string"
+        "type": "string",
+        "format": "date-time"
       },
       "withswaggerui_types.Author": {
         "type": "object",
@@ -200,7 +201,8 @@
             "type": "string"
           },
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "format": "int32"
           },
           "last_name": {
             "type": "string"
@@ -217,7 +219,8 @@
             "type": "string"
           },
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -234,7 +237,8 @@
             "type": "array"
           },
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "format": "int32"
           },
           "name": {
             "type": "string"
@@ -248,7 +252,8 @@
         "type": "object",
         "properties": {
           "author_id": {
-            "type": "integer"
+            "type": "integer",
+            "format": "int32"
           },
           "body": {
             "type": "string"

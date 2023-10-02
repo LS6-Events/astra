@@ -1,11 +1,11 @@
 package main
 
 import (
-	"basic/types"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"withcustomfunctions/types"
 )
 
 func UpdatePost(c *gin.Context) {

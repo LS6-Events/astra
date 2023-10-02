@@ -1,4 +1,4 @@
-module basic
+module withcustomfunctions
 
 go 1.21
 

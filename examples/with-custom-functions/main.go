@@ -95,7 +95,7 @@ func main() {
 	)
 
 	config := astra.Config{
-		Title:   "Example API",
+		Title:   "Example API with Custom Functions",
 		Version: "1.0.0",
 		Host:    "localhost",
 		Port:    8000,

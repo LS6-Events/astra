@@ -1,10 +1,10 @@
 package main
 
 import (
-	"basic/types"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+	"withcustomfunctions/types"
 )
 
 func GetPosts(c *gin.Context) {

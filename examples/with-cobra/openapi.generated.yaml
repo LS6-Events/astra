@@ -109,8 +109,10 @@ components:
         github.com_gin-gonic_gin.H:
             type: object
             additionalProperties: {}
+            description: H is a shortcut for map[string]any
         time.Time:
             type: string
+            format: date-time
         withcobra_types.Author:
             type: object
             properties:
@@ -118,6 +120,7 @@ components:
                     type: string
                 id:
                     type: integer
+                    format: int32
                 last_name:
                     type: string
         withcobra_types.Comment:
@@ -129,6 +132,7 @@ components:
                     type: string
                 id:
                     type: integer
+                    format: int32
         withcobra_types.Post:
             type: object
             properties:
@@ -140,6 +144,7 @@ components:
                     type: array
                 id:
                     type: integer
+                    format: int32
                 name:
                     type: string
                 published_at:
@@ -149,6 +154,7 @@ components:
             properties:
                 author_id:
                     type: integer
+                    format: int32
                 body:
                     type: string
                 name:
