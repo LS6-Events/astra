@@ -211,7 +211,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						return false
 					}
 				case "String": // c.String
-					currRoute, err = funcBuilder.StatusCode().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "text/plain"
 
 						statusCode := params[0].(int)

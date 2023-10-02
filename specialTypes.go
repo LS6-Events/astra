@@ -7,6 +7,7 @@ import (
 // specialTypes is a map of types that need to be handled specially
 var specialTypes = map[string]string{
 	"time.Time": "string", // We can assume that all time.Time definitions will be serialized as strings
+	"error":     "string", // We can assume that all errors will be serialized as strings
 }
 
 // HandleSpecialType handles special types
