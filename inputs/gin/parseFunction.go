@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
-	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"go/types"
 	"strings"
@@ -62,6 +61,29 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 			return true
 		}
 
+		funcBuilder := astra.NewContextFuncBuilder(currRoute, callExpr)
+
+		// Loop over every custom function
+		// If the custom function returns a route, use that route instead of the current route
+		// And break out of this AST traversal for this call expression
+		// Otherwise, continue on
+		var shouldBreak bool
+		for _, customFunc := range s.CustomFuncs {
+			var newRoute *astra.Route
+			newRoute, err = customFunc(ctxName, funcBuilder)
+			if err != nil {
+				return false
+			}
+			if newRoute != nil {
+				currRoute = newRoute
+				shouldBreak = true
+				break
+			}
+		}
+		if shouldBreak {
+			return true
+		}
+
 		// If the function takes the context as any argument, traverse it
 		_, ok := callExpr.ArgIndex(ctxName)
 		if ok {
@@ -96,228 +118,322 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 			if signature.Recv() != nil && signature.Recv().Type().String() == signaturePath {
 				switch funcType.Name() {
 				case "JSON":
-					fallthrough
+					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						route.ContentType = "application/json"
+
+						statusCode := params[0].(int)
+						result := params[1].(astTraversal.Result)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				case "XML":
-					fallthrough
+					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						route.ContentType = "application/xml"
+
+						statusCode := params[0].(int)
+						result := params[1].(astTraversal.Result)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				case "YAML":
-					fallthrough
+					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						route.ContentType = "application/yaml"
+
+						statusCode := params[0].(int)
+						result := params[1].(astTraversal.Result)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				case "ProtoBuf":
-					fallthrough
+					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						route.ContentType = "application/protobuf"
+
+						statusCode := params[0].(int)
+						result := params[1].(astTraversal.Result)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				case "Data":
-					switch funcType.Name() {
-					case "JSON":
-						currRoute.ContentType = "application/json"
-					case "XML":
-						currRoute.ContentType = "application/xml"
-					case "YAML":
-						currRoute.ContentType = "application/yaml"
-					case "ProtoBuf":
-						currRoute.ContentType = "application/protobuf"
-					}
+					currRoute, err = funcBuilder.StatusCode().Ignored().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						statusCode := params[0].(int)
+						result := params[2].(astTraversal.Result)
 
-					// Get the status code
-					var statusCode int
-					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
 					if err != nil {
-						return true
-					}
-
-					argNo := 1
-					if funcType.Name() == "Data" {
-						argNo = 2
-					}
-
-					var exprType types.Type
-					exprType, err = traverser.Expression(callExpr.Args()[argNo]).Type()
-					if err != nil {
-						traverser.Log.Error().Err(err).Msg("failed to get type for expression")
 						return false
 					}
-
-					var result astTraversal.Result
-					result, err = traverser.Type(exprType, traverser.ActiveFile().Package).Result()
-
-					returnType := astra.ReturnType{
-						StatusCode: statusCode,
-						Field:      parseResultToField(result),
-					}
-
-					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
-
 				case "String": // c.String
-					currRoute.ContentType = "text/plain"
+					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						route.ContentType = "text/plain"
 
-					var statusCode int
-					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
+						statusCode := params[0].(int)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field: astra.Field{
+								Type: "string",
+							},
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					returnType := astra.ReturnType{
-						StatusCode: statusCode,
-						Field: astra.Field{
-							Type: "string",
-						},
-					}
-					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
-
 				case "Status": // c.Status
-					var statusCode int
-					statusCode, err = traverser.ExtractStatusCode(callExpr.Args()[0])
-					if err != nil {
-						return false
-					}
+					currRoute, err = funcBuilder.StatusCode().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						statusCode := params[0].(int)
 
-					returnType := astra.ReturnType{
-						StatusCode: statusCode,
-						Field: astra.Field{
-							Type: "nil",
-						},
-					}
-					currRoute.ReturnTypes = utils.AddReturnType(currRoute.ReturnTypes, returnType)
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field: astra.Field{
+								Type: "nil",
+							},
+						}
 
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
 				// Query Param methods
 				case "GetQuery":
 					fallthrough
 				case "Query":
-					var queryParam astra.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{})
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						queryParam := params[0].(astra.Param)
+
+						route.QueryParams = append(route.QueryParams, queryParam)
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
 				case "GetQueryArray":
 					fallthrough
 				case "QueryArray":
-					var queryParam astra.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
-						IsArray: true,
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						queryParam := params[0].(astra.Param)
+
+						queryParam.IsArray = true
+
+						route.QueryParams = append(route.QueryParams, queryParam)
+
+						return route, nil
 					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
 				case "GetQueryMap":
 					fallthrough
 				case "QueryMap":
-					var queryParam astra.Param
-					queryParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
-						IsMap: true,
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						queryParam := params[0].(astra.Param)
+
+						queryParam.IsMap = true
+
+						route.QueryParams = append(route.QueryParams, queryParam)
+
+						return route, nil
 					})
 					if err != nil {
 						return false
 					}
 
-					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
-
-					return true
 				case "ShouldBindQuery":
 					fallthrough
 				case "BindQuery":
-					var queryParam astra.Param
-					queryParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.QueryParams = append(currRoute.QueryParams, queryParam)
 
 				// Body Param methods
 				case "ShouldBind":
 					fallthrough
 				case "Bind":
-					var bodyParam astra.Param
-					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.BodyType = "form"
+
+						route.Body = append(route.Body, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "form"
-
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "ShouldBindJSON":
 					fallthrough
 				case "BindJSON":
-					var bodyParam astra.Param
-					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.BodyType = "application/json"
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/json"
-
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "ShouldBindXML":
 					fallthrough
 				case "BindXML":
-					var bodyParam astra.Param
-					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.BodyType = "application/xml"
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/xml"
-
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "ShouldBindYAML":
 					fallthrough
 				case "BindYAML":
-					var bodyParam astra.Param
-					bodyParam, err = extractBoundRequestParam(traverser, callExpr.Args()[0])
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.BodyType = "application/yaml"
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/yaml"
-
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
-					var bodyParam astra.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{})
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.BodyType = "application/x-www-form-urlencoded"
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/x-www-form-urlencoded"
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "GetPostFormArray":
 					fallthrough
 				case "PostFormArray":
-					var bodyParam astra.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
-						IsArray: true,
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						param := params[0].(astra.Param)
+
+						param.IsArray = true
+
+						route.BodyType = "application/x-www-form-urlencoded"
+
+						route.Body = append(route.Body, param)
+
+						return route, nil
 					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/x-www-form-urlencoded"
-					currRoute.Body = append(currRoute.Body, bodyParam)
-
 				case "GetPostFormMap":
 					fallthrough
 				case "PostFormMap":
-					var bodyParam astra.Param
-					bodyParam, err = extractSingleRequestParam(traverser, callExpr.Args()[0], astra.Param{
-						IsMap: true,
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						param := params[0].(astra.Param)
+
+						param.IsMap = true
+
+						route.BodyType = "application/x-www-form-urlencoded"
+
+						route.Body = append(route.Body, param)
+
+						return route, nil
 					})
 					if err != nil {
 						return false
 					}
-
-					currRoute.BodyType = "application/x-www-form-urlencoded"
-					currRoute.Body = append(currRoute.Body, bodyParam)
 				}
 			}
 		}
@@ -336,104 +452,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 	return nil
 }
 
-func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node, baseParam astra.Param) (astra.Param, error) {
-	expr := traverser.Expression(node)
-
-	name, err := expr.Value()
-	if err != nil {
-		traverser.Log.Error().Err(err).Msg("failed to parse expression")
-		return astra.Param{}, err
-	}
-
-	exprType, err := expr.Type()
-	if err != nil {
-		traverser.Log.Error().Err(err).Msg("failed to parse expression type")
-		return astra.Param{}, err
-	}
-
-	return astra.Param{
-		Name: name,
-		Field: astra.Field{
-			Type: exprType.String(),
-		},
-		IsArray:    baseParam.IsArray,
-		IsMap:      baseParam.IsMap,
-		IsRequired: baseParam.IsRequired,
-	}, nil
-}
-
-func extractBoundRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node) (astra.Param, error) {
-	exprType, err := traverser.Expression(node).Type()
-	if err != nil {
-		return astra.Param{}, err
-	}
-
-	result, err := traverser.Type(exprType, traverser.ActiveFile().Package).Result()
-	if err != nil {
-		return astra.Param{}, err
-	}
-
-	bodyParam := astra.Param{
-		IsBound: true,
-		Field:   parseResultToField(result),
-	}
-
-	return bodyParam, nil
-}
-
-func parseResultToField(result astTraversal.Result) astra.Field {
-	field := astra.Field{
-		Type:         result.Type,
-		Name:         result.Name,
-		IsRequired:   result.IsRequired,
-		IsEmbedded:   result.IsEmbedded,
-		SliceType:    result.SliceType,
-		ArrayType:    result.ArrayType,
-		ArrayLength:  result.ArrayLength,
-		MapKeyType:   result.MapKeyType,
-		MapValueType: result.MapValueType,
-	}
-
-	// If the godoc is populated, we need to parse the response
-	if result.Doc != "" {
-		field.Doc = strings.TrimSpace(result.Doc)
-	}
-
-	// If the type is not a primitive type, we need to get the package path
-	// If the type is named, it is referring to a type
-	// If the slice type is populated and not a primitive type, we need to get the package path for the slice
-	// If the array type is populated and not a primitive type, we need to get the package path for the array
-	// If the map value type is populated and not a primitive type, we need to get the package path for the map value
-	if !astra.IsAcceptedType(result.Type) || result.Name != "" ||
-		(result.SliceType != "" && !astra.IsAcceptedType(result.SliceType)) ||
-		(result.ArrayType != "" && !astra.IsAcceptedType(result.ArrayType)) ||
-		(result.MapValueType != "" && !astra.IsAcceptedType(result.MapValueType)) {
-		field.Package = result.Package.Path()
-	}
-
-	// If the map key type is populated and not a primitive type, we need to get the package path for the map key
-	if result.MapKeyType != "" && !astra.IsAcceptedType(result.MapKeyType) {
-		field.MapKeyPackage = result.MapKeyPackage.Path()
-	}
-
-	// If the struct fields are populated, we need to parse them
-	if result.StructFields != nil {
-		field.StructFields = make(map[string]astra.Field)
-		for name, value := range result.StructFields {
-			structField := parseResultToField(value)
-			field.StructFields[name] = structField
-		}
-	}
-
-	return field
-}
-
 func addComponent(s *astra.Service) func(astTraversal.Result) error {
 	return func(result astTraversal.Result) error {
-		field := parseResultToField(result)
+		field := astra.ParseResultToField(result)
 
 		if field.Package != "" {
-			s.Components = utils.AddComponent(s.Components, field)
+			s.Components = astra.AddComponent(s.Components, field)
 		}
 		return nil
 	}
