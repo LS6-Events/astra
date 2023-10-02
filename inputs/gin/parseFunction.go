@@ -452,32 +452,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 	return nil
 }
 
-func extractSingleRequestParam(traverser *astTraversal.BaseTraverser, node ast.Node, baseParam astra.Param) (astra.Param, error) {
-	expr := traverser.Expression(node)
-
-	name, err := expr.Value()
-	if err != nil {
-		traverser.Log.Error().Err(err).Msg("failed to parse expression")
-		return astra.Param{}, err
-	}
-
-	exprType, err := expr.Type()
-	if err != nil {
-		traverser.Log.Error().Err(err).Msg("failed to parse expression type")
-		return astra.Param{}, err
-	}
-
-	return astra.Param{
-		Name: name,
-		Field: astra.Field{
-			Type: exprType.String(),
-		},
-		IsArray:    baseParam.IsArray,
-		IsMap:      baseParam.IsMap,
-		IsRequired: baseParam.IsRequired,
-	}, nil
-}
-
 func addComponent(s *astra.Service) func(astTraversal.Result) error {
 	return func(result astTraversal.Result) error {
 		field := astra.ParseResultToField(result)
