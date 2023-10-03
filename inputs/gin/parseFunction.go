@@ -250,9 +250,16 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "Query":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						queryParam := params[0].(astra.Param)
+						name := params[0].(string)
 
-						route.QueryParams = append(route.QueryParams, queryParam)
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name: name,
+						}
+
+						route.QueryParams = append(route.QueryParams, param)
 
 						return route, nil
 					})
@@ -264,11 +271,17 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "QueryArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						queryParam := params[0].(astra.Param)
+						name := params[0].(string)
 
-						queryParam.IsArray = true
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name:    name,
+							IsArray: true,
+						}
 
-						route.QueryParams = append(route.QueryParams, queryParam)
+						route.QueryParams = append(route.QueryParams, param)
 
 						return route, nil
 					})
@@ -280,11 +293,17 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "QueryMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						queryParam := params[0].(astra.Param)
+						name := params[0].(string)
 
-						queryParam.IsMap = true
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name:  name,
+							IsMap: true,
+						}
 
-						route.QueryParams = append(route.QueryParams, queryParam)
+						route.QueryParams = append(route.QueryParams, param)
 
 						return route, nil
 					})
@@ -385,15 +404,19 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
-					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						name := params[0].(string)
+
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name: name,
+						}
 
 						route.BodyType = "application/x-www-form-urlencoded"
 
-						route.QueryParams = append(route.QueryParams, astra.Param{
-							IsBound: true,
-							Field:   field,
-						})
+						route.Body = append(route.Body, param)
 
 						return route, nil
 					})
@@ -404,9 +427,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "PostFormArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						param := params[0].(astra.Param)
+						name := params[0].(string)
 
-						param.IsArray = true
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name:    name,
+							IsArray: true,
+						}
 
 						route.BodyType = "application/x-www-form-urlencoded"
 
@@ -421,9 +450,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "PostFormMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						param := params[0].(astra.Param)
+						name := params[0].(string)
 
-						param.IsMap = true
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name:  name,
+							IsMap: true,
+						}
 
 						route.BodyType = "application/x-www-form-urlencoded"
 
