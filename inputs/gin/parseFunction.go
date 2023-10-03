@@ -355,7 +355,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 
 						route.BodyType = "application/json"
 
-						route.QueryParams = append(route.QueryParams, astra.Param{
+						route.Body = append(route.Body, astra.Param{
 							IsBound: true,
 							Field:   field,
 						})
@@ -391,7 +391,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 
 						route.BodyType = "application/yaml"
 
-						route.QueryParams = append(route.QueryParams, astra.Param{
+						route.Body = append(route.Body, astra.Param{
 							IsBound: true,
 							Field:   field,
 						})
