@@ -404,15 +404,19 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				case "GetPostForm":
 					fallthrough
 				case "PostForm":
-					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						name := params[0].(string)
+
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name: name,
+						}
 
 						route.BodyType = "application/x-www-form-urlencoded"
 
-						route.QueryParams = append(route.QueryParams, astra.Param{
-							IsBound: true,
-							Field:   field,
-						})
+						route.Body = append(route.Body, param)
 
 						return route, nil
 					})
