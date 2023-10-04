@@ -234,7 +234,10 @@
             "type": "string"
           },
           "comments": {
-            "type": "array"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/withswaggerui_types.Comment"
+            }
           },
           "id": {
             "type": "integer",

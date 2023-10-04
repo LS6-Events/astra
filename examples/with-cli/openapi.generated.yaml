@@ -106,52 +106,6 @@ paths:
                                 type: string
 components:
     schemas:
-        withcli_types.Author:
-            type: object
-            properties:
-                first_name:
-                    type: string
-                id:
-                    type: integer
-                    format: int32
-                last_name:
-                    type: string
-        withcli_types.Comment:
-            type: object
-            properties:
-                author:
-                    $ref: '#/components/schemas/withcli_types.Author'
-                body:
-                    type: string
-                id:
-                    type: integer
-                    format: int32
-        withcli_types.Post:
-            type: object
-            properties:
-                author:
-                    $ref: '#/components/schemas/withcli_types.Author'
-                body:
-                    type: string
-                comments:
-                    type: array
-                id:
-                    type: integer
-                    format: int32
-                name:
-                    type: string
-                published_at:
-                    $ref: '#/components/schemas/time.Time'
-        withcli_types.PostDTO:
-            type: object
-            properties:
-                author_id:
-                    type: integer
-                    format: int32
-                body:
-                    type: string
-                name:
-                    type: string
         github.com_gin-gonic_gin.H:
             type: object
             additionalProperties: {}
@@ -202,3 +156,51 @@ components:
                 to t == u, since t.Equal uses the most accurate comparison available and
                 correctly handles the case when only one of its arguments has a monotonic
                 clock reading.
+        withcli_types.Author:
+            type: object
+            properties:
+                first_name:
+                    type: string
+                id:
+                    type: integer
+                    format: int32
+                last_name:
+                    type: string
+        withcli_types.Comment:
+            type: object
+            properties:
+                author:
+                    $ref: '#/components/schemas/withcli_types.Author'
+                body:
+                    type: string
+                id:
+                    type: integer
+                    format: int32
+        withcli_types.Post:
+            type: object
+            properties:
+                author:
+                    $ref: '#/components/schemas/withcli_types.Author'
+                body:
+                    type: string
+                comments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/withcli_types.Comment'
+                id:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                published_at:
+                    $ref: '#/components/schemas/time.Time'
+        withcli_types.PostDTO:
+            type: object
+            properties:
+                author_id:
+                    type: integer
+                    format: int32
+                body:
+                    type: string
+                name:
+                    type: string
