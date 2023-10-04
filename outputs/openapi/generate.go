@@ -253,22 +253,22 @@ func componentToSchema(component astra.Field) Schema {
 		}
 	} else if component.Type == "slice" {
 		itemSchema := mapAcceptedType(component.SliceType)
-		schema = Schema{
-			Type:  "array",
-			Items: &itemSchema,
-		}
-		if !astra.IsAcceptedType(component.SliceType) {
+
+		if itemSchema.Type == "" {
 			schema.Items = &Schema{
 				Ref: makeComponentRef(component.SliceType, component.Package),
 			}
 		}
-	} else if component.Type == "map" {
-		var additionalProperties Schema
 
-		if !astra.IsAcceptedType(component.MapValueType) {
+		schema = Schema{
+			Type:  "array",
+			Items: &itemSchema,
+		}
+	} else if component.Type == "map" {
+		additionalProperties := mapAcceptedType(component.MapValueType)
+
+		if additionalProperties.Type == "" {
 			additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
-		} else {
-			additionalProperties = mapAcceptedType(component.MapValueType)
 		}
 
 		schema = Schema{
