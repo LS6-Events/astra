@@ -54,6 +54,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: ""
@@ -72,6 +74,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -95,6 +99,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: ""
@@ -157,6 +163,7 @@ components:
         github.com_gin-gonic_gin.H:
             type: object
             additionalProperties: {}
+            description: H is a shortcut for map[string]any
         time.Time:
             type: string
             format: date-time

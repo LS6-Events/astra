@@ -66,6 +66,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: ""
@@ -90,6 +92,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -119,6 +123,8 @@ paths:
                 - name: id
                   in: path
                   required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: ""
