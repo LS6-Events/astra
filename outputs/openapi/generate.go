@@ -52,6 +52,7 @@ func Generate(filePath string) astra.ServiceFunction {
 					Name:     pathParam.Name,
 					In:       "path",
 					Required: pathParam.IsRequired,
+					Schema:   mapParamToSchema(pathParam),
 				})
 			}
 
