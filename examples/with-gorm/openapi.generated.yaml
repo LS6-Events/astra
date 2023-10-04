@@ -234,6 +234,8 @@ components:
                         type: string
                     comments:
                         type: array
+                        items:
+                            $ref: '#/components/schemas/withgorm_types.Comment'
                     name:
                         type: string
                     published_at:

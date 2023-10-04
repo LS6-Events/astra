@@ -152,70 +152,8 @@ func Generate(filePath string) astra.ServiceFunction {
 		s.Log.Debug().Msg("Adding components")
 		for _, component := range s.Components {
 			s.Log.Debug().Str("name", component.Name).Msg("Adding component")
-			var schema Schema
 
-			if component.Type == "struct" {
-				embeddedProperties := make([]Schema, 0)
-				schema = Schema{
-					Type:       "object",
-					Properties: make(map[string]Schema),
-				}
-				for key, field := range component.StructFields {
-					// We should aim to use doc comments in the future
-					// However https://github.com/OAI/OpenAPI-Specification/issues/1514
-					if field.IsEmbedded {
-						embeddedProperties = append(embeddedProperties, Schema{
-							Ref: makeComponentRef(field.Type, field.Package),
-						})
-						continue
-					}
-					if !astra.IsAcceptedType(field.Type) {
-						schema.Properties[key] = Schema{
-							Ref: makeComponentRef(field.Type, field.Package),
-						}
-					} else {
-						schema.Properties[key] = mapAcceptedType(field.Type)
-					}
-				}
-
-				if len(embeddedProperties) > 0 {
-					if len(schema.Properties) == 0 {
-						schema.AllOf = embeddedProperties
-					} else {
-						schema.AllOf = append(embeddedProperties, Schema{
-							Properties: schema.Properties,
-						})
-
-						schema.Properties = nil
-					}
-				}
-			} else if component.Type == "slice" {
-				itemSchema := mapAcceptedType(component.SliceType)
-				schema = Schema{
-					Type:  "array",
-					Items: &itemSchema,
-				}
-				if !astra.IsAcceptedType(component.SliceType) {
-					schema.Items = &Schema{
-						Ref: makeComponentRef(component.SliceType, component.Package),
-					}
-				}
-			} else if component.Type == "map" {
-				var additionalProperties Schema
-
-				if !astra.IsAcceptedType(component.MapValueType) {
-					additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
-				} else {
-					additionalProperties = mapAcceptedType(component.MapValueType)
-				}
-
-				schema = Schema{
-					Type:                 "object",
-					AdditionalProperties: &additionalProperties,
-				}
-			} else {
-				schema = mapAcceptedType(component.Type)
-			}
+			schema := componentToSchema(component)
 
 			if component.Doc != "" {
 				schema.Description = component.Doc
@@ -278,4 +216,73 @@ func Generate(filePath string) astra.ServiceFunction {
 
 		return nil
 	}
+}
+
+func componentToSchema(component astra.Field) Schema {
+	var schema Schema
+
+	if component.Type == "struct" {
+		embeddedProperties := make([]Schema, 0)
+		schema = Schema{
+			Type:       "object",
+			Properties: make(map[string]Schema),
+		}
+		for key, field := range component.StructFields {
+			// We should aim to use doc comments in the future
+			// However https://github.com/OAI/OpenAPI-Specification/issues/1514
+			if field.IsEmbedded {
+				embeddedProperties = append(embeddedProperties, Schema{
+					Ref: makeComponentRef(field.Type, field.Package),
+				})
+				continue
+			}
+
+			schema.Properties[key] = componentToSchema(field)
+		}
+
+		if len(embeddedProperties) > 0 {
+			if len(schema.Properties) == 0 {
+				schema.AllOf = embeddedProperties
+			} else {
+				schema.AllOf = append(embeddedProperties, Schema{
+					Properties: schema.Properties,
+				})
+
+				schema.Properties = nil
+			}
+		}
+	} else if component.Type == "slice" {
+		itemSchema := mapAcceptedType(component.SliceType)
+		schema = Schema{
+			Type:  "array",
+			Items: &itemSchema,
+		}
+		if !astra.IsAcceptedType(component.SliceType) {
+			schema.Items = &Schema{
+				Ref: makeComponentRef(component.SliceType, component.Package),
+			}
+		}
+	} else if component.Type == "map" {
+		var additionalProperties Schema
+
+		if !astra.IsAcceptedType(component.MapValueType) {
+			additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
+		} else {
+			additionalProperties = mapAcceptedType(component.MapValueType)
+		}
+
+		schema = Schema{
+			Type:                 "object",
+			AdditionalProperties: &additionalProperties,
+		}
+	} else {
+		schema = mapAcceptedType(component.Type)
+		if schema.Type == "" {
+			schema = Schema{
+				Ref: makeComponentRef(component.Type, component.Package),
+			}
+		}
+	}
+
+	return schema
 }

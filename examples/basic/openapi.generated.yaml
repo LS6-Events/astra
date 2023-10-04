@@ -135,6 +135,8 @@ components:
                     type: string
                 comments:
                     type: array
+                    items:
+                        $ref: '#/components/schemas/basic_types.Comment'
                 id:
                     type: integer
                     format: int32
