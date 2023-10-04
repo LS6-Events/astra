@@ -254,8 +254,8 @@ func componentToSchema(component astra.Field) Schema {
 	} else if component.Type == "slice" {
 		itemSchema := mapAcceptedType(component.SliceType)
 
-		if itemSchema.Type == "" {
-			schema.Items = &Schema{
+		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
+			itemSchema = Schema{
 				Ref: makeComponentRef(component.SliceType, component.Package),
 			}
 		}
@@ -267,7 +267,7 @@ func componentToSchema(component astra.Field) Schema {
 	} else if component.Type == "map" {
 		additionalProperties := mapAcceptedType(component.MapValueType)
 
-		if additionalProperties.Type == "" {
+		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
 			additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
 		}
 
@@ -277,7 +277,7 @@ func componentToSchema(component astra.Field) Schema {
 		}
 	} else {
 		schema = mapAcceptedType(component.Type)
-		if schema.Type == "" {
+		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
 			schema = Schema{
 				Ref: makeComponentRef(component.Type, component.Package),
 			}
