@@ -28,20 +28,20 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/withcache_types.Post'
+                                    $ref: '#/components/schemas/withcli_types.Post'
         post:
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withcache_types.PostDTO'
+                            $ref: '#/components/schemas/withcli_types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/withcli_types.Post'
                 "400":
                     description: ""
                     content:
@@ -60,7 +60,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/withcli_types.Post'
                 "400":
                     description: ""
                     content:
@@ -76,14 +76,14 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withcache_types.PostDTO'
+                            $ref: '#/components/schemas/withcli_types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/withcli_types.Post'
                 "400":
                     description: ""
                     content:
