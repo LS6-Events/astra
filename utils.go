@@ -22,6 +22,7 @@ func ParseResultToField(result astTraversal.Result) Field {
 	field := Field{
 		Type:         result.Type,
 		Name:         result.Name,
+		EnumValues:   result.EnumValues,
 		IsRequired:   result.IsRequired,
 		IsEmbedded:   result.IsEmbedded,
 		SliceType:    result.SliceType,
