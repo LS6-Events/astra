@@ -23,7 +23,7 @@ For example, if you had a Go backend that used the [Gin](https://www.github.com/
 * Support for custom logging
 * Support for custom status codes _they must be defined as constants/only defined once (`http.StatusX` is perfect, or `200`)_
 * Support for comments in struct fields and above named types
-* Support for enum-like named types (e.g. `type Status string` and `const (StatusOK Status = "OK")` etc.) to be parsed as enums
+* Support for enum-like named types (e.g. `type Status string` and `const (StatusOK Status = "OK")` etc.) to be parsed as enums _if they are defined in the same package!_
 
 ## Supported Formats
 
