@@ -1,6 +1,8 @@
 package openapi
 
-import "strings"
+import (
+	"strings"
+)
 
 // makeComponentRef creates a reference to the component in the OpenAPI specification
 func makeComponentRef(name, pkg string) string {

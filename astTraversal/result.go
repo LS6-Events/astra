@@ -24,6 +24,10 @@ type Result struct {
 	// ConstantValue is the constant value of the result (e.g. for a string)
 	ConstantValue string
 
+	// EnumValues is a list of enum values (e.g. for an enum { Foo, Bar })
+	// This is used for when the result of a types.Named becomes a types.Basic and has constant values defined in the package
+	EnumValues []any
+
 	// MapKeyPackage is the package of the map key (e.g. for a map[string]string)
 	MapKeyPackage *PackageNode
 

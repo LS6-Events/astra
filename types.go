@@ -56,6 +56,8 @@ type Field struct {
 	Type    string `json:"type,omitempty" yaml:"type,omitempty"`
 	Name    string `json:"name,omitempty" yaml:"name,omitempty"`
 
+	EnumValues []any `json:"enumValues,omitempty" yaml:"enumValues,omitempty"`
+
 	IsRequired bool `json:"isRequired,omitempty" yaml:"isRequired,omitempty"`
 	IsEmbedded bool `json:"isEmbedded,omitempty" yaml:"isEmbedded,omitempty"`
 
