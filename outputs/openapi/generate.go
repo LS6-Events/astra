@@ -283,7 +283,7 @@ func componentToSchema(component astra.Field) Schema {
 				Ref: makeComponentRef(component.Type, component.Package),
 			}
 		} else {
-			schema.Enum = mapComponentEnums(component)
+			schema.Enum = component.EnumValues
 		}
 	}
 

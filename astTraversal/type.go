@@ -4,6 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"strconv"
+	"strings"
 )
 
 type TypeTraverser struct {
@@ -72,7 +74,47 @@ func (t *TypeTraverser) Result() (Result, error) {
 											for _, value := range valueSpec.Values {
 												// If the value is a basic literal, we add it to the enum values
 												if basicLit, ok := value.(*ast.BasicLit); ok {
-													result.EnumValues = append(result.EnumValues, basicLit.Value)
+													// Switch over the basic literal's kind to determine the type of the value
+													// And format it accordingly
+													switch n.Kind() {
+													case types.String:
+														result.EnumValues = append(result.EnumValues, strings.Trim(basicLit.Value, "\""))
+													case types.Int:
+														i, err := strconv.Atoi(basicLit.Value)
+														if err != nil {
+															continue
+														}
+
+														result.EnumValues = append(result.EnumValues, i)
+													case types.Float32, types.Float64:
+														f, err := strconv.ParseFloat(basicLit.Value, 64)
+														if err != nil {
+															continue
+														}
+
+														result.EnumValues = append(result.EnumValues, f)
+													case types.Bool:
+														b, err := strconv.ParseBool(basicLit.Value)
+														if err != nil {
+															continue
+														}
+
+														result.EnumValues = append(result.EnumValues, b)
+													case types.Int8, types.Int16, types.Int32, types.Int64:
+														i, err := strconv.ParseInt(basicLit.Value, 10, 64)
+														if err != nil {
+															continue
+														}
+
+														result.EnumValues = append(result.EnumValues, i)
+													case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
+														i, err := strconv.ParseUint(basicLit.Value, 10, 64)
+														if err != nil {
+															continue
+														}
+
+														result.EnumValues = append(result.EnumValues, i)
+													}
 												}
 											}
 										}
