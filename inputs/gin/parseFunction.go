@@ -469,6 +469,108 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
+				case "GetHeader":
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						name := params[0].(string)
+
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name: name,
+						}
+
+						route.RequestHeaders = append(route.RequestHeaders, param)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "ShouldBindHeader":
+					fallthrough
+				case "BindHeader":
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+
+						route.RequestHeaders = append(route.RequestHeaders, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "Header":
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						name := params[0].(string)
+
+						param := astra.Param{
+							Field: astra.Field{
+								Type: "string",
+							},
+							Name: name,
+						}
+
+						route.ResponseHeaders = append(route.ResponseHeaders, param)
+
+						return route, nil
+					})
+				case "AbortWithError":
+					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						statusCode := params[0].(int)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field: astra.Field{
+								Type: "nil",
+							},
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "AbortWithStatus":
+					currRoute, err = funcBuilder.StatusCode().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						statusCode := params[0].(int)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field: astra.Field{
+								Type: "nil",
+							},
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "AbortWithStatusJSON":
+					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						statusCode := params[0].(int)
+						result := params[1].(astTraversal.Result)
+
+						returnType := astra.ReturnType{
+							StatusCode: statusCode,
+							Field:      astra.ParseResultToField(result),
+						}
+
+						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				}
 			}
 		}

@@ -16,6 +16,9 @@ type Route struct {
 	Body        []Param      `json:"body,omitempty" yaml:"body,omitempty"`
 	ReturnTypes []ReturnType `json:"returnTypes,omitempty" yaml:"returnTypes,omitempty"`
 	Doc         string       `json:"doc,omitempty" yaml:"doc,omitempty"`
+
+	RequestHeaders  []Param `json:"requestHeaders,omitempty" yaml:"requestHeaders,omitempty"`
+	ResponseHeaders []Param `json:"responseHeaders,omitempty" yaml:"responseHeaders,omitempty"`
 }
 
 // ReturnType is a return type for a route
