@@ -56,6 +56,18 @@ func Generate(filePath string) astra.ServiceFunction {
 				})
 			}
 
+			for _, requestHeader := range endpoint.RequestHeaders {
+				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", requestHeader.Name).Msg("Adding request header")
+				parameter := Parameter{
+					Name:     requestHeader.Name,
+					In:       "header",
+					Required: requestHeader.IsRequired,
+					Schema:   mapParamToSchema(requestHeader),
+				}
+
+				operation.Parameters = append(operation.Parameters, parameter)
+			}
+
 			for _, queryParam := range endpoint.QueryParams {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
 				parameter := Parameter{
@@ -92,6 +104,18 @@ func Generate(filePath string) astra.ServiceFunction {
 				}
 			}
 
+			var responseHeaders map[string]Header
+			if len(endpoint.ResponseHeaders) > 0 {
+				responseHeaders = make(map[string]Header)
+				for _, responseHeader := range endpoint.ResponseHeaders {
+					s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", responseHeader.Name).Msg("Adding response header")
+					responseHeaders[responseHeader.Name] = Header{
+						Schema:   mapParamToSchema(responseHeader),
+						Required: responseHeader.IsRequired,
+					}
+				}
+			}
+
 			for _, returnType := range endpoint.ReturnTypes {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
 				var mediaType MediaType
@@ -108,7 +132,7 @@ func Generate(filePath string) astra.ServiceFunction {
 
 				operation.Responses[strconv.Itoa(returnType.StatusCode)] = Response{
 					Description: "",
-					Headers:     nil,
+					Headers:     responseHeaders,
 					Content:     content,
 					Links:       nil,
 				}

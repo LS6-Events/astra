@@ -120,6 +120,7 @@ type Header struct {
 	Required    bool   `json:"required,omitempty" yaml:"required,omitempty"`
 	Deprecated  bool   `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
 	AllowEmpty  bool   `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
+	Schema      Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
 }
 
 // Responses is the OpenAPI responses
