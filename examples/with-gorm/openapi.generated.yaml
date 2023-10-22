@@ -17,7 +17,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/github.com_gin-gonic_gin.H'
+                                $ref: '#/components/schemas/gin.H'
     /posts:
         get:
             operationId: getPosts
@@ -29,7 +29,7 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/withgorm_types.Post'
+                                    $ref: '#/components/schemas/types.Post'
                 "500":
                     description: ""
                     content:
@@ -42,14 +42,14 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withgorm_types.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withgorm_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -77,7 +77,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withgorm_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -102,14 +102,14 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withgorm_types.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withgorm_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -147,23 +147,23 @@ paths:
                                 type: string
 components:
     schemas:
-        github.com_gin-gonic_gin.H:
+        gin.H:
             type: object
             additionalProperties: {}
-        gorm.io_gorm.DeletedAt:
+        gorm.DeletedAt:
             type: object
             properties:
                 Time:
                     $ref: '#/components/schemas/time.Time'
                 Valid:
                     type: boolean
-        gorm.io_gorm.Model:
+        gorm.Model:
             type: object
             properties:
                 CreatedAt:
                     $ref: '#/components/schemas/time.Time'
                 DeletedAt:
-                    $ref: '#/components/schemas/gorm.io_gorm.DeletedAt'
+                    $ref: '#/components/schemas/gorm.DeletedAt'
                 ID:
                     type: integer
                     format: uint
@@ -172,42 +172,42 @@ components:
         time.Time:
             type: string
             format: date-time
-        withgorm_types.Author:
+        types.Author:
             type: object
             allOf:
-                - $ref: '#/components/schemas/gorm.io_gorm.Model'
+                - $ref: '#/components/schemas/gorm.Model'
                 - properties:
                     first_name:
                         type: string
                     last_name:
                         type: string
-        withgorm_types.Comment:
+        types.Comment:
             type: object
             allOf:
-                - $ref: '#/components/schemas/gorm.io_gorm.Model'
+                - $ref: '#/components/schemas/gorm.Model'
                 - properties:
                     author:
-                        $ref: '#/components/schemas/withgorm_types.Author'
+                        $ref: '#/components/schemas/types.Author'
                     body:
                         type: string
-        withgorm_types.Post:
+        types.Post:
             type: object
             allOf:
-                - $ref: '#/components/schemas/gorm.io_gorm.Model'
+                - $ref: '#/components/schemas/gorm.Model'
                 - properties:
                     author:
-                        $ref: '#/components/schemas/withgorm_types.Author'
+                        $ref: '#/components/schemas/types.Author'
                     body:
                         type: string
                     comments:
                         type: array
                         items:
-                            $ref: '#/components/schemas/withgorm_types.Comment'
+                            $ref: '#/components/schemas/types.Comment'
                     name:
                         type: string
                     published_at:
                         $ref: '#/components/schemas/time.Time'
-        withgorm_types.PostDTO:
+        types.PostDTO:
             type: object
             properties:
                 author_id:
