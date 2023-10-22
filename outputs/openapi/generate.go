@@ -24,6 +24,9 @@ func Generate(filePath string) astra.ServiceFunction {
 			return astra.ErrConfigNotFound
 		}
 
+		s.Log.Debug().Msg("Making collision safe struct names")
+		makeCollisionSafeNamesFromComponents(s.Components)
+
 		protocol := "http"
 		if s.Config.Secure {
 			protocol += "s"
@@ -245,75 +248,4 @@ func Generate(filePath string) astra.ServiceFunction {
 
 		return nil
 	}
-}
-
-func componentToSchema(component astra.Field) Schema {
-	var schema Schema
-
-	if component.Type == "struct" {
-		embeddedProperties := make([]Schema, 0)
-		schema = Schema{
-			Type:       "object",
-			Properties: make(map[string]Schema),
-		}
-		for key, field := range component.StructFields {
-			// We should aim to use doc comments in the future
-			// However https://github.com/OAI/OpenAPI-Specification/issues/1514
-			if field.IsEmbedded {
-				embeddedProperties = append(embeddedProperties, Schema{
-					Ref: makeComponentRef(field.Type, field.Package),
-				})
-				continue
-			}
-
-			schema.Properties[key] = componentToSchema(field)
-		}
-
-		if len(embeddedProperties) > 0 {
-			if len(schema.Properties) == 0 {
-				schema.AllOf = embeddedProperties
-			} else {
-				schema.AllOf = append(embeddedProperties, Schema{
-					Properties: schema.Properties,
-				})
-
-				schema.Properties = nil
-			}
-		}
-	} else if component.Type == "slice" {
-		itemSchema := mapAcceptedType(component.SliceType)
-
-		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
-			itemSchema = Schema{
-				Ref: makeComponentRef(component.SliceType, component.Package),
-			}
-		}
-
-		schema = Schema{
-			Type:  "array",
-			Items: &itemSchema,
-		}
-	} else if component.Type == "map" {
-		additionalProperties := mapAcceptedType(component.MapValueType)
-
-		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
-			additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
-		}
-
-		schema = Schema{
-			Type:                 "object",
-			AdditionalProperties: &additionalProperties,
-		}
-	} else {
-		schema = mapAcceptedType(component.Type)
-		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
-			schema = Schema{
-				Ref: makeComponentRef(component.Type, component.Package),
-			}
-		} else {
-			schema.Enum = component.EnumValues
-		}
-	}
-
-	return schema
 }

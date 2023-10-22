@@ -17,7 +17,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/github.com_gin-gonic_gin.H'
+                                $ref: '#/components/schemas/gin.H'
     /posts:
         get:
             operationId: getPosts
@@ -29,21 +29,21 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/withcache_types.Post'
+                                    $ref: '#/components/schemas/types.Post'
         post:
             operationId: createPost
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withcache_types.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -65,7 +65,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -84,14 +84,14 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/withcache_types.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/withcache_types.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
                     description: ""
                     content:
@@ -117,13 +117,13 @@ paths:
                                 type: string
 components:
     schemas:
-        github.com_gin-gonic_gin.H:
+        gin.H:
             type: object
             additionalProperties: {}
         time.Time:
             type: string
             format: date-time
-        withcache_types.Author:
+        types.Author:
             type: object
             properties:
                 first_name:
@@ -133,27 +133,27 @@ components:
                     format: int32
                 last_name:
                     type: string
-        withcache_types.Comment:
+        types.Comment:
             type: object
             properties:
                 author:
-                    $ref: '#/components/schemas/withcache_types.Author'
+                    $ref: '#/components/schemas/types.Author'
                 body:
                     type: string
                 id:
                     type: integer
                     format: int32
-        withcache_types.Post:
+        types.Post:
             type: object
             properties:
                 author:
-                    $ref: '#/components/schemas/withcache_types.Author'
+                    $ref: '#/components/schemas/types.Author'
                 body:
                     type: string
                 comments:
                     type: array
                     items:
-                        $ref: '#/components/schemas/withcache_types.Comment'
+                        $ref: '#/components/schemas/types.Comment'
                 id:
                     type: integer
                     format: int32
@@ -161,7 +161,7 @@ components:
                     type: string
                 published_at:
                     $ref: '#/components/schemas/time.Time'
-        withcache_types.PostDTO:
+        types.PostDTO:
             type: object
             properties:
                 author_id:
