@@ -20,6 +20,7 @@ paths:
                                 $ref: '#/components/schemas/github.com_gin-gonic_gin.H'
     /posts:
         get:
+            operationId: getPosts
             responses:
                 "200":
                     description: ""
@@ -30,6 +31,7 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/azurefunctions_types.Post'
         post:
+            operationId: createPost
             requestBody:
                 content:
                     application/json:
@@ -50,6 +52,7 @@ paths:
                                 type: string
     /posts/{id}:
         get:
+            operationId: getPost
             parameters:
                 - name: id
                   in: path
@@ -70,6 +73,7 @@ paths:
                             schema:
                                 type: string
         put:
+            operationId: updatePost
             parameters:
                 - name: id
                   in: path
@@ -95,6 +99,7 @@ paths:
                             schema:
                                 type: string
         delete:
+            operationId: deletePost
             parameters:
                 - name: id
                   in: path

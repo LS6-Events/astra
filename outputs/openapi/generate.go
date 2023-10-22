@@ -142,6 +142,10 @@ func Generate(filePath string) astra.ServiceFunction {
 				operation.Description = endpoint.Doc
 			}
 
+			if endpoint.OperationID != "" {
+				operation.OperationID = endpoint.OperationID
+			}
+
 			var endpointPath Path
 			if _, ok := paths[endpoint.Path]; !ok {
 				endpointPath = Path{}

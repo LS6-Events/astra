@@ -2,6 +2,7 @@ package gin
 
 import (
 	"fmt"
+	"github.com/iancoleman/strcase"
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
 	"github.com/ls6-events/astra/utils"
@@ -130,11 +131,15 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 				return false
 			}
 
+			// If the function is not inline, we can just parse it normally
 			function, err := traverser.Function(funcDecl)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to get function")
 				return false
 			}
+
+			// And define the function name as the operation ID
+			baseRoute.OperationID = strcase.ToLowerCamel(funcName)
 
 			err = parseFunction(s, function, baseRoute, traverser.ActiveFile(), 0)
 			if err != nil {
