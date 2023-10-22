@@ -16,6 +16,7 @@ type Route struct {
 	Body        []Param      `json:"body,omitempty" yaml:"body,omitempty"`
 	ReturnTypes []ReturnType `json:"returnTypes,omitempty" yaml:"returnTypes,omitempty"`
 	Doc         string       `json:"doc,omitempty" yaml:"doc,omitempty"`
+	OperationID string       `json:"operationId,omitempty" yaml:"operationId,omitempty"`
 
 	RequestHeaders  []Param `json:"requestHeaders,omitempty" yaml:"requestHeaders,omitempty"`
 	ResponseHeaders []Param `json:"responseHeaders,omitempty" yaml:"responseHeaders,omitempty"`

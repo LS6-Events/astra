@@ -82,3 +82,7 @@ func (f *FunctionTraverser) Doc() (string, error) {
 
 	return FormatDoc(f.DeclNode.Doc.Text()), nil
 }
+
+func (f *FunctionTraverser) Name() string {
+	return f.DeclNode.Name.Name
+}
