@@ -2,12 +2,13 @@ package openapi
 
 import (
 	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestCollisionSafeKey(t *testing.T) {
-	key := collisionSafeKey("example", "package")
+	key := collisionSafeKey(astTraversal.NoBindingTag, "example", "package")
 	expected := "package.example"
 	assert.Equal(t, expected, key)
 }
@@ -24,9 +25,9 @@ func TestMakeComponentRef(t *testing.T) {
 
 	name := "example"
 	pkg := "package"
-	collisionSafeNames[collisionSafeKey(name, pkg)] = "something.else"
+	collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)] = "something.else"
 	expected := "#/components/schemas/something.else"
-	ref := makeComponentRef(name, pkg)
+	ref := makeComponentRef(astTraversal.NoBindingTag, name, pkg)
 	assert.Equal(t, expected, ref)
 }
 
@@ -35,9 +36,9 @@ func TestMakeComponentRefName(t *testing.T) {
 
 	name := "example"
 	pkg := "package"
-	collisionSafeNames[collisionSafeKey(name, pkg)] = "pkg.example"
+	collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)] = "pkg.example"
 	expected := "pkg.example"
-	refName := makeComponentRefName(name, pkg)
+	refName := makeComponentRefName(astTraversal.NoBindingTag, name, pkg)
 	assert.Equal(t, expected, refName)
 }
 
@@ -65,9 +66,9 @@ func TestMakeCollisionSafeNamesFromComponents(t *testing.T) {
 
 	// Define expected collision-safe names
 	expectedNames := map[string]string{
-		collisionSafeKey("Field1", "github.com/example/package1"): "example.package1.Field1",
-		collisionSafeKey("Field2", "github.com/example/package2"): "package2.Field2",
-		collisionSafeKey("Field3", "github.com/another/package1"): "another.package1.Field3",
+		collisionSafeKey(astTraversal.NoBindingTag, "Field1", "github.com/example/package1"): "example.package1.Field1",
+		collisionSafeKey(astTraversal.NoBindingTag, "Field2", "github.com/example/package2"): "package2.Field2",
+		collisionSafeKey(astTraversal.NoBindingTag, "Field3", "github.com/another/package1"): "another.package1.Field3",
 	}
 
 	// Compare the generated collisionSafeNames with the expected names

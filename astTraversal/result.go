@@ -15,9 +15,6 @@ type Result struct {
 	// Names is a list of names that are associated with the result (e.g. for a struct field)
 	Names []string
 
-	// IsRequired is true if the result is required in a struct
-	IsRequired bool
-
 	// IsEmbedded is true if the result is embedded in a struct
 	IsEmbedded bool
 
@@ -48,6 +45,10 @@ type Result struct {
 
 	// StructFields is a map of struct fields (e.g. for a struct { Foo string })
 	StructFields map[string]Result
+
+	StructFieldBindingTags BindingTagMap
+
+	StructFieldValidationTags ValidationTagMap
 
 	// Doc is the documentation of the result
 	Doc string

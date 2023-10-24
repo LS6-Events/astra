@@ -205,21 +205,15 @@ func (t *TypeTraverser) Result() (Result, error) {
 		fields := make(map[string]Result)
 		for i := 0; i < n.NumFields(); i++ {
 			f := n.Field(i)
+			name := f.Id()
+			isExported := f.Exported()
 			isEmbedded := f.Embedded()
 
-			// Get if "binding:required" tag is present and json/yaml/xml/form as well
-			tag := n.Tag(i)
-			name, isRequired, isShown := ParseStructTag(tag)
-
-			if name == "" {
-				name = f.Id()
-			}
-
-			if !f.Exported() {
-				isShown = false
-			}
-
-			if !isShown {
+			var bindingTag BindingTagMap
+			var validationTags ValidationTagMap
+			if isExported {
+				bindingTag, validationTags = ParseStructTag(name, n.Tag(i))
+			} else {
 				continue
 			}
 
@@ -246,8 +240,10 @@ func (t *TypeTraverser) Result() (Result, error) {
 				}
 			}
 
-			structFieldResult.IsRequired = isRequired
 			structFieldResult.IsEmbedded = isEmbedded
+			structFieldResult.StructFieldBindingTags = bindingTag
+			structFieldResult.StructFieldValidationTags = validationTags
+
 			fields[name] = structFieldResult
 		}
 

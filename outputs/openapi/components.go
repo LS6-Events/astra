@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
 	"slices"
 	"strings"
 )
@@ -10,8 +11,16 @@ import (
 var collisionSafeNames = make(map[string]string)
 
 // collisionSafeKey creates a key for the collisionSafeNames map
-func collisionSafeKey(name, pkg string) string {
-	return pkg + "." + name
+func collisionSafeKey(bindingType astTraversal.BindingTagType, name, pkg string) string {
+	var keyComponents []string
+
+	if bindingType != astTraversal.NoBindingTag {
+		keyComponents = []string{pkg, string(bindingType), name}
+	} else {
+		keyComponents = []string{pkg, name}
+	}
+
+	return strings.Join(keyComponents, ".")
 }
 
 // getPackageName gets the package name from the package path (i.e. github.com/ls6-events/astra -> astra)
@@ -67,59 +76,80 @@ func makeCollisionSafeNamesFromComponents(components []astra.Field) {
 
 		// Iterate over every component and create a collision safe name
 		for _, component := range components {
-			// If sameUntil is greater than 0, we need to remove the package path up to the point where they first don't match
-			if sameUntil > 0 {
-				// Split the package path by "/"
-				splitPackage := strings.Split(component.Package, "/")
+			bindingTags, uniqueBindings := astra.ExtractBindingTags(component.StructFields)
+			for _, bindingType := range bindingTags {
+				// If sameUntil is greater than 0, we need to remove the package path up to the point where they first don't match
+				if sameUntil > 0 {
+					// Split the package path by "/"
+					splitPackage := strings.Split(component.Package, "/")
 
-				// Pick the final part of the package path, guided by sameUntil
-				// We add 1 because we want to access the first different part of the package path
-				// e.g. github.com/ls6-events/astra and github.com/different/astra would give us sameUntil = 1
-				// and split into "ls6-events" and "different"
+					// Pick the final part of the package path, guided by sameUntil
+					// We add 1 because we want to access the first different part of the package path
+					// e.g. github.com/ls6-events/astra and github.com/different/astra would give us sameUntil = 1
+					// and split into "ls6-events" and "different"
 
-				splitPackage = splitPackage[len(splitPackage)-(sameUntil+1):]
+					splitPackage = splitPackage[len(splitPackage)-(sameUntil+1):]
 
-				// Join the path back together
-				collisionSafeNames[collisionSafeKey(component.Name, component.Package)] = strings.Join(splitPackage, ".") + "." + component.Name
-			} else {
-				// If sameUntil is 0, we can just use the package name
-				collisionSafeNames[collisionSafeKey(component.Name, component.Package)] = getPackageName(component.Package) + "." + component.Name
+					if uniqueBindings {
+						// If there are unique bindings, we need to add the binding type to the collision safe name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, "/") + "." + string(bindingType) + "." + component.Name
+					} else {
+						// If there are no unique bindings, we can just use the package name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, "/") + "." + component.Name
+					}
+				} else {
+					if uniqueBindings {
+						// If there are unique bindings, we need to add the binding type to the collision safe name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = getPackageName(component.Package) + "." + string(bindingType) + "." + component.Name
+					} else {
+						// If there are no unique bindings, we can just use the package name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = getPackageName(component.Package) + "." + component.Name
+					}
+				}
 			}
 		}
 	}
 }
 
 // makeComponentRef creates a reference to the component in the OpenAPI specification
-func makeComponentRef(name, pkg string) string {
-	return "#/components/schemas/" + makeComponentRefName(name, pkg)
+func makeComponentRef(bindingType astTraversal.BindingTagType, name, pkg string) string {
+	return "#/components/schemas/" + makeComponentRefName(bindingType, name, pkg)
 }
 
 // makeComponentRefName converts the component and package name to a valid OpenAPI reference name (to avoid collisions)
-func makeComponentRefName(name, pkg string) string {
-	return collisionSafeNames[collisionSafeKey(name, pkg)]
+func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg string) string {
+	return collisionSafeNames[collisionSafeKey(bindingType, name, pkg)]
 }
 
 // componentToSchema converts a component to a schema
-func componentToSchema(component astra.Field) Schema {
-	var schema Schema
-
+func componentToSchema(component astra.Field, bindingType astTraversal.BindingTagType) (schema Schema, bound bool) {
 	if component.Type == "struct" {
 		embeddedProperties := make([]Schema, 0)
 		schema = Schema{
 			Type:       "object",
 			Properties: make(map[string]Schema),
 		}
-		for key, field := range component.StructFields {
+		for _, field := range component.StructFields {
 			// We should aim to use doc comments in the future
 			// However https://github.com/OAI/OpenAPI-Specification/issues/1514
 			if field.IsEmbedded {
 				embeddedProperties = append(embeddedProperties, Schema{
-					Ref: makeComponentRef(field.Type, field.Package),
+					Ref: makeComponentRef(bindingType, field.Type, field.Package),
 				})
 				continue
 			}
 
-			schema.Properties[key] = componentToSchema(field)
+			fieldBinding := field.StructFieldBindingTags[bindingType]
+			if fieldBinding == (astTraversal.BindingTag{}) {
+				return Schema{}, false
+			}
+
+			if fieldBinding.IsShown {
+				fieldSchema, fieldBound := componentToSchema(field, bindingType)
+				if fieldBound {
+					schema.Properties[fieldBinding.Name] = fieldSchema
+				}
+			}
 		}
 
 		if len(embeddedProperties) > 0 {
@@ -138,7 +168,7 @@ func componentToSchema(component astra.Field) Schema {
 
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
 			itemSchema = Schema{
-				Ref: makeComponentRef(component.SliceType, component.Package),
+				Ref: makeComponentRef(bindingType, component.SliceType, component.Package),
 			}
 		}
 
@@ -150,7 +180,7 @@ func componentToSchema(component astra.Field) Schema {
 		additionalProperties := mapAcceptedType(component.MapValueType)
 
 		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
-			additionalProperties.Ref = makeComponentRef(component.MapValueType, component.Package)
+			additionalProperties.Ref = makeComponentRef(bindingType, component.MapValueType, component.Package)
 		}
 
 		schema = Schema{
@@ -161,12 +191,12 @@ func componentToSchema(component astra.Field) Schema {
 		schema = mapAcceptedType(component.Type)
 		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
 			schema = Schema{
-				Ref: makeComponentRef(component.Type, component.Package),
+				Ref: makeComponentRef(bindingType, component.Type, component.Package),
 			}
 		} else {
 			schema.Enum = component.EnumValues
 		}
 	}
 
-	return schema
+	return schema, true
 }
