@@ -92,10 +92,10 @@ func makeCollisionSafeNamesFromComponents(components []astra.Field) {
 
 					if uniqueBindings {
 						// If there are unique bindings, we need to add the binding type to the collision safe name
-						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, "/") + "." + string(bindingType) + "." + component.Name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, ".") + "." + string(bindingType) + "." + component.Name
 					} else {
 						// If there are no unique bindings, we can just use the package name
-						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, "/") + "." + component.Name
+						collisionSafeNames[collisionSafeKey(bindingType, component.Name, component.Package)] = strings.Join(splitPackage, ".") + "." + component.Name
 					}
 				} else {
 					if uniqueBindings {

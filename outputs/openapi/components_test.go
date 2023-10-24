@@ -66,9 +66,24 @@ func TestMakeCollisionSafeNamesFromComponents(t *testing.T) {
 
 	// Define expected collision-safe names
 	expectedNames := map[string]string{
-		collisionSafeKey(astTraversal.NoBindingTag, "Field1", "github.com/example/package1"): "example.package1.Field1",
-		collisionSafeKey(astTraversal.NoBindingTag, "Field2", "github.com/example/package2"): "package2.Field2",
-		collisionSafeKey(astTraversal.NoBindingTag, "Field3", "github.com/another/package1"): "another.package1.Field3",
+		collisionSafeKey(astTraversal.HeaderBindingTag, "Field1", "github.com/example/package1"): "example.package1.Field1",
+		collisionSafeKey(astTraversal.FormBindingTag, "Field1", "github.com/example/package1"):   "example.package1.Field1",
+		collisionSafeKey(astTraversal.URIBindingTag, "Field1", "github.com/example/package1"):    "example.package1.Field1",
+		collisionSafeKey(astTraversal.JSONBindingTag, "Field1", "github.com/example/package1"):   "example.package1.Field1",
+		collisionSafeKey(astTraversal.XMLBindingTag, "Field1", "github.com/example/package1"):    "example.package1.Field1",
+		collisionSafeKey(astTraversal.YAMLBindingTag, "Field1", "github.com/example/package1"):   "example.package1.Field1",
+		collisionSafeKey(astTraversal.HeaderBindingTag, "Field2", "github.com/example/package2"): "package2.Field2",
+		collisionSafeKey(astTraversal.FormBindingTag, "Field2", "github.com/example/package2"):   "package2.Field2",
+		collisionSafeKey(astTraversal.URIBindingTag, "Field2", "github.com/example/package2"):    "package2.Field2",
+		collisionSafeKey(astTraversal.JSONBindingTag, "Field2", "github.com/example/package2"):   "package2.Field2",
+		collisionSafeKey(astTraversal.XMLBindingTag, "Field2", "github.com/example/package2"):    "package2.Field2",
+		collisionSafeKey(astTraversal.YAMLBindingTag, "Field2", "github.com/example/package2"):   "package2.Field2",
+		collisionSafeKey(astTraversal.HeaderBindingTag, "Field3", "github.com/another/package1"): "another.package1.Field3",
+		collisionSafeKey(astTraversal.FormBindingTag, "Field3", "github.com/another/package1"):   "another.package1.Field3",
+		collisionSafeKey(astTraversal.URIBindingTag, "Field3", "github.com/another/package1"):    "another.package1.Field3",
+		collisionSafeKey(astTraversal.JSONBindingTag, "Field3", "github.com/another/package1"):   "another.package1.Field3",
+		collisionSafeKey(astTraversal.XMLBindingTag, "Field3", "github.com/another/package1"):    "another.package1.Field3",
+		collisionSafeKey(astTraversal.YAMLBindingTag, "Field3", "github.com/another/package1"):   "another.package1.Field3",
 	}
 
 	// Compare the generated collisionSafeNames with the expected names

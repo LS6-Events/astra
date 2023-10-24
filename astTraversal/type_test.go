@@ -79,7 +79,7 @@ func TestTypeTraverser_Result(t *testing.T) {
 		assert.Equal(t, "struct", res.Type)
 
 		// Check if the struct fields are parsed correctly
-		ageField, ok := res.StructFields["age"]
+		ageField, ok := res.StructFields["Age"]
 		assert.True(t, ok)
 		assert.Equal(t, "int", ageField.Type)
 		assert.True(t, ageField.StructFieldValidationTags[GinValidationTag].IsRequired)
