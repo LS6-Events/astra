@@ -79,8 +79,8 @@ type Field struct {
 	MapValueType  string `json:"mapValueType,omitempty" yaml:"mapValueType,omitempty"`
 
 	StructFields              map[string]Field              `json:"structFields,omitempty" yaml:"structFields,omitempty"`
-	StructFieldBindingTags    astTraversal.BindingTagMap    `json:"structFieldBindingTags" yaml:"structFieldBindingTags"`
-	StructFieldValidationTags astTraversal.ValidationTagMap `json:"structFieldValidationTags" yaml:"structFieldValidationTags"`
+	StructFieldBindingTags    astTraversal.BindingTagMap    `json:"structFieldBindingTags,omitempty" yaml:"structFieldBindingTags,omitempty"`
+	StructFieldValidationTags astTraversal.ValidationTagMap `json:"structFieldValidationTags,omitempty" yaml:"structFieldValidationTags,omitempty"`
 
 	Doc string `json:"doc,omitempty" yaml:"doc,omitempty"`
 }

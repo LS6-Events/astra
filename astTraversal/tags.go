@@ -20,9 +20,9 @@ const (
 var BindingTags = []BindingTagType{HeaderBindingTag, FormBindingTag, URIBindingTag, JSONBindingTag, XMLBindingTag, YAMLBindingTag}
 
 type BindingTag struct {
-	Name       string
-	IsShown    bool
-	IsOptional bool
+	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
+	IsShown    bool   `json:"is_shown,omitempty" yaml:"is_shown,omitempty"`
+	IsOptional bool   `json:"is_optional,omitempty" yaml:"is_optional,omitempty"`
 }
 
 type BindingTagMap map[BindingTagType]BindingTag
@@ -38,7 +38,7 @@ const (
 var ValidationTags = []ValidationTagType{GinValidationTag, ValidatorValidationTag}
 
 type ValidationTag struct {
-	IsRequired bool
+	IsRequired bool `json:"is_required,omitempty" yaml:"is_required,omitempty"`
 }
 
 type ValidationTagMap map[ValidationTagType]ValidationTag
