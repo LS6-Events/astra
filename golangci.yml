@@ -1,0 +1,73 @@
+run:
+  tests: false
+output:
+  format: colored-tab
+linters:
+  disable-all: true
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - decorder
+    - dupword
+    - durationcheck
+    - errname
+    - exportloopref
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    # Opinonated linter for function cognitive complexity.
+    # Interested in possibly enabling.
+    # - gocognit
+    - goconst
+    - godot
+    - godox
+    - gofumpt
+    - goimports
+    - gomoddirectives
+    - goprintffuncname
+    # Static security checking package, currently has false positives.
+    # If they can be resolved, would like to enable.
+    # - gosec
+    - gosmopolitan
+    - govet
+    - importas
+    - inamedparam
+    - ineffassign
+    - makezero
+    - mirror
+    - misspell
+    # Enforces json tags on Marshalled structs.
+    # I like this premise but not sure if it's worth enforcing.
+    # - musttag
+    - nakedret
+    - nilerr
+    - nilnil
+    # Enforces sending http requests with context.
+    # Considering enabling this but not sure if it's worth enforcing.
+    # - noctx
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - rowserrcheck
+    - sqlclosecheck
+    - tenv
+    - testifylint
+    - unconvert
+    - usestdlibvars
+    - unused
+    - wastedassign
+    - whitespace
+    - wrapcheck
+linters-settings:
+  nakedret:
+    max-func-lines: 10
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
