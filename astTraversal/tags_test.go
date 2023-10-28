@@ -14,56 +14,89 @@ func TestParseStructTag(t *testing.T) {
 	}{
 		{
 			field: "Field1",
-			tag:   `json:"field1,omitempty" form:"field1" binding:"required"`,
+			tag:   `json:"field1"`,
 			expectedBindingTags: BindingTagMap{
-				JSONBindingTag: {Name: "field1", IsShown: true, IsOptional: true},
-				FormBindingTag: {Name: "field1", IsShown: true, IsOptional: false},
+				JSONBindingTag: {
+					Name:       "field1",
+					IsShown:    true,
+					IsOptional: false,
+				},
 			},
-			expectedValidationTags: ValidationTagMap{
-				GinValidationTag: {IsRequired: true},
-			},
+			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field2",
-			tag:   `xml:"field2" form:",omitempty"`,
+			tag:   `json:"field2,omitempty"`,
 			expectedBindingTags: BindingTagMap{
-				XMLBindingTag:  {Name: "field2", IsShown: true, IsOptional: false},
-				FormBindingTag: {Name: "Field2", IsShown: true, IsOptional: true},
+				JSONBindingTag: {
+					Name:       "field2",
+					IsShown:    true,
+					IsOptional: true,
+				},
 			},
 			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field3",
-			tag:   `xml:"-"`,
+			tag:   `json:""`,
 			expectedBindingTags: BindingTagMap{
-				XMLBindingTag: {IsShown: false, IsOptional: false},
+				JSONBindingTag: {
+					Name:       "Field3",
+					IsShown:    true,
+					IsOptional: false,
+				},
 			},
 			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field4",
-			tag:   `json:"field4,omitempty" form:"-"`,
+			tag:   `json:",omitempty"`,
 			expectedBindingTags: BindingTagMap{
-				JSONBindingTag: {Name: "field4", IsShown: true, IsOptional: true},
-				FormBindingTag: {IsShown: false, IsOptional: false},
+				JSONBindingTag: {
+					Name:       "Field4",
+					IsShown:    true,
+					IsOptional: true,
+				},
 			},
 			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field5",
-			tag:   `binding:"required"`,
+			tag:   `json:"-"`,
 			expectedBindingTags: BindingTagMap{
-				NoBindingTag: {Name: "Field5", IsShown: true, IsOptional: false},
+				JSONBindingTag: {
+					Name:       "",
+					IsShown:    false,
+					IsOptional: false,
+				},
 			},
-			expectedValidationTags: ValidationTagMap{
-				GinValidationTag: {IsRequired: true},
-			},
+			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field6",
-			tag:   `json:""`,
+			tag:   `validate:"required"`,
 			expectedBindingTags: BindingTagMap{
-				JSONBindingTag: {Name: "Field6", IsShown: true, IsOptional: false},
+				NoBindingTag: {
+					Name:       "Field6",
+					IsShown:    true,
+					IsOptional: false,
+				},
+			},
+			expectedValidationTags: ValidationTagMap{
+				ValidatorValidationTag: {
+					IsRequired: true,
+				},
+			},
+		},
+		{
+			field: "Field7",
+			tag:   ``,
+			expectedBindingTags: BindingTagMap{
+				NoBindingTag: {
+					Name:       "Field7",
+					IsShown:    true,
+					IsOptional: false,
+				},
 			},
 			expectedValidationTags: ValidationTagMap{},
 		},
