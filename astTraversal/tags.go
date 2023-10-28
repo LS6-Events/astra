@@ -20,9 +20,9 @@ const (
 var BindingTags = []BindingTagType{HeaderBindingTag, FormBindingTag, URIBindingTag, JSONBindingTag, XMLBindingTag, YAMLBindingTag}
 
 type BindingTag struct {
-	Name       string `json:"name,omitempty" yaml:"name,omitempty"`
-	IsShown    bool   `json:"is_shown,omitempty" yaml:"is_shown,omitempty"`
-	IsOptional bool   `json:"is_optional,omitempty" yaml:"is_optional,omitempty"`
+	Name           string `json:"name,omitempty" yaml:"name,omitempty"`
+	NotShown       bool   `json:"not_shown,omitempty" yaml:"not_shown,omitempty"`
+	ReturnOptional bool   `json:"return_optional,omitempty" yaml:"return_optional,omitempty"`
 }
 
 type BindingTagMap map[BindingTagType]BindingTag
@@ -56,24 +56,22 @@ func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap) 
 		tagItems := strings.Split(tagValue, ",")
 		if tagItems[0] == "" {
 			newBindingTag.Name = field
-			newBindingTag.IsShown = true
 		} else if tagItems[0] != "-" {
 			newBindingTag.Name = tagItems[0]
-			newBindingTag.IsShown = true
 		} else {
-			newBindingTag.IsShown = false
+			newBindingTag.NotShown = true
 		}
 
 		if len(tagItems) > 1 && tagItems[1] == "omitempty" {
-			newBindingTag.IsOptional = true
+			newBindingTag.ReturnOptional = true
 		} else {
-			newBindingTag.IsOptional = false
+			newBindingTag.ReturnOptional = false
 		}
 
 		bindingTags[bindingTag] = newBindingTag
 	}
 	if len(bindingTags) == 0 {
-		bindingTags[NoBindingTag] = BindingTag{Name: field, IsShown: true, IsOptional: false}
+		bindingTags[NoBindingTag] = BindingTag{Name: field, NotShown: false, ReturnOptional: false}
 	}
 
 	validationTags := make(ValidationTagMap)

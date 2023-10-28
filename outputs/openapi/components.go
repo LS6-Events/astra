@@ -140,11 +140,15 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			}
 
 			fieldBinding := field.StructFieldBindingTags[bindingType]
-			if fieldBinding == (astTraversal.BindingTag{}) {
+			fieldNoBinding := field.StructFieldBindingTags[astTraversal.NoBindingTag]
+			if fieldBinding == (astTraversal.BindingTag{}) && fieldNoBinding == (astTraversal.BindingTag{}) {
 				return Schema{}, false
 			}
+			if fieldBinding == (astTraversal.BindingTag{}) {
+				fieldBinding = fieldNoBinding
+			}
 
-			if fieldBinding.IsShown {
+			if !fieldBinding.NotShown {
 				fieldSchema, fieldBound := componentToSchema(field, bindingType)
 				if fieldBound {
 					schema.Properties[fieldBinding.Name] = fieldSchema

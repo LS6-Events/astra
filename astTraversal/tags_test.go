@@ -17,9 +17,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `json:"field1"`,
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
-					Name:       "field1",
-					IsShown:    true,
-					IsOptional: false,
+					Name:           "field1",
+					NotShown:       false,
+					ReturnOptional: false,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
@@ -29,9 +29,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `json:"field2,omitempty"`,
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
-					Name:       "field2",
-					IsShown:    true,
-					IsOptional: true,
+					Name:           "field2",
+					NotShown:       false,
+					ReturnOptional: true,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
@@ -41,9 +41,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `json:""`,
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
-					Name:       "Field3",
-					IsShown:    true,
-					IsOptional: false,
+					Name:           "Field3",
+					NotShown:       false,
+					ReturnOptional: false,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
@@ -53,9 +53,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `json:",omitempty"`,
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
-					Name:       "Field4",
-					IsShown:    true,
-					IsOptional: true,
+					Name:           "Field4",
+					NotShown:       false,
+					ReturnOptional: true,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
@@ -65,9 +65,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `json:"-"`,
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
-					Name:       "",
-					IsShown:    false,
-					IsOptional: false,
+					Name:           "",
+					NotShown:       true,
+					ReturnOptional: false,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
@@ -77,9 +77,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   `validate:"required"`,
 			expectedBindingTags: BindingTagMap{
 				NoBindingTag: {
-					Name:       "Field6",
-					IsShown:    true,
-					IsOptional: false,
+					Name:           "Field6",
+					NotShown:       false,
+					ReturnOptional: false,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{
@@ -93,9 +93,9 @@ func TestParseStructTag(t *testing.T) {
 			tag:   ``,
 			expectedBindingTags: BindingTagMap{
 				NoBindingTag: {
-					Name:       "Field7",
-					IsShown:    true,
-					IsOptional: false,
+					Name:           "Field7",
+					NotShown:       false,
+					ReturnOptional: false,
 				},
 			},
 			expectedValidationTags: ValidationTagMap{},
