@@ -59,6 +59,14 @@ func TestParseStructTag(t *testing.T) {
 				GinValidationTag: {IsRequired: true},
 			},
 		},
+		{
+			field: "Field6",
+			tag:   `json:""`,
+			expectedBindingTags: BindingTagMap{
+				JSONBindingTag: {Name: "Field6", IsShown: true, IsOptional: false},
+			},
+			expectedValidationTags: ValidationTagMap{},
+		},
 	}
 
 	for _, testCase := range testCases {

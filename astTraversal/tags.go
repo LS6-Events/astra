@@ -46,12 +46,12 @@ type ValidationTagMap map[ValidationTagType]ValidationTag
 func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap) {
 	bindingTags := make(BindingTagMap)
 	for _, bindingTag := range BindingTags {
-		newBindingTag := BindingTag{}
-
-		tagValue := reflect.StructTag(tag).Get(string(bindingTag))
-		if tagValue == "" {
+		tagValue, tagOk := reflect.StructTag(tag).Lookup(string(bindingTag))
+		if !tagOk {
 			continue
 		}
+
+		newBindingTag := BindingTag{}
 
 		tagItems := strings.Split(tagValue, ",")
 		if tagItems[0] == "" {
