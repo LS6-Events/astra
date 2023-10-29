@@ -1,5 +1,9 @@
 package astra
 
+import (
+	"github.com/ls6-events/astra/astTraversal"
+)
+
 // These are types that are used throughout the astra package
 
 // Route is a route in the service and all of its potential options
@@ -74,7 +78,9 @@ type Field struct {
 	MapKeyType    string `json:"mapKeyType,omitempty" yaml:"mapKeyType,omitempty"`
 	MapValueType  string `json:"mapValueType,omitempty" yaml:"mapValueType,omitempty"`
 
-	StructFields map[string]Field `json:"structFields,omitempty" yaml:"structFields,omitempty"`
+	StructFields              map[string]Field              `json:"structFields,omitempty" yaml:"structFields,omitempty"`
+	StructFieldBindingTags    astTraversal.BindingTagMap    `json:"structFieldBindingTags,omitempty" yaml:"structFieldBindingTags,omitempty"`
+	StructFieldValidationTags astTraversal.ValidationTagMap `json:"structFieldValidationTags,omitempty" yaml:"structFieldValidationTags,omitempty"`
 
 	Doc string `json:"doc,omitempty" yaml:"doc,omitempty"`
 }

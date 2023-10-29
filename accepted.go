@@ -1,5 +1,7 @@
 package astra
 
+import "slices"
+
 // AcceptedTypes is a list of all accepted types for the astra package
 // Everything else is considered a type that has to be processed
 var AcceptedTypes = []string{
@@ -28,5 +30,5 @@ var AcceptedTypes = []string{
 }
 
 func IsAcceptedType(t string) bool {
-	return strSliceContains(AcceptedTypes, t)
+	return slices.Contains(AcceptedTypes, t)
 }
