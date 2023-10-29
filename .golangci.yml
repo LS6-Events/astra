@@ -24,7 +24,7 @@ linters:
     - goconst
     - godot
     - godox
-    - gofumpt
+    - gofmt
     - goimports
     - gomoddirectives
     - goprintffuncname
@@ -65,6 +65,9 @@ linters:
     - whitespace
     - wrapcheck
 linters-settings:
+  linters-settings:
+  goimports:
+    local-prefixes: main
   nakedret:
     max-func-lines: 10
   prealloc:
