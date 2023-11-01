@@ -10,16 +10,11 @@ import (
 func main() {
 	r := gin.Default()
 
-	r.GET("/posts/json", GetPostsJSON)
-	r.GET("/posts/yaml", GetPostsYAML)
-	r.GET("/posts/:id/json", GetPostJSON)
-	r.GET("/posts/:id/yaml", GetPostYAML)
-	r.POST("/posts/json", CreatePostJSON)
-	r.POST("/posts/yaml", CreatePostYAML)
-	r.PUT("/posts/:id/json", UpdatePostJSON)
-	r.PUT("/posts/:id/yaml", UpdatePostYAML)
-	r.DELETE("/posts/:id/json", DeletePostJSON)
-	r.DELETE("/posts/:id/yaml", DeletePostYAML)
+	r.GET("/posts", GetPosts)
+	r.GET("/posts/:id", GetPost)
+	r.POST("/posts", CreatePost)
+	r.PUT("/posts/:id", UpdatePost)
+	r.DELETE("/posts/:id", DeletePost)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{

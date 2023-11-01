@@ -18,147 +18,9 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/gin.H'
-    /posts/{id}/json:
+    /posts:
         get:
-            operationId: getPostJson
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.Post'
-                "400":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.Error'
-        put:
-            operationId: updatePostJson
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/types.json.PostDTO'
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                "400":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-        delete:
-            operationId: deletePostJson
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                "400":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.Error'
-    /posts/{id}/yaml:
-        get:
-            operationId: getPostYaml
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.Post'
-                "400":
-                    description: ""
-                    content:
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.Error'
-        put:
-            operationId: updatePostYaml
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/yaml:
-                        schema:
-                            $ref: '#/components/schemas/types.json.PostDTO'
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                "400":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-        delete:
-            operationId: deletePostYaml
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.yaml.Operation'
-                "400":
-                    description: ""
-                    content:
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.Error'
-    /posts/json:
-        get:
-            operationId: getPostsJson
+            operationId: getPosts
             responses:
                 "200":
                     description: ""
@@ -167,43 +29,25 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/types.Post'
+                                    $ref: '#/components/schemas/types.json.Post'
+                        application/yaml:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/types.yaml.Post'
+                "415":
+                    description: ""
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
         post:
-            operationId: createPostJson
+            operationId: createPost
             requestBody:
                 content:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/types.json.PostDTO'
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                "400":
-                    description: ""
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-    /posts/yaml:
-        get:
-            operationId: getPostsYaml
-            responses:
-                "200":
-                    description: ""
-                    content:
-                        application/yaml:
-                            schema:
-                                type: array
-                                items:
-                                    $ref: '#/components/schemas/types.Post'
-        post:
-            operationId: createPostYaml
-            requestBody:
-                content:
                     application/yaml:
                         schema:
                             $ref: '#/components/schemas/types.yaml.PostDTO'
@@ -211,13 +55,124 @@ paths:
                 "200":
                     description: ""
                     content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.json.Operation'
                         application/yaml:
                             schema:
                                 $ref: '#/components/schemas/types.yaml.Operation'
                 "400":
                     description: ""
                     content:
+                        text/plain:
+                            schema:
+                                type: string
+                "415":
+                    description: ""
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+    /posts/{id}:
+        get:
+            operationId: getPost
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.json.Post'
                         application/yaml:
+                            schema:
+                                $ref: '#/components/schemas/types.yaml.Post'
+                "400":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.Error'
+                "415":
+                    description: ""
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+        put:
+            operationId: updatePost
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/types.json.PostDTO'
+                    application/yaml:
+                        schema:
+                            $ref: '#/components/schemas/types.yaml.PostDTO'
+            responses:
+                "200":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.json.Operation'
+                        application/yaml:
+                            schema:
+                                $ref: '#/components/schemas/types.yaml.Operation'
+                "400":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.Error'
+                        text/plain:
+                            schema:
+                                type: string
+                "415":
+                    description: ""
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+        delete:
+            operationId: deletePost
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.json.Operation'
+                        application/yaml:
+                            schema:
+                                $ref: '#/components/schemas/types.yaml.Operation'
+                "400":
+                    description: ""
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/types.Error'
+                "415":
+                    description: ""
+                    content:
+                        text/plain:
                             schema:
                                 type: string
 components:
@@ -251,23 +206,6 @@ components:
                 - update
                 - delete
             type: string
-        types.Post:
-            type: object
-            allOf:
-                - $ref: '#/components/schemas/types.PostID'
-                - properties:
-                    author:
-                        $ref: '#/components/schemas/types.yaml.Author'
-                    body:
-                        type: string
-                    comments:
-                        type: array
-                        items:
-                            $ref: '#/components/schemas/types.Comment'
-                    name:
-                        type: string
-                    publishedAt:
-                        $ref: '#/components/schemas/time.Time'
         types.PostID:
             type: object
             properties:
@@ -294,6 +232,23 @@ components:
                     type: string
                 operation:
                     $ref: '#/components/schemas/types.OperationType'
+        types.json.Post:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/types.PostID'
+                - properties:
+                    author:
+                        $ref: '#/components/schemas/types.json.Author'
+                    body:
+                        type: string
+                    comments:
+                        type: array
+                        items:
+                            $ref: '#/components/schemas/types.Comment'
+                    name:
+                        type: string
+                    published_at:
+                        $ref: '#/components/schemas/time.Time'
         types.json.PostDTO:
             type: object
             properties:
@@ -324,6 +279,23 @@ components:
                     type: string
                 operation:
                     $ref: '#/components/schemas/types.OperationType'
+        types.yaml.Post:
+            type: object
+            allOf:
+                - $ref: '#/components/schemas/types.PostID'
+                - properties:
+                    author:
+                        $ref: '#/components/schemas/types.yaml.Author'
+                    body:
+                        type: string
+                    comments:
+                        type: array
+                        items:
+                            $ref: '#/components/schemas/types.Comment'
+                    name:
+                        type: string
+                    publishedAt:
+                        $ref: '#/components/schemas/time.Time'
         types.yaml.PostDTO:
             type: object
             properties:
