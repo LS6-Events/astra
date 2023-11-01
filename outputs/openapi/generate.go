@@ -88,9 +88,16 @@ func Generate(filePath string) astra.ServiceFunction {
 
 			for _, bodyParam := range endpoint.Body {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
-				var mediaType MediaType
-				bindingType := astra.ContentTypeToBindingTag(endpoint.ContentType)
+				bindingType := astra.ContentTypeToBindingTag(bodyParam.ContentType)
 				schema := mapFieldToSchema(bindingType, bodyParam.Field)
+
+				if operation.RequestBody == nil {
+					operation.RequestBody = &RequestBody{
+						Content: map[string]MediaType{},
+					}
+				}
+
+				var mediaType MediaType
 				if bodyParam.Name != "" {
 					mediaType.Schema = Schema{
 						Type: "object",
@@ -102,11 +109,7 @@ func Generate(filePath string) astra.ServiceFunction {
 					mediaType.Schema = schema
 				}
 
-				operation.RequestBody = &RequestBody{
-					Content: map[string]MediaType{
-						endpoint.BodyType: mediaType,
-					},
-				}
+				operation.RequestBody.Content[bodyParam.ContentType] = mediaType
 			}
 
 			var responseHeaders map[string]Header
@@ -124,24 +127,20 @@ func Generate(filePath string) astra.ServiceFunction {
 			for _, returnType := range endpoint.ReturnTypes {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
 				var mediaType MediaType
-				bindingType := astra.ContentTypeToBindingTag(endpoint.ContentType)
+				bindingType := astra.ContentTypeToBindingTag(returnType.ContentType)
 				mediaType.Schema = mapFieldToSchema(bindingType, returnType.Field)
 
-				var content map[string]MediaType
-				if mediaType.Schema.Type != "" || mediaType.Schema.Ref != "" {
-					content = map[string]MediaType{
-						endpoint.ContentType: mediaType,
+				statusCode := strconv.Itoa(returnType.StatusCode)
+				if _, set := operation.Responses[statusCode]; !set {
+					operation.Responses[statusCode] = Response{
+						Description: "",
+						Headers:     responseHeaders,
+						Content:     map[string]MediaType{},
+						Links:       nil,
 					}
-				} else {
-					content = nil
 				}
 
-				operation.Responses[strconv.Itoa(returnType.StatusCode)] = Response{
-					Description: "",
-					Headers:     responseHeaders,
-					Content:     content,
-					Links:       nil,
-				}
+				operation.Responses[strconv.Itoa(returnType.StatusCode)].Content[returnType.ContentType] = mediaType
 			}
 
 			if endpoint.Doc != "" {

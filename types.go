@@ -13,11 +13,9 @@ type Route struct {
 	LineNo      int          `json:"lineNo" yaml:"lineNo"`
 	Method      string       `json:"method" yaml:"method"`
 	Path        string       `json:"path" yaml:"path"`
-	ContentType string       `json:"contentType,omitempty" yaml:"contentType,omitempty"`
-	BodyType    string       `json:"bodyType,omitempty" yaml:"bodyType,omitempty"`
 	PathParams  []Param      `json:"params,omitempty" yaml:"params,omitempty"` // for now, we use :param in the path to denote a required path param, and *param to denote an optional path param
 	QueryParams []Param      `json:"queryParams,omitempty" yaml:"queryParams,omitempty"`
-	Body        []Param      `json:"body,omitempty" yaml:"body,omitempty"`
+	Body        []BodyParam  `json:"body,omitempty" yaml:"body,omitempty"`
 	ReturnTypes []ReturnType `json:"returnTypes,omitempty" yaml:"returnTypes,omitempty"`
 	Doc         string       `json:"doc,omitempty" yaml:"doc,omitempty"`
 	OperationID string       `json:"operationId,omitempty" yaml:"operationId,omitempty"`
@@ -29,8 +27,9 @@ type Route struct {
 // ReturnType is a return type for a route
 // It contains the status code and the field that is returned
 type ReturnType struct {
-	StatusCode int   `json:"statusCode,omitempty" yaml:"statusCode,omitempty"`
-	Field      Field `json:"field,omitempty" yaml:"field,omitempty"`
+	StatusCode  int    `json:"statusCode,omitempty" yaml:"statusCode,omitempty"`
+	ContentType string `json:"contentType,omitempty" yaml:"contentType,omitempty"`
+	Field       Field  `json:"field,omitempty" yaml:"field,omitempty"`
 }
 
 // Param is a parameter for a route
@@ -42,6 +41,17 @@ type Param struct {
 	IsRequired bool   `json:"isRequired,omitempty" yaml:"isRequired,omitempty"`
 	IsArray    bool   `json:"isArray,omitempty" yaml:"isArray,omitempty"`
 	IsMap      bool   `json:"isMap,omitempty" yaml:"isMap,omitempty"`
+
+	IsBound bool `json:"isBound,omitempty" yaml:"isBound,omitempty"` // I.e. is a struct reference
+}
+
+type BodyParam struct {
+	Name        string `json:"name,omitempty" yaml:"name,omitempty"`
+	Field       Field  `json:"type,omitempty" yaml:"type,omitempty"`
+	ContentType string `json:"contentType,omitempty" yaml:"contentType,omitempty"`
+	IsRequired  bool   `json:"isRequired,omitempty" yaml:"isRequired,omitempty"`
+	IsArray     bool   `json:"isArray,omitempty" yaml:"isArray,omitempty"`
+	IsMap       bool   `json:"isMap,omitempty" yaml:"isMap,omitempty"`
 
 	IsBound bool `json:"isBound,omitempty" yaml:"isBound,omitempty"` // I.e. is a struct reference
 }

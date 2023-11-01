@@ -8,7 +8,7 @@ func AddReturnType(prev []ReturnType, n ...ReturnType) []ReturnType {
 			prev = append(prev, newReturn)
 		} else {
 			for _, existingReturn := range prev {
-				if newReturn.Field.Type != existingReturn.Field.Type || newReturn.Field.Package != existingReturn.Field.Package || newReturn.StatusCode != existingReturn.StatusCode {
+				if newReturn.Field.Type != existingReturn.Field.Type || newReturn.Field.Package != existingReturn.Field.Package || newReturn.StatusCode != existingReturn.StatusCode || newReturn.ContentType != existingReturn.ContentType {
 					prev = append(prev, newReturn)
 					break
 				}
