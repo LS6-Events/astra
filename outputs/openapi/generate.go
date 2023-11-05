@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -140,7 +141,9 @@ func Generate(filePath string) astra.ServiceFunction {
 					}
 				}
 
-				operation.Responses[strconv.Itoa(returnType.StatusCode)].Content[returnType.ContentType] = mediaType
+				if !reflect.DeepEqual(mediaType, MediaType{}) {
+					operation.Responses[statusCode].Content[returnType.ContentType] = mediaType
+				}
 			}
 
 			if endpoint.Doc != "" {
