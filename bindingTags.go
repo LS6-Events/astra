@@ -10,7 +10,7 @@ func ExtractBindingTags(fields map[string]Field) (bindingTags []astTraversal.Bin
 	for _, field := range fields {
 		var previousTag astTraversal.BindingTag
 		for bindingType, bindingTag := range field.StructFieldBindingTags {
-			if previousTag != (astTraversal.BindingTag{}) {
+			if previousTag != (astTraversal.BindingTag{}) && !uniqueBindings {
 				uniqueBindings = !reflect.DeepEqual(bindingTag, previousTag)
 			}
 
@@ -39,4 +39,15 @@ func ContentTypeToBindingTag(contentType string) astTraversal.BindingTagType {
 	}
 
 	return mimetypeToBindingTagMap[contentType]
+}
+
+func BindingTagToContentTypes(bindingTag astTraversal.BindingTagType) []string {
+	bindingTagToMimetypeMap := map[astTraversal.BindingTagType][]string{
+		astTraversal.JSONBindingTag: {"application/json"},
+		astTraversal.XMLBindingTag:  {"application/xml"},
+		astTraversal.FormBindingTag: {"application/x-www-form-urlencoded", "multipart/form-data"},
+		astTraversal.YAMLBindingTag: {"application/yaml"},
+	}
+
+	return bindingTagToMimetypeMap[bindingTag]
 }

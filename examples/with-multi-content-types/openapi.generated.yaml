@@ -206,12 +206,6 @@ components:
                 - update
                 - delete
             type: string
-        types.PostID:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int32
         types.json.Author:
             type: object
             properties:
@@ -235,7 +229,7 @@ components:
         types.json.Post:
             type: object
             allOf:
-                - $ref: '#/components/schemas/types.PostID'
+                - $ref: '#/components/schemas/types.json.PostID'
                 - properties:
                     author:
                         $ref: '#/components/schemas/types.json.Author'
@@ -259,6 +253,18 @@ components:
                     type: string
                 name:
                     type: string
+        types.json.PostID:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        types.uri.PostID:
+            type: object
+            properties:
+                postID:
+                    type: integer
+                    format: int32
         types.yaml.Author:
             type: object
             properties:
@@ -282,7 +288,7 @@ components:
         types.yaml.Post:
             type: object
             allOf:
-                - $ref: '#/components/schemas/types.PostID'
+                - $ref: '#/components/schemas/types.yaml.PostID'
                 - properties:
                     author:
                         $ref: '#/components/schemas/types.yaml.Author'
@@ -306,3 +312,9 @@ components:
                     type: string
                 name:
                     type: string
+        types.yaml.PostID:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
