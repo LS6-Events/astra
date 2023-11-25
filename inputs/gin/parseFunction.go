@@ -330,11 +330,32 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						field := astra.ParseResultToField(params[0].(astTraversal.Result))
 
-						route.Body = append(route.Body, astra.BodyParam{
-							ContentType: "form",
-							IsBound:     true,
-							Field:       field,
+						route.PathParams = append(route.PathParams, astra.Param{
+							IsBound: true,
+							Field:   field,
 						})
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						route.RequestHeaders = append(route.RequestHeaders, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						for _, bodyBindingTag := range []astTraversal.BindingTagType{astTraversal.FormBindingTag, astTraversal.JSONBindingTag, astTraversal.XMLBindingTag, astTraversal.YAMLBindingTag} {
+							contentTypes := astra.BindingTagToContentTypes(bodyBindingTag)
+
+							for _, contentType := range contentTypes {
+								route.Body = append(route.Body, astra.BodyParam{
+									ContentType: contentType,
+									IsBound:     true,
+									Field:       field,
+								})
+							}
+						}
 
 						return route, nil
 					})
