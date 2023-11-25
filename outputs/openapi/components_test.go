@@ -27,8 +27,10 @@ func TestMakeComponentRef(t *testing.T) {
 	pkg := "package"
 	collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)] = "something.else"
 	expected := "#/components/schemas/something.else"
-	ref := makeComponentRef(astTraversal.NoBindingTag, name, pkg)
+	ref, bound := makeComponentRef(astTraversal.NoBindingTag, name, pkg)
+
 	assert.Equal(t, expected, ref)
+	assert.True(t, bound)
 }
 
 func TestMakeComponentRefName(t *testing.T) {
@@ -38,8 +40,10 @@ func TestMakeComponentRefName(t *testing.T) {
 	pkg := "package"
 	collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)] = "pkg.example"
 	expected := "pkg.example"
-	refName := makeComponentRefName(astTraversal.NoBindingTag, name, pkg)
+	refName, bound := makeComponentRefName(astTraversal.NoBindingTag, name, pkg)
+
 	assert.Equal(t, expected, refName)
+	assert.True(t, bound)
 }
 
 func TestMakeCollisionSafeNamesFromComponents(t *testing.T) {
