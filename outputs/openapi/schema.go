@@ -11,8 +11,8 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 	} else if param.IsArray {
 		itemSchema := mapAcceptedType(param.Field.Type)
 		if !astra.IsAcceptedType(param.Field.Type) {
-			componentRef, ok := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
-			if ok {
+			componentRef, bound := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
+			if bound {
 				itemSchema = Schema{
 					Ref: componentRef,
 				}
@@ -25,8 +25,8 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 	} else if param.IsMap {
 		var additionalProperties Schema
 		if !astra.IsAcceptedType(param.Field.Type) {
-			componentRef, ok := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
-			if ok {
+			componentRef, bound := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
+			if bound {
 				additionalProperties.Ref = componentRef
 			}
 		} else {
@@ -43,8 +43,8 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 
 func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field) (Schema, bool) {
 	if !astra.IsAcceptedType(field.Type) {
-		componentRef, ok := makeComponentRef(bindingType, field.Type, field.Package)
-		if ok {
+		componentRef, bound := makeComponentRef(bindingType, field.Type, field.Package)
+		if bound {
 			return Schema{
 				Ref: componentRef,
 			}, true
@@ -58,8 +58,8 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 				Type: mapAcceptedType(field.Type).Type,
 			}
 			if !astra.IsAcceptedType(field.SliceType) {
-				componentRef, ok := makeComponentRef(bindingType, field.SliceType, field.Package)
-				if ok {
+				componentRef, bound := makeComponentRef(bindingType, field.SliceType, field.Package)
+				if bound {
 					itemSchema = Schema{
 						Ref: componentRef,
 					}
@@ -69,8 +69,8 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 		} else if field.Type == "map" {
 			var additionalProperties Schema
 			if !astra.IsAcceptedType(field.MapValueType) {
-				componentRef, ok := makeComponentRef(bindingType, field.MapValueType, field.Package)
-				if ok {
+				componentRef, bound := makeComponentRef(bindingType, field.MapValueType, field.Package)
+				if bound {
 					additionalProperties.Ref = componentRef
 				}
 			} else {
