@@ -55,7 +55,7 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 		schema := mapAcceptedType(field.Type)
 		if field.Type == "slice" {
 			itemSchema := Schema{
-				Type: mapAcceptedType(field.Type).Type,
+				Type: mapAcceptedType(field.SliceType).Type,
 			}
 			if !astra.IsAcceptedType(field.SliceType) {
 				componentRef, bound := makeComponentRef(bindingType, field.SliceType, field.Package)
