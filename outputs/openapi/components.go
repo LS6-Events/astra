@@ -124,6 +124,10 @@ func makeComponentRef(bindingType astTraversal.BindingTagType, name, pkg string)
 // makeComponentRefName converts the component and package name to a valid OpenAPI reference name (to avoid collisions)
 func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg string) (string, bool) {
 	componentName, bound := collisionSafeNames[collisionSafeKey(bindingType, name, pkg)]
+	if !bound {
+		componentName, bound = collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)]
+	}
+
 	return componentName, bound
 }
 
