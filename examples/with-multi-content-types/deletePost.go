@@ -18,25 +18,16 @@ func DeletePost(c *gin.Context) {
 	var postURI types.PostID
 	err := c.ShouldBindUri(postURI)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, types.Error{
-			Error:   "cannot bind uri",
-			Details: err.Error(),
-		})
+		c.String(http.StatusBadRequest, "cannot bind uri")
 		return
 	}
 
 	switch c.ContentType() {
 	case "application/json":
-		{
-			c.JSON(http.StatusOK, deleteOperation(postURI))
-		}
+		c.JSON(http.StatusOK, deleteOperation(postURI))
 	case "application/yaml":
-		{
-			c.YAML(http.StatusOK, deleteOperation(postURI))
-		}
+		c.YAML(http.StatusOK, deleteOperation(postURI))
 	default:
-		{
-			c.String(http.StatusUnsupportedMediaType, "unsupported media type")
-		}
+		c.String(http.StatusUnsupportedMediaType, "unsupported media type")
 	}
 }

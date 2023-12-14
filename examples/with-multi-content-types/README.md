@@ -1,5 +1,5 @@
 # Basic Example
-This is a multi content type example of how to use the Astra API. It utilises some basic features of the API, and some basic types in different content types for CRUD operations in for a blog system. The results and data are faked, but the important thing to note here is that the types are carried through the entire system, and Astra can be used to generate a full CRUD system with a few lines of code.
+This is a multi content type example of how to use the Astra API, it demonstrates how different content type are handed by astra. In this example all off the endpoints can handel both JSON and YAML, and for each of these they have different bindings and this cases the astra generated types to be different. It utilises some basic features of the API, and some basic types in different content types for CRUD operations in for a blog system. The results and data are faked, but the important thing to note here is that the types are carried through the entire system, and Astra can be used to generate a full CRUD system with a few lines of code.
 
 ## Running the example
 

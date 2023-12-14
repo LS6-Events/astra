@@ -35,16 +35,10 @@ var posts = []types.Post{
 func GetPosts(c *gin.Context) {
 	switch c.ContentType() {
 	case "application/json":
-		{
-			c.JSON(http.StatusOK, posts)
-		}
+		c.JSON(http.StatusOK, posts)
 	case "application/yaml":
-		{
-			c.YAML(http.StatusOK, posts)
-		}
+		c.YAML(http.StatusOK, posts)
 	default:
-		{
-			c.String(http.StatusUnsupportedMediaType, "unsupported media type")
-		}
+		c.String(http.StatusUnsupportedMediaType, "unsupported media type")
 	}
 }

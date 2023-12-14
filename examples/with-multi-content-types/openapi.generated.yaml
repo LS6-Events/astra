@@ -95,9 +95,9 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
-                                $ref: '#/components/schemas/types.Error'
+                                type: string
                 "415":
                     description: ""
                     content:
@@ -133,9 +133,6 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.Error'
                         text/plain:
                             schema:
                                 type: string
@@ -166,9 +163,9 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
-                                $ref: '#/components/schemas/types.Error'
+                                type: string
                 "415":
                     description: ""
                     content:
@@ -193,13 +190,6 @@ components:
                 id:
                     type: integer
                     format: int32
-        types.Error:
-            type: object
-            properties:
-                details:
-                    type: string
-                error:
-                    type: string
         types.OperationType:
             enum:
                 - create

@@ -18,30 +18,24 @@ func createOperation() types.Operation {
 func CreatePost(c *gin.Context) {
 	switch c.ContentType() {
 	case "application/json":
-		{
-			var postDTO types.PostDTO
-			err := c.ShouldBindJSON(&postDTO)
-			if err != nil {
-				c.String(http.StatusBadRequest, "Invalid post")
-				return
-			}
-
-			c.JSON(http.StatusOK, createOperation())
+		var postDTO types.PostDTO
+		err := c.ShouldBindJSON(&postDTO)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Invalid post")
+			return
 		}
+
+		c.JSON(http.StatusOK, createOperation())
 	case "application/yaml":
-		{
-			var postDTO types.PostDTO
-			err := c.ShouldBindYAML(&postDTO)
-			if err != nil {
-				c.String(http.StatusBadRequest, "Invalid post")
-				return
-			}
+		var postDTO types.PostDTO
+		err := c.ShouldBindYAML(&postDTO)
+		if err != nil {
+			c.String(http.StatusBadRequest, "Invalid post")
+			return
+		}
 
-			c.YAML(http.StatusOK, createOperation())
-		}
+		c.YAML(http.StatusOK, createOperation())
 	default:
-		{
-			c.String(http.StatusUnsupportedMediaType, "unsupported media type")
-		}
+		c.String(http.StatusUnsupportedMediaType, "unsupported media type")
 	}
 }
