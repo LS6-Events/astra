@@ -38,7 +38,7 @@ func makeCollisionSafeNamesFromComponents(components []astra.Field) {
 		packageName := getPackageName(component.Package)
 
 		// If the package name doesn't exist in the map, create it
-		if _, ok := packageNames[packageName]; !ok {
+		if _, exists := packageNames[packageName]; !exists {
 			packageNames[packageName] = make([]astra.Field, 0)
 		}
 
@@ -112,13 +112,23 @@ func makeCollisionSafeNamesFromComponents(components []astra.Field) {
 }
 
 // makeComponentRef creates a reference to the component in the OpenAPI specification
-func makeComponentRef(bindingType astTraversal.BindingTagType, name, pkg string) string {
-	return "#/components/schemas/" + makeComponentRefName(bindingType, name, pkg)
+func makeComponentRef(bindingType astTraversal.BindingTagType, name, pkg string) (string, bool) {
+	componentName, bound := makeComponentRefName(bindingType, name, pkg)
+	if !bound {
+		return "", bound
+	}
+
+	return "#/components/schemas/" + componentName, bound
 }
 
 // makeComponentRefName converts the component and package name to a valid OpenAPI reference name (to avoid collisions)
-func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg string) string {
-	return collisionSafeNames[collisionSafeKey(bindingType, name, pkg)]
+func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg string) (string, bool) {
+	componentName, bound := collisionSafeNames[collisionSafeKey(bindingType, name, pkg)]
+	if !bound {
+		componentName, bound = collisionSafeNames[collisionSafeKey(astTraversal.NoBindingTag, name, pkg)]
+	}
+
+	return componentName, bound
 }
 
 // componentToSchema converts a component to a schema
@@ -133,9 +143,13 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			// We should aim to use doc comments in the future
 			// However https://github.com/OAI/OpenAPI-Specification/issues/1514
 			if field.IsEmbedded {
-				embeddedProperties = append(embeddedProperties, Schema{
-					Ref: makeComponentRef(bindingType, field.Type, field.Package),
-				})
+				componentRef, componentBound := makeComponentRef(bindingType, field.Type, field.Package)
+				if componentBound {
+					embeddedProperties = append(embeddedProperties, Schema{
+						Ref: componentRef,
+					})
+				}
+
 				continue
 			}
 
@@ -171,8 +185,11 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 		itemSchema := mapAcceptedType(component.SliceType)
 
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
-			itemSchema = Schema{
-				Ref: makeComponentRef(bindingType, component.SliceType, component.Package),
+			componentRef, componentBound := makeComponentRef(bindingType, component.SliceType, component.Package)
+			if componentBound {
+				itemSchema = Schema{
+					Ref: componentRef,
+				}
 			}
 		}
 
@@ -184,7 +201,10 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 		additionalProperties := mapAcceptedType(component.MapValueType)
 
 		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
-			additionalProperties.Ref = makeComponentRef(bindingType, component.MapValueType, component.Package)
+			componentRef, ok := makeComponentRef(bindingType, component.MapValueType, component.Package)
+			if ok {
+				additionalProperties.Ref = componentRef
+			}
 		}
 
 		schema = Schema{
@@ -194,8 +214,11 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 	} else {
 		schema = mapAcceptedType(component.Type)
 		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
-			schema = Schema{
-				Ref: makeComponentRef(bindingType, component.Type, component.Package),
+			componentRef, componentBound := makeComponentRef(bindingType, component.Type, component.Package)
+			if componentBound {
+				schema = Schema{
+					Ref: componentRef,
+				}
 			}
 		} else {
 			schema.Enum = component.EnumValues

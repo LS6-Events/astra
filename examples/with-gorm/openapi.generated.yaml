@@ -33,7 +33,7 @@ paths:
                 "500":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
         post:
@@ -53,13 +53,13 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
                 "500":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
     /posts/{id}:
@@ -81,13 +81,13 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
                 "500":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
         put:
@@ -113,13 +113,13 @@ paths:
                 "400":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
                 "500":
                     description: ""
                     content:
-                        application/json:
+                        text/plain:
                             schema:
                                 type: string
         delete:

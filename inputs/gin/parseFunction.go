@@ -119,14 +119,13 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				switch funcType.Name() {
 				case "JSON":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/json"
-
 						statusCode := params[0].(int)
 						result := params[1].(astTraversal.Result)
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/json",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -138,14 +137,13 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "XML":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/xml"
-
 						statusCode := params[0].(int)
 						result := params[1].(astTraversal.Result)
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/xml",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -157,14 +155,13 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "YAML":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/yaml"
-
 						statusCode := params[0].(int)
 						result := params[1].(astTraversal.Result)
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/yaml",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -176,14 +173,13 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "ProtoBuf":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/protobuf"
-
 						statusCode := params[0].(int)
 						result := params[1].(astTraversal.Result)
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/protobuf",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -212,12 +208,11 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "String": // c.String
 					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "text/plain"
-
 						statusCode := params[0].(int)
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
+							StatusCode:  statusCode,
+							ContentType: "text/plain",
 							Field: astra.Field{
 								Type: "string",
 							},
@@ -335,12 +330,32 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						field := astra.ParseResultToField(params[0].(astTraversal.Result))
 
-						route.BodyType = "form"
-
-						route.Body = append(route.Body, astra.Param{
+						route.PathParams = append(route.PathParams, astra.Param{
 							IsBound: true,
 							Field:   field,
 						})
+
+						route.QueryParams = append(route.QueryParams, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						route.RequestHeaders = append(route.RequestHeaders, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						for _, bodyBindingTag := range []astTraversal.BindingTagType{astTraversal.FormBindingTag, astTraversal.JSONBindingTag, astTraversal.XMLBindingTag, astTraversal.YAMLBindingTag} {
+							contentTypes := astra.BindingTagToContentTypes(bodyBindingTag)
+
+							for _, contentType := range contentTypes {
+								route.Body = append(route.Body, astra.BodyParam{
+									ContentType: contentType,
+									IsBound:     true,
+									Field:       field,
+								})
+							}
+						}
 
 						return route, nil
 					})
@@ -353,11 +368,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						field := astra.ParseResultToField(params[0].(astTraversal.Result))
 
-						route.BodyType = "application/json"
-
-						route.Body = append(route.Body, astra.Param{
-							IsBound: true,
-							Field:   field,
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/json",
+							IsBound:     true,
+							Field:       field,
 						})
 
 						return route, nil
@@ -371,11 +385,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						field := astra.ParseResultToField(params[0].(astTraversal.Result))
 
-						route.BodyType = "application/xml"
-
-						route.QueryParams = append(route.QueryParams, astra.Param{
-							IsBound: true,
-							Field:   field,
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/xml",
+							IsBound:     true,
+							Field:       field,
 						})
 
 						return route, nil
@@ -389,11 +402,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						field := astra.ParseResultToField(params[0].(astTraversal.Result))
 
-						route.BodyType = "application/yaml"
-
-						route.Body = append(route.Body, astra.Param{
-							IsBound: true,
-							Field:   field,
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/yaml",
+							IsBound:     true,
+							Field:       field,
 						})
 
 						return route, nil
@@ -407,14 +419,13 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name := params[0].(string)
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
 							Name: name,
 						}
-
-						route.BodyType = "application/x-www-form-urlencoded"
 
 						route.Body = append(route.Body, param)
 
@@ -429,15 +440,14 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name := params[0].(string)
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
 							Name:    name,
 							IsArray: true,
 						}
-
-						route.BodyType = "application/x-www-form-urlencoded"
 
 						route.Body = append(route.Body, param)
 
@@ -452,15 +462,14 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name := params[0].(string)
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
 							Name:  name,
 							IsMap: true,
 						}
-
-						route.BodyType = "application/x-www-form-urlencoded"
 
 						route.Body = append(route.Body, param)
 

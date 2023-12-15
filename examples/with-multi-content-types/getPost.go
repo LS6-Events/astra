@@ -21,30 +21,20 @@ func post(postID types.PostID) types.Post {
 	}
 }
 
-func GetPostJSON(c *gin.Context) {
+func GetPost(c *gin.Context) {
 	var postURI types.PostID
 	err := c.ShouldBindUri(postURI)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, types.Error{
-			Error:   "cannot bind uri",
-			Details: err.Error(),
-		})
+		c.String(http.StatusBadRequest, "cannot bind uri")
 		return
 	}
 
-	c.JSON(http.StatusOK, post(postURI))
-}
-
-func GetPostYAML(c *gin.Context) {
-	var postURI types.PostID
-	err := c.ShouldBindUri(postURI)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, types.Error{
-			Error:   "cannot bind uri",
-			Details: err.Error(),
-		})
-		return
+	switch c.ContentType() {
+	case "application/json":
+		c.JSON(http.StatusOK, post(postURI))
+	case "application/yaml":
+		c.YAML(http.StatusOK, post(postURI))
+	default:
+		c.String(http.StatusUnsupportedMediaType, "unsupported media type")
 	}
-
-	c.YAML(http.StatusOK, post(postURI))
 }

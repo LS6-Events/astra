@@ -75,7 +75,7 @@
           "400": {
             "description": "",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
@@ -112,7 +112,7 @@
           "400": {
             "description": "",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
@@ -156,7 +156,7 @@
           "400": {
             "description": "",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
