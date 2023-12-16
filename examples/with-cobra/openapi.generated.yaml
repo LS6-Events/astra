@@ -58,7 +58,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: ""
@@ -79,7 +79,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -105,7 +105,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: ""
