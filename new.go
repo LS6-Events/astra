@@ -10,7 +10,7 @@ import (
 // New creates a new generator service
 // It takes in a list of options that can be used to configure the generator
 // It will also setup the logger for the generator and setup the slices that are used to store the routes, inputs, outputs and components
-func New(opts ...Option) *Service {
+func New(opts ...FunctionalOption) *Service {
 	s := &Service{}
 
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
@@ -21,7 +21,6 @@ func New(opts ...Option) *Service {
 	}
 
 	s.Routes = make([]Route, 0)
-	s.ToBeProcessed = make([]Processable, 0)
 	s.Components = make([]Field, 0)
 
 	s.Log.Debug().Msg("Service created")

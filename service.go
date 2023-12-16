@@ -4,9 +4,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Option is a function that can be used to configure the generator
-type Option func(*Service)
-
 // CLIMode is the mode the CLI is running in
 type CLIMode string
 
@@ -27,8 +24,6 @@ type Service struct {
 
 	Routes []Route `json:"routes" yaml:"routes"`
 
-	ToBeProcessed []Processable `json:"-" yaml:"-"`
-
 	Components []Field `json:"components" yaml:"components"`
 
 	tempMainPackageName string
@@ -41,4 +36,6 @@ type Service struct {
 	PathDenyList []func(string) bool `json:"-" yaml:"-"`
 
 	CustomFuncs []CustomFunc `json:"-" yaml:"-"`
+
+	ConfigurationPlugin *ConfigurationPlugin `json:"-" yaml:"-"`
 }

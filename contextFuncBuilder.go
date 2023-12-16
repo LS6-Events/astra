@@ -1,6 +1,8 @@
 package astra
 
-import "github.com/ls6-events/astra/astTraversal"
+import (
+	"github.com/ls6-events/astra/astTraversal"
+)
 
 type ContextFuncBuilder struct {
 	Route           *Route
@@ -79,8 +81,26 @@ func (c *ContextFuncBuilder) Build(mapper func(*Route, []any) (*Route, error)) (
 
 type CustomFunc func(contextVarName string, contextFuncBuilder *ContextFuncBuilder) (*Route, error)
 
-func WithCustomFunc(customFunc CustomFunc) Option {
-	return func(service *Service) {
-		service.CustomFuncs = append(service.CustomFuncs, customFunc)
+type CustomFuncOption struct{}
+
+func (o CustomFuncOption) With(customFunc CustomFunc) FunctionalOption {
+	return func(s *Service) {
+		s.CustomFuncs = append(s.CustomFuncs, customFunc)
 	}
+}
+
+func (o CustomFuncOption) LoadFromPlugin(s *Service, p *ConfigurationPlugin) error {
+	customFuncsSymbol, found := p.Lookup("CustomFuncs")
+	if found {
+		customFuncs, ok := customFuncsSymbol.([]CustomFunc)
+		if !ok {
+			return ErrInvalidTypeFromConfigurationFile
+		}
+
+		for _, customFunc := range customFuncs {
+			o.With(customFunc)(s)
+		}
+	}
+
+	return nil
 }

@@ -103,7 +103,6 @@ func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	s.Config = service.Config
 	s.Routes = service.Routes
 	s.Components = service.Components
-	s.ToBeProcessed = service.ToBeProcessed
 	return nil
 }
 

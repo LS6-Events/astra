@@ -13,7 +13,7 @@ const (
 	OutputModeOpenAPI        astra.OutputMode = "openapi"        // OpenAPI 3.0 file
 )
 
-func addOutput(mode astra.OutputMode, generate astra.ServiceFunction, configuration astra.IOConfiguration) astra.Option {
+func addOutput(mode astra.OutputMode, generate astra.ServiceFunction, configuration astra.IOConfiguration) astra.FunctionalOption {
 	return func(s *astra.Service) {
 		s.Outputs = append(s.Outputs, astra.Output{
 			Mode:          mode,
@@ -23,8 +23,10 @@ func addOutput(mode astra.OutputMode, generate astra.ServiceFunction, configurat
 	}
 }
 
+type AzureFunctionsOutputOption struct{}
+
 // WithAzureFunctionsOutput adds Azure Functions HTTP Trigger Bindings as an output to the service
-func WithAzureFunctionsOutput(directoryPath string) astra.Option {
+func (o AzureFunctionsOutputOption) With(directoryPath string) astra.FunctionalOption {
 	return addOutput(
 		OutputModeAzureFunctions,
 		azureFunctions.Generate(directoryPath),
@@ -34,10 +36,23 @@ func WithAzureFunctionsOutput(directoryPath string) astra.Option {
 	)
 }
 
+func (o AzureFunctionsOutputOption) LoadFromPlugin(s *astra.Service, p *astra.ConfigurationPlugin) error {
+	directoryPathSymbol, found := p.Lookup("OutputAzureFunctionsDirectoryPath")
+	if found {
+		if directoryPath, ok := directoryPathSymbol.(string); ok {
+			o.With(directoryPath)(s)
+		}
+	}
+
+	return nil
+}
+
+type OpenAPIOutputOption struct{}
+
 // WithOpenAPIOutput adds an OpenAPI specification as an output to the service
 // It will generate a JSON/YAML file (based on file path [default JSON]) with the routes and components
 // It should also contain the configuration for the file path to store in the cache for CLI usage
-func WithOpenAPIOutput(filePath string) astra.Option {
+func (o OpenAPIOutputOption) With(filePath string) astra.FunctionalOption {
 	return addOutput(
 		OutputModeOpenAPI,
 		openapi.Generate(filePath),
@@ -47,10 +62,23 @@ func WithOpenAPIOutput(filePath string) astra.Option {
 	)
 }
 
+func (o OpenAPIOutputOption) LoadFromPlugin(s *astra.Service, p *astra.ConfigurationPlugin) error {
+	filePathSymbol, found := p.Lookup("OutputOpenAPIFilePath")
+	if found {
+		if filePath, ok := filePathSymbol.(string); ok {
+			o.With(filePath)(s)
+		}
+	}
+
+	return nil
+}
+
+type JSONOutputOption struct{}
+
 // WithJSONOutput adds JSON as an output to the service
 // It will generate a JSON file with the routes and components
 // It should also contain the configuration for the file path to store in the cache for CLI usage
-func WithJSONOutput(filePath string) astra.Option {
+func (o JSONOutputOption) With(filePath string) astra.FunctionalOption {
 	return addOutput(
 		OutputModeJSON,
 		json.Generate(filePath),
@@ -58,5 +86,21 @@ func WithJSONOutput(filePath string) astra.Option {
 			astra.IOConfigurationKeyFilePath: filePath,
 		},
 	)
+}
 
+func (o JSONOutputOption) LoadFromPlugin(s *astra.Service, p *astra.ConfigurationPlugin) error {
+	filePathSymbol, found := p.Lookup("OutputJSONFilePath")
+	if found {
+		if filePath, ok := filePathSymbol.(string); ok {
+			o.With(filePath)(s)
+		}
+	}
+
+	return nil
+}
+
+func init() {
+	astra.RegisterOption(AzureFunctionsOutputOption{})
+	astra.RegisterOption(OpenAPIOutputOption{})
+	astra.RegisterOption(JSONOutputOption{})
 }

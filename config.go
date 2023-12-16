@@ -49,9 +49,96 @@ func (s *Service) SetConfig(config *Config) *Service {
 	return s
 }
 
+type ConfigOption struct{}
+
 // WithConfig sets the configuration for the generator in option pattern
-func WithConfig(config *Config) Option {
+func (o ConfigOption) With(config *Config) FunctionalOption {
 	return func(s *Service) {
 		s.SetConfig(config)
 	}
+}
+
+func (o ConfigOption) LoadFromPlugin(s *Service, p *ConfigurationPlugin) error {
+	configSymbol, found := p.Lookup("Config")
+	if found {
+		config, ok := configSymbol.(*Config)
+		if !ok {
+			return ErrInvalidTypeFromConfigurationFile
+		} else {
+			o.With(config)(s)
+		}
+	} else {
+		config := &Config{}
+
+		title, found := p.Lookup("Title")
+		if found {
+			if title, ok := title.(string); ok {
+				config.Title = title
+			}
+		}
+
+		description, found := p.Lookup("Description")
+		if found {
+			if description, ok := description.(string); ok {
+				config.Description = description
+			}
+		}
+
+		version, found := p.Lookup("Version")
+		if found {
+			if version, ok := version.(string); ok {
+				config.Version = version
+			}
+		}
+
+		contact, found := p.Lookup("Contact")
+		if found {
+			if contact, ok := contact.(Contact); ok {
+				config.Contact = contact
+			}
+		}
+
+		license, found := p.Lookup("License")
+		if found {
+			if license, ok := license.(License); ok {
+				config.License = license
+			}
+		}
+
+		secure, found := p.Lookup("Secure")
+		if found {
+			if secure, ok := secure.(bool); ok {
+				config.Secure = secure
+			}
+		}
+
+		host, found := p.Lookup("Host")
+		if found {
+			if host, ok := host.(string); ok {
+				config.Host = host
+			}
+		}
+
+		basePath, found := p.Lookup("BasePath")
+		if found {
+			if basePath, ok := basePath.(string); ok {
+				config.BasePath = basePath
+			}
+		}
+
+		port, found := p.Lookup("Port")
+		if found {
+			if port, ok := port.(int); ok {
+				config.Port = port
+			}
+		}
+
+		o.With(config)(s)
+	}
+
+	return nil
+}
+
+func init() {
+	RegisterOption(ConfigOption{})
 }

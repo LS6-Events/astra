@@ -46,13 +46,6 @@ type Param struct {
 	IsBound bool `json:"isBound,omitempty" yaml:"isBound,omitempty"` // I.e. is a struct reference
 }
 
-// Processable is a struct that is processable by the astra package
-// It just contains the name of the type and the package it came from
-type Processable struct {
-	Name string
-	Pkg  string
-}
-
 // Field is a field in a struct
 // It contains the package, type, and name of the field (the type is slice, map or struct in the case of a slice, map or struct)
 // It also contains whether the field is required and whether it is embedded
