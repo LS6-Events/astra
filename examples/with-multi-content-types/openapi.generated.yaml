@@ -177,7 +177,6 @@ components:
         gin.H:
             type: object
             additionalProperties: {}
-            description: H is a shortcut for map[string]any
         time.Time:
             type: string
             format: date-time

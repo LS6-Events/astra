@@ -8,6 +8,7 @@ includes:
     with-cli: ./with-cli/taskfile.yml
     with-cobra: ./with-cobra/taskfile.yml
     with-custom-functions: ./with-custom-functions/taskfile.yml
+    with-custom-type-mapping: ./with-custom-type-mapping/taskfile.yml
     with-gorm: ./with-gorm/taskfile.yml
     with-multi-content-types: ./with-multi-content-types/taskfile.yml
     with-swagger-ui: ./with-swagger-ui/taskfile.yml
@@ -15,6 +16,6 @@ includes:
 tasks:
     run:
       cmds:
-          - for: [basic, with-azure-functions, with-cache, with-cli, with-cobra, with-custom-functions, with-gorm, with-multi-content-types, with-swagger-ui]
+          - for: [basic, with-azure-functions, with-cache, with-cli, with-cobra, with-custom-functions, with-custom-type-mapping, with-gorm, with-multi-content-types, with-swagger-ui]
             cmd: cd {{ .ITEM }} && task run
 

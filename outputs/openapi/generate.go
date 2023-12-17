@@ -213,7 +213,7 @@ func Generate(filePath string) astra.ServiceFunction {
 		s.Log.Debug().Msg("Adding components")
 		for _, component := range s.Components {
 			for _, bindingType := range astTraversal.BindingTags {
-				schema, bound := componentToSchema(component, bindingType)
+				schema, bound := componentToSchema(s, component, bindingType)
 				if !bound {
 					continue
 				}
