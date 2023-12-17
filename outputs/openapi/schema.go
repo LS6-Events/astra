@@ -9,7 +9,7 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 	if param.IsBound {
 		return mapFieldToSchema(bindingType, param.Field)
 	} else if param.IsArray {
-		itemSchema := mapAcceptedType(param.Field.Type)
+		itemSchema := mapPredefinedTypeFormat(param.Field.Type)
 		if !astra.IsAcceptedType(param.Field.Type) {
 			componentRef, bound := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
 			if bound {
@@ -30,14 +30,14 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 				additionalProperties.Ref = componentRef
 			}
 		} else {
-			additionalProperties = mapAcceptedType(param.Field.Type)
+			additionalProperties = mapPredefinedTypeFormat(param.Field.Type)
 		}
 		return Schema{
 			Type:                 "object",
 			AdditionalProperties: &additionalProperties,
 		}, true
 	} else {
-		return mapAcceptedType(param.Field.Type), true
+		return mapPredefinedTypeFormat(param.Field.Type), true
 	}
 }
 
@@ -52,10 +52,10 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 
 		return Schema{}, false
 	} else {
-		schema := mapAcceptedType(field.Type)
+		schema := mapPredefinedTypeFormat(field.Type)
 		if field.Type == "slice" {
 			itemSchema := Schema{
-				Type: mapAcceptedType(field.SliceType).Type,
+				Type: mapPredefinedTypeFormat(field.SliceType).Type,
 			}
 			if !astra.IsAcceptedType(field.SliceType) {
 				componentRef, bound := makeComponentRef(bindingType, field.SliceType, field.Package)
@@ -74,11 +74,43 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 					additionalProperties.Ref = componentRef
 				}
 			} else {
-				additionalProperties = mapAcceptedType(field.MapValueType)
+				additionalProperties = mapPredefinedTypeFormat(field.MapValueType)
 			}
 			schema.AdditionalProperties = &additionalProperties
 		}
 
 		return schema, true
 	}
+}
+
+// mapTypeFormat maps the type with the list of types from the service
+// This should be primarily used for custom types in components that need to be mapped
+func mapTypeFormat(service *astra.Service, acceptedType string, pkg string) Schema {
+	if acceptedType, ok := service.GetTypeMapping(acceptedType, pkg); ok {
+		if acceptedType.Type == "" {
+			return Schema{}
+		}
+		return Schema{
+			Type:   acceptedType.Type,
+			Format: acceptedType.Format,
+		}
+	}
+
+	return Schema{}
+}
+
+// mapPredefinedTypeFormat maps the type with the list of types that are predefined
+// This should be primarily used for types that are not custom types, i.e. everywhere except top level components
+func mapPredefinedTypeFormat(acceptedType string) Schema {
+	if acceptedType, ok := astra.PredefinedTypeMap[acceptedType]; ok {
+		if acceptedType.Type == "" {
+			return Schema{}
+		}
+		return Schema{
+			Type:   acceptedType.Type,
+			Format: acceptedType.Format,
+		}
+	}
+
+	return Schema{}
 }

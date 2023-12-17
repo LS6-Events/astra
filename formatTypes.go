@@ -1,14 +1,16 @@
-package openapi
+package astra
 
-// openAPIJSONType is the types of the standard go types that are accepted by OpenAPI
-type openAPIJSONType struct {
+import "maps"
+
+// TypeFormat is the types of the standard go types that are accepted by OpenAPI
+type TypeFormat struct {
 	Type   string
 	Format string
 }
 
-// acceptedTypeMap is the map of the standard go types that are accepted by OpenAPI
+// predefinedTypeMap is the map of the standard go types that are accepted by OpenAPI
 // It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format
-var acceptedTypeMap = map[string]openAPIJSONType{
+var PredefinedTypeMap = map[string]TypeFormat{
 	"string": {
 		Type: "string",
 	},
@@ -102,19 +104,39 @@ var acceptedTypeMap = map[string]openAPIJSONType{
 	},
 }
 
-// mapAcceptedType maps the accepted type to the OpenAPI type
-// It returns a Schema with the type set to the OpenAPI type
-// If not found, it returns an empty Schema
-func mapAcceptedType(acceptedType string) Schema {
-	if acceptedType, ok := acceptedTypeMap[acceptedType]; ok {
-		if acceptedType.Type == "" {
-			return Schema{}
-		}
-		return Schema{
-			Type:   acceptedType.Type,
-			Format: acceptedType.Format,
+// WithCustomTypeMapping adds a custom type mapping to the predefined type map
+func WithCustomTypeMapping(customTypeMap map[string]TypeFormat) Option {
+	return func(service *Service) {
+		for k, v := range customTypeMap {
+			service.CustomTypeMapping[k] = v
 		}
 	}
 
-	return Schema{}
+}
+
+// WithCustomTypeMappingSingle adds a custom type mapping to the predefined type map
+func WithCustomTypeMappingSingle(key string, valueType string, valueFormat string) Option {
+	return func(service *Service) {
+		service.CustomTypeMapping[key] = TypeFormat{
+			Type:   valueType,
+			Format: valueFormat,
+		}
+	}
+}
+
+// GetTypeMapping returns the type mapping for the given key
+func (s *Service) GetTypeMapping(key string, pkg string) (TypeFormat, bool) {
+	if s.fullTypeMapping == nil {
+		s.fullTypeMapping = make(map[string]TypeFormat)
+		maps.Copy(s.fullTypeMapping, PredefinedTypeMap)
+		maps.Copy(s.fullTypeMapping, s.CustomTypeMapping)
+	}
+
+	if !IsAcceptedType(key) {
+		key = pkg + "." + key
+	}
+
+	value, exists := s.fullTypeMapping[key]
+
+	return value, exists
 }

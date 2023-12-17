@@ -132,7 +132,11 @@ func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg str
 }
 
 // componentToSchema converts a component to a schema
-func componentToSchema(component astra.Field, bindingType astTraversal.BindingTagType) (schema Schema, bound bool) {
+func componentToSchema(service *astra.Service, component astra.Field, bindingType astTraversal.BindingTagType) (schema Schema, bound bool) {
+	if _, ok := service.GetTypeMapping(component.Name, component.Package); ok {
+		return mapTypeFormat(service, component.Name, component.Package), true
+	}
+
 	if component.Type == "struct" {
 		embeddedProperties := make([]Schema, 0)
 		schema = Schema{
@@ -163,7 +167,7 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			}
 
 			if !fieldBinding.NotShown {
-				fieldSchema, fieldBound := componentToSchema(field, bindingType)
+				fieldSchema, fieldBound := componentToSchema(service, field, bindingType)
 				if fieldBound {
 					schema.Properties[fieldBinding.Name] = fieldSchema
 				}
@@ -182,7 +186,7 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			}
 		}
 	} else if component.Type == "slice" {
-		itemSchema := mapAcceptedType(component.SliceType)
+		itemSchema := mapPredefinedTypeFormat(component.Type)
 
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.SliceType, component.Package)
@@ -198,7 +202,7 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			Items: &itemSchema,
 		}
 	} else if component.Type == "map" {
-		additionalProperties := mapAcceptedType(component.MapValueType)
+		additionalProperties := mapPredefinedTypeFormat(component.Type)
 
 		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
 			componentRef, ok := makeComponentRef(bindingType, component.MapValueType, component.Package)
@@ -212,7 +216,7 @@ func componentToSchema(component astra.Field, bindingType astTraversal.BindingTa
 			AdditionalProperties: &additionalProperties,
 		}
 	} else {
-		schema = mapAcceptedType(component.Type)
+		schema = mapPredefinedTypeFormat(component.Type)
 		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.Type, component.Package)
 			if componentBound {
