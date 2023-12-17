@@ -119,8 +119,7 @@ components:
     schemas:
         gin.H:
             type: object
-            additionalProperties:
-                type: object
+            additionalProperties: {}
         time.Time:
             type: string
             format: date-time
@@ -154,7 +153,7 @@ components:
                 comments:
                     type: array
                     items:
-                        type: array
+                        $ref: '#/components/schemas/types.Comment'
                 id:
                     type: integer
                     format: int32

@@ -149,8 +149,7 @@ components:
     schemas:
         gin.H:
             type: object
-            additionalProperties:
-                type: object
+            additionalProperties: {}
         gorm.DeletedAt:
             type: object
             properties:
@@ -203,7 +202,7 @@ components:
                     comments:
                         type: array
                         items:
-                            type: array
+                            $ref: '#/components/schemas/types.Comment'
                     name:
                         type: string
                     published_at:

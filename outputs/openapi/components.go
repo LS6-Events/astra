@@ -186,7 +186,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			}
 		}
 	} else if component.Type == "slice" {
-		itemSchema := mapPredefinedTypeFormat(component.Type)
+		itemSchema := mapPredefinedTypeFormat(component.SliceType)
 
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.SliceType, component.Package)
@@ -201,8 +201,25 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			Type:  "array",
 			Items: &itemSchema,
 		}
+	} else if component.Type == "array" {
+		itemSchema := mapPredefinedTypeFormat(component.ArrayType)
+
+		if itemSchema.Type == "" && !astra.IsAcceptedType(component.ArrayType) {
+			componentRef, componentBound := makeComponentRef(bindingType, component.ArrayType, component.Package)
+			if componentBound {
+				itemSchema = Schema{
+					Ref: componentRef,
+				}
+			}
+		}
+
+		schema = Schema{
+			Type:      "array",
+			Items:     &itemSchema,
+			MaxLength: int(component.ArrayLength),
+		}
 	} else if component.Type == "map" {
-		additionalProperties := mapPredefinedTypeFormat(component.Type)
+		additionalProperties := mapPredefinedTypeFormat(component.MapValueType)
 
 		if additionalProperties.Type == "" && !astra.IsAcceptedType(component.MapValueType) {
 			componentRef, ok := makeComponentRef(bindingType, component.MapValueType, component.Package)

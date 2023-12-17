@@ -199,9 +199,7 @@
     "schemas": {
       "gin.H": {
         "type": "object",
-        "additionalProperties": {
-          "type": "object"
-        }
+        "additionalProperties": {}
       },
       "time.Time": {
         "type": "string",
@@ -249,7 +247,7 @@
           "comments": {
             "type": "array",
             "items": {
-              "type": "array"
+              "$ref": "#/components/schemas/types.Comment"
             }
           },
           "id": {

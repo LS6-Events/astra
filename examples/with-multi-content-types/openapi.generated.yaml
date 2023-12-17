@@ -176,9 +176,7 @@ components:
     schemas:
         gin.H:
             type: object
-            additionalProperties:
-                type: object
-            description: H is a shortcut for map[string]any
+            additionalProperties: {}
         time.Time:
             type: string
             format: date-time
@@ -230,7 +228,7 @@ components:
                     comments:
                         type: array
                         items:
-                            type: array
+                            $ref: '#/components/schemas/types.Comment'
                     name:
                         type: string
                     published_at:
@@ -289,7 +287,7 @@ components:
                     comments:
                         type: array
                         items:
-                            type: array
+                            $ref: '#/components/schemas/types.Comment'
                     name:
                         type: string
                     publishedAt:
