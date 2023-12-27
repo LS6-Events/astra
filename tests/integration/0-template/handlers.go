@@ -1,14 +1,14 @@
-package snapshot
+package petstore
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/astra/tests/snapshot/petstore"
+	petstore2 "github.com/ls6-events/astra/tests/petstore"
 	"net/http"
 	"strconv"
 )
 
 func getAllPets(c *gin.Context) {
-	allPets := petstore.Pets
+	allPets := petstore2.Pets
 
 	c.JSON(http.StatusOK, allPets)
 }
@@ -20,7 +20,7 @@ func getPetByID(c *gin.Context) {
 		return
 	}
 
-	pet, err := petstore.PetByID(int64(id))
+	pet, err := petstore2.PetByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -30,14 +30,14 @@ func getPetByID(c *gin.Context) {
 }
 
 func createPet(c *gin.Context) {
-	var pet petstore.PetDTO
+	var pet petstore2.PetDTO
 	err := c.BindJSON(&pet)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	petstore.AddPet(petstore.Pet{
+	petstore2.AddPet(petstore2.Pet{
 		Name:      pet.Name,
 		PhotoURLs: pet.PhotoURLs,
 		Status:    pet.Status,
@@ -54,7 +54,7 @@ func deletePet(c *gin.Context) {
 		return
 	}
 
-	petstore.RemovePet(int64(id))
+	petstore2.RemovePet(int64(id))
 
 	c.Status(http.StatusOK)
 }

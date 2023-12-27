@@ -23,6 +23,10 @@ func setupRouter() *gin.Engine {
 }
 
 func TestSnapshot(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping snapshot test in short mode")
+	}
+
 	r := setupRouter()
 
 	config := &astra.Config{

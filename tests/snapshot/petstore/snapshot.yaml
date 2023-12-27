@@ -91,6 +91,7 @@ components:
         gin.H:
             type: object
             additionalProperties: {}
+            description: H is a shortcut for map[string]any
         petstore.Pet:
             type: object
             properties:
@@ -109,6 +110,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/petstore.Tag'
+            description: Pet the pet model
         petstore.PetDTO:
             type: object
             properties:
@@ -124,6 +126,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/petstore.Tag'
+            description: PetDTO the pet dto
         petstore.Tag:
             type: object
             properties:
