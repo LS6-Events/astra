@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/ast"
 	"path"
-	"strings"
 
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
@@ -31,21 +30,18 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 		return path, nil
 	})
 
-	splitHandler := strings.Split(baseRoute.Handler, ".")
+	handler := utils.SplitHandlerPath(baseRoute.Handler)
 
-	pkgPath := splitHandler[0]
-	pkgParts := strings.Split(pkgPath, "/")
-	pkgName := pkgParts[len(pkgParts)-1]
+	pkgPath := handler.PackagePath()
+	pkgName := handler.PackageName()
 
-	funcParts := splitHandler[1:]
-
-	if len(funcParts) < 1 {
+	if len(handler.HandlerParts) < 1 {
 		err := fmt.Errorf("invalid handler name for file: %s", baseRoute.Handler)
 		log.Error().Err(err).Msg("Failed to parse handler name")
 		return err
 	}
 
-	funcName := funcParts[0]
+	funcName := handler.FuncName()
 
 	pkgNode := traverser.Packages.AddPackage(pkgPath)
 

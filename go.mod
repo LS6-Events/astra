@@ -3,7 +3,10 @@ module github.com/ls6-events/astra
 go 1.21
 
 require (
+	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/google/go-cmp v0.5.5
+	github.com/google/uuid v1.5.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4

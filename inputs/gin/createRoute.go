@@ -34,7 +34,7 @@ func createRoute(s *astra.Service, file string, line int, info gin.RouteInfo) er
 		Path:        info.Path,
 		Method:      info.Method,
 		PathParams:  make([]astra.Param, 0),
-		Body:        make([]astra.Param, 0),
+		Body:        make([]astra.BodyParam, 0),
 		QueryParams: make([]astra.Param, 0),
 		ReturnTypes: make([]astra.ReturnType, 0),
 	}

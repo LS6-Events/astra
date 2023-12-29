@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ls6-events/astra/testfiles/otherpkg1"
+	"github.com/ls6-events/astra/astTraversal/testfiles/otherpkg1"
 )
 
 // MyStruct is a struct.

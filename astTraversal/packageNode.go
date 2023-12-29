@@ -15,6 +15,10 @@ type PackageNode struct {
 	Package *packages.Package
 	Edges   []*PackageNode
 	Files   []*FileNode
+
+	// TypeDocMap is a map of type names to their documentation
+	// We cache this to save iterating over types every time we need to find the documentation
+	TypeDocMap map[string]string
 }
 
 func (p *PackageNode) Path() string {
@@ -192,4 +196,49 @@ func (p *PackageNode) ASTAtPos(pos token.Pos) (ast.Node, error) {
 	}
 
 	return nil, fmt.Errorf("node at %s not found in package %s", node, p.Path())
+}
+
+// FindDocForType finds the documentation for a type in the package.
+func (p *PackageNode) FindDocForType(typeName string) (string, bool) {
+	p.populateTypeDocMap()
+
+	doc, ok := p.TypeDocMap[typeName]
+	return doc, ok
+}
+
+// populateTypeDocMap populates the TypeDocMap for the package.
+func (p *PackageNode) populateTypeDocMap() {
+	// If the map is already populated, we don't need to do anything
+	if p.TypeDocMap != nil {
+		return
+	}
+
+	// Otherwise, we need to populate it
+	p.TypeDocMap = make(map[string]string)
+
+	// Loop over every file
+	for _, f := range p.Files {
+		// Loop over every declaration
+		for _, decl := range f.AST.Decls {
+			// If the declaration is a GenDecl, it's a const/var/type declaration (top level)
+			if genDecl, ok := decl.(*ast.GenDecl); ok {
+				// Loop over every spec
+				for _, spec := range genDecl.Specs {
+					// If the spec is a type spec, it's a type declaration
+					if typeSpec, ok := spec.(*ast.TypeSpec); ok {
+						// If the type spec has no documentation, and the overarching declaration has no documentation, we skip it
+						// TypeSpecs can have documentation, but it's not common
+						// It's more common for the GenDecl to have the documentation
+						if typeSpec.Doc == nil && genDecl.Doc == nil {
+							continue
+						} else if typeSpec.Doc != nil { // The TypeSpec has priority over the GenDecl
+							p.TypeDocMap[typeSpec.Name.Name] = typeSpec.Doc.Text()
+						} else {
+							p.TypeDocMap[typeSpec.Name.Name] = genDecl.Doc.Text()
+						}
+					}
+				}
+			}
+		}
+	}
 }

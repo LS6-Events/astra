@@ -124,8 +124,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				switch funcType.Name() {
 				case "JSON":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/json"
-
 						statusCode, ok := params[0].(int)
 						if !ok {
 							return nil, errors.New("failed to parse status code")
@@ -137,8 +135,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/json",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -150,8 +149,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "XML":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/xml"
-
 						statusCode, ok := params[0].(int)
 						if !ok {
 							return nil, errors.New("failed to parse status code")
@@ -163,8 +160,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/xml",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -176,8 +174,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "YAML":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/yaml"
-
 						statusCode, ok := params[0].(int)
 						if !ok {
 							return nil, errors.New("failed to parse status code")
@@ -189,8 +185,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/yaml",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -202,8 +199,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "ProtoBuf":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "application/protobuf"
-
 						statusCode, ok := params[0].(int)
 						if !ok {
 							return nil, errors.New("failed to parse status code")
@@ -215,8 +210,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							StatusCode:  statusCode,
+							ContentType: "application/protobuf",
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
@@ -252,15 +248,14 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "String": // c.String
 					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						route.ContentType = "text/plain"
-
 						statusCode, ok := params[0].(int)
 						if !ok {
 							return nil, errors.New("failed to parse status code")
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
+							StatusCode:  statusCode,
+							ContentType: "text/plain",
 							Field: astra.Field{
 								Type: "string",
 							},
@@ -292,9 +287,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						return route, nil
 					})
 				// Query Param methods
-				case "GetQuery":
-					fallthrough
-				case "Query":
+				case "GetQuery", "Query":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
@@ -315,10 +308,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-
-				case "GetQueryArray":
-					fallthrough
-				case "QueryArray":
+				case "GetQueryArray", "QueryArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
@@ -340,10 +330,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-
-				case "GetQueryMap":
-					fallthrough
-				case "QueryMap":
+				case "GetQueryMap", "QueryMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
@@ -365,10 +352,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-
-				case "ShouldBindQuery":
-					fallthrough
-				case "BindQuery":
+				case "ShouldBindQuery", "BindQuery":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						result, ok := params[0].(astTraversal.Result)
 						if !ok {
@@ -389,9 +373,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 
 				// Body Param methods
-				case "ShouldBind":
-					fallthrough
-				case "Bind":
+				case "ShouldBind", "Bind":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						result, ok := params[0].(astTraversal.Result)
 						if !ok {
@@ -400,67 +382,39 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 
 						field := astra.ParseResultToField(result)
 
-						route.BodyType = "form"
-
-						route.Body = append(route.Body, astra.Param{
+						route.PathParams = append(route.PathParams, astra.Param{
 							IsBound: true,
 							Field:   field,
 						})
-
-						return route, nil
-					})
-					if err != nil {
-						return false
-					}
-				case "ShouldBindJSON":
-					fallthrough
-				case "BindJSON":
-					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						result, ok := params[0].(astTraversal.Result)
-						if !ok {
-							return nil, errors.New("failed to parse result")
-						}
-
-						field := astra.ParseResultToField(result)
-
-						route.BodyType = "application/json"
-
-						route.Body = append(route.Body, astra.Param{
-							IsBound: true,
-							Field:   field,
-						})
-
-						return route, nil
-					})
-					if err != nil {
-						return false
-					}
-				case "ShouldBindXML":
-					fallthrough
-				case "BindXML":
-					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						result, ok := params[0].(astTraversal.Result)
-						if !ok {
-							return nil, errors.New("failed to parse result")
-						}
-
-						field := astra.ParseResultToField(result)
-
-						route.BodyType = "application/xml"
 
 						route.QueryParams = append(route.QueryParams, astra.Param{
 							IsBound: true,
 							Field:   field,
 						})
 
+						route.RequestHeaders = append(route.RequestHeaders, astra.Param{
+							IsBound: true,
+							Field:   field,
+						})
+
+						for _, bodyBindingTag := range []astTraversal.BindingTagType{astTraversal.FormBindingTag, astTraversal.JSONBindingTag, astTraversal.XMLBindingTag, astTraversal.YAMLBindingTag} {
+							contentTypes := astra.BindingTagToContentTypes(bodyBindingTag)
+
+							for _, contentType := range contentTypes {
+								route.Body = append(route.Body, astra.BodyParam{
+									ContentType: contentType,
+									IsBound:     true,
+									Field:       field,
+								})
+							}
+						}
+
 						return route, nil
 					})
 					if err != nil {
 						return false
 					}
-				case "ShouldBindYAML":
-					fallthrough
-				case "BindYAML":
+				case "ShouldBindJSON", "BindJSON":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						result, ok := params[0].(astTraversal.Result)
 						if !ok {
@@ -469,11 +423,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 
 						field := astra.ParseResultToField(result)
 
-						route.BodyType = "application/yaml"
-
-						route.Body = append(route.Body, astra.Param{
-							IsBound: true,
-							Field:   field,
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/json",
+							IsBound:     true,
+							Field:       field,
 						})
 
 						return route, nil
@@ -481,23 +434,60 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-				case "GetPostForm":
-					fallthrough
-				case "PostForm":
+				case "ShouldBindXML", "BindXML":
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
+
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/xml",
+							IsBound:     true,
+							Field:       field,
+						})
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "ShouldBindYAML", "BindYAML":
+					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
+
+						route.Body = append(route.Body, astra.BodyParam{
+							ContentType: "application/yaml",
+							IsBound:     true,
+							Field:       field,
+						})
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
+				case "GetPostForm", "PostForm":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
 							return nil, errors.New("failed to parse name")
 						}
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
 							Name: name,
 						}
-
-						route.BodyType = "application/x-www-form-urlencoded"
 
 						route.Body = append(route.Body, param)
 
@@ -506,16 +496,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-				case "GetPostFormArray":
-					fallthrough
-				case "PostFormArray":
+				case "GetPostFormArray", "PostFormArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
 							return nil, errors.New("failed to parse name")
 						}
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
@@ -523,8 +512,6 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 							IsArray: true,
 						}
 
-						route.BodyType = "application/x-www-form-urlencoded"
-
 						route.Body = append(route.Body, param)
 
 						return route, nil
@@ -532,24 +519,21 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-				case "GetPostFormMap":
-					fallthrough
-				case "PostFormMap":
+				case "GetPostFormMap", "PostFormMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)
 						if !ok {
 							return nil, errors.New("failed to parse name")
 						}
 
-						param := astra.Param{
+						param := astra.BodyParam{
+							ContentType: "application/x-www-form-urlencoded",
 							Field: astra.Field{
 								Type: "string",
 							},
 							Name:  name,
 							IsMap: true,
 						}
-
-						route.BodyType = "application/x-www-form-urlencoded"
 
 						route.Body = append(route.Body, param)
 
@@ -579,9 +563,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
-				case "ShouldBindHeader":
-					fallthrough
-				case "BindHeader":
+				case "ShouldBindHeader", "BindHeader":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						result, ok := params[0].(astTraversal.Result)
 						if !ok {
@@ -673,8 +655,9 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 						}
 
 						returnType := astra.ReturnType{
-							StatusCode: statusCode,
-							Field:      astra.ParseResultToField(result),
+							ContentType: "application/json",
+							StatusCode:  statusCode,
+							Field:       astra.ParseResultToField(result),
 						}
 
 						route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)

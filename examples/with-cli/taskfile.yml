@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  build-cli:
+    dir: ../../cli/astra
+    cmds:
+      - go mod tidy
+      - go build -o ../../examples/with-cli/astra .
+
+  run:
+    deps:
+        # build the latest CLI version
+        - build-cli
+    cmds:
+      - go mod tidy
+      # run the initial setup
+      - . ../run-and-stop-server.sh
+      # generate the code using the CLI
+      - ./astra generate
+      # remove the binary
+      - rm ./astra

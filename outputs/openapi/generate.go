@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
 	"github.com/ls6-events/astra/utils"
 
 	"gopkg.in/yaml.v3"
@@ -54,21 +56,31 @@ func Generate(filePath string) astra.ServiceFunction {
 
 			for _, pathParam := range endpoint.PathParams {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", pathParam.Name).Msg("Adding endpointPath parameter")
+				schema, bound := mapParamToSchema(astTraversal.URIBindingTag, pathParam)
+				if !bound {
+					continue
+				}
+
 				operation.Parameters = append(operation.Parameters, Parameter{
 					Name:     pathParam.Name,
 					In:       "path",
 					Required: pathParam.IsRequired,
-					Schema:   mapParamToSchema(pathParam),
+					Schema:   schema,
 				})
 			}
 
 			for _, requestHeader := range endpoint.RequestHeaders {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", requestHeader.Name).Msg("Adding request header")
+				schema, bound := mapParamToSchema(astTraversal.HeaderBindingTag, requestHeader)
+				if !bound {
+					continue
+				}
+
 				parameter := Parameter{
 					Name:     requestHeader.Name,
 					In:       "header",
 					Required: requestHeader.IsRequired,
-					Schema:   mapParamToSchema(requestHeader),
+					Schema:   schema,
 				}
 
 				operation.Parameters = append(operation.Parameters, parameter)
@@ -76,13 +88,18 @@ func Generate(filePath string) astra.ServiceFunction {
 
 			for _, queryParam := range endpoint.QueryParams {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", queryParam.Name).Msg("Adding query parameter")
+				schema, bound := mapParamToSchema(astTraversal.FormBindingTag, queryParam)
+				if !bound {
+					continue
+				}
+
 				parameter := Parameter{
 					Name:     queryParam.Name,
 					In:       "query",
 					Required: queryParam.IsRequired,
 					Explode:  true,
 					Style:    "form",
-					Schema:   mapParamToSchema(queryParam),
+					Schema:   schema,
 				}
 
 				operation.Parameters = append(operation.Parameters, parameter)
@@ -90,8 +107,19 @@ func Generate(filePath string) astra.ServiceFunction {
 
 			for _, bodyParam := range endpoint.Body {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", bodyParam.Name).Msg("Adding body parameter")
+				bindingType := astra.ContentTypeToBindingTag(bodyParam.ContentType)
+				schema, bound := mapFieldToSchema(bindingType, bodyParam.Field)
+				if !bound {
+					continue
+				}
+
+				if operation.RequestBody == nil {
+					operation.RequestBody = &RequestBody{
+						Content: map[string]MediaType{},
+					}
+				}
+
 				var mediaType MediaType
-				schema := mapFieldToSchema(bodyParam.Field)
 				if bodyParam.Name != "" {
 					mediaType.Schema = Schema{
 						Type: "object",
@@ -103,11 +131,7 @@ func Generate(filePath string) astra.ServiceFunction {
 					mediaType.Schema = schema
 				}
 
-				operation.RequestBody = &RequestBody{
-					Content: map[string]MediaType{
-						endpoint.BodyType: mediaType,
-					},
-				}
+				operation.RequestBody.Content[bodyParam.ContentType] = mediaType
 			}
 
 			var responseHeaders map[string]Header
@@ -115,9 +139,12 @@ func Generate(filePath string) astra.ServiceFunction {
 				responseHeaders = make(map[string]Header)
 				for _, responseHeader := range endpoint.ResponseHeaders {
 					s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("param", responseHeader.Name).Msg("Adding response header")
-					responseHeaders[responseHeader.Name] = Header{
-						Schema:   mapParamToSchema(responseHeader),
-						Required: responseHeader.IsRequired,
+					schema, bound := mapParamToSchema(astTraversal.HeaderBindingTag, responseHeader)
+					if bound {
+						responseHeaders[responseHeader.Name] = Header{
+							Schema:   schema,
+							Required: responseHeader.IsRequired,
+						}
 					}
 				}
 			}
@@ -125,22 +152,24 @@ func Generate(filePath string) astra.ServiceFunction {
 			for _, returnType := range endpoint.ReturnTypes {
 				s.Log.Debug().Str("endpointPath", endpoint.Path).Str("method", endpoint.Method).Str("return", returnType.Field.Name).Msg("Adding return type")
 				var mediaType MediaType
-				mediaType.Schema = mapFieldToSchema(returnType.Field)
-
-				var content map[string]MediaType
-				if mediaType.Schema.Type != "" || mediaType.Schema.Ref != "" {
-					content = map[string]MediaType{
-						endpoint.ContentType: mediaType,
-					}
-				} else {
-					content = nil
+				bindingType := astra.ContentTypeToBindingTag(returnType.ContentType)
+				schema, bound := mapFieldToSchema(bindingType, returnType.Field)
+				if bound {
+					mediaType.Schema = schema
 				}
 
-				operation.Responses[strconv.Itoa(returnType.StatusCode)] = Response{
-					Description: "",
-					Headers:     responseHeaders,
-					Content:     content,
-					Links:       nil,
+				statusCode := strconv.Itoa(returnType.StatusCode)
+				if _, set := operation.Responses[statusCode]; !set {
+					operation.Responses[statusCode] = Response{
+						Description: "",
+						Headers:     responseHeaders,
+						Content:     map[string]MediaType{},
+						Links:       nil,
+					}
+				}
+
+				if !reflect.DeepEqual(mediaType, MediaType{}) {
+					operation.Responses[statusCode].Content[returnType.ContentType] = mediaType
 				}
 			}
 
@@ -186,15 +215,23 @@ func Generate(filePath string) astra.ServiceFunction {
 
 		s.Log.Debug().Msg("Adding components")
 		for _, component := range s.Components {
-			s.Log.Debug().Str("name", component.Name).Msg("Adding component")
+			for _, bindingType := range astTraversal.BindingTags {
+				schema, bound := componentToSchema(s, component, bindingType)
+				if !bound {
+					continue
+				}
 
-			schema := componentToSchema(component)
+				s.Log.Debug().Interface("binding", bindingType).Str("name", component.Name).Msg("Adding component")
 
-			if component.Doc != "" {
-				schema.Description = component.Doc
+				if component.Doc != "" {
+					schema.Description = component.Doc
+				}
+
+				componentName, bound := makeComponentRefName(bindingType, component.Name, component.Package)
+				if bound {
+					components.Schemas[componentName] = schema
+				}
 			}
-
-			components.Schemas[makeComponentRefName(component.Name, component.Package)] = schema
 		}
 		s.Log.Debug().Msg("Added components")
 

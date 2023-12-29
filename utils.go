@@ -6,31 +6,20 @@ import (
 	"github.com/ls6-events/astra/astTraversal"
 )
 
-// strSliceContains checks if a string slice contains a value.
-// Simple utility function.
-func strSliceContains(slice []string, value string) bool {
-	for _, v := range slice {
-		if v == value {
-			return true
-		}
-	}
-
-	return false
-}
-
 // ParseResultToField changes a result from the AST traversal to a local field.
 func ParseResultToField(result astTraversal.Result) Field {
 	field := Field{
-		Type:         result.Type,
-		Name:         result.Name,
-		EnumValues:   result.EnumValues,
-		IsRequired:   result.IsRequired,
-		IsEmbedded:   result.IsEmbedded,
-		SliceType:    result.SliceType,
-		ArrayType:    result.ArrayType,
-		ArrayLength:  result.ArrayLength,
-		MapKeyType:   result.MapKeyType,
-		MapValueType: result.MapValueType,
+		Type:                      result.Type,
+		Name:                      result.Name,
+		EnumValues:                result.EnumValues,
+		IsEmbedded:                result.IsEmbedded,
+		SliceType:                 result.SliceType,
+		ArrayType:                 result.ArrayType,
+		ArrayLength:               result.ArrayLength,
+		MapKeyType:                result.MapKeyType,
+		MapValueType:              result.MapValueType,
+		StructFieldBindingTags:    result.StructFieldBindingTags,
+		StructFieldValidationTags: result.StructFieldValidationTags,
 	}
 
 	// If the godoc is populated, we need to parse the response.

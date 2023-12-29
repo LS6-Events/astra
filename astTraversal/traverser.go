@@ -57,7 +57,7 @@ func (t *BaseTraverser) ExtractVarName(node ast.Node) Result {
 			switch n := nodeType.X.(type) {
 			case *ast.Ident:
 				name := n.Name
-				fileImport, ok := t.ActiveFile().FindImport(name) // We don't change the active file here
+				fileImport, ok := t.ActiveFile().FindImport(name) // We don't change the active file here.
 				if ok {
 					packageNode = fileImport.Package
 				} else {
@@ -86,14 +86,14 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 	case *ast.UnaryExpr:
 		return t.FindDeclarationForNode(nodeType.X)
 	case *ast.Ident:
-		if nodeType.Obj != nil { // Defined in file
+		if nodeType.Obj != nil { // Defined in file.
 			declNode, ok := nodeType.Obj.Decl.(ast.Node)
 			if !ok {
 				return nil, errors.New("declaration not found")
 			}
 
 			return t.Declaration(declNode, nodeType.Name)
-		} else { // Defined in package
+		} else { // Defined in package.
 			_, err := t.Packages.Get(t.ActiveFile().Package)
 			if err != nil {
 				return nil, err
@@ -126,8 +126,8 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 			t.activeFile = file
 
 			return t.Declaration(newNode, nodeType.Sel.Name)
-		} else { // Property of a struct - need to recursively
-			// TODO: Implement struct property lookup and recursive traversal
+		} else { // Property of a struct - need to recursively.
+			// TODO: Implement struct property lookup and recursive traversal.
 			return nil, errors.New("not implemented yet")
 		}
 	}

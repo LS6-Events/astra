@@ -44,12 +44,10 @@ func main() {
 					// [2] is the error (type)
 					statusCode := params[1].(int)
 
-					// Set the content type to JSON
-					route.ContentType = "text/plain"
-
 					// Create the return type for this explicit error code
 					returnType := astra.ReturnType{
-						StatusCode: statusCode,
+						ContentType: "text/plain",
+						StatusCode:  statusCode,
 						Field: astra.Field{
 							Type: "string",
 						},
@@ -74,12 +72,10 @@ func main() {
 					statusCode := params[1].(int)
 					dataType := params[2].(astTraversal.Result)
 
-					// Set the content type to JSON
-					route.ContentType = "application/json"
-
 					returnType := astra.ReturnType{
-						StatusCode: statusCode,
-						Field:      astra.ParseResultToField(dataType),
+						ContentType: "application/json",
+						StatusCode:  statusCode,
+						Field:       astra.ParseResultToField(dataType),
 					}
 
 					route.ReturnTypes = astra.AddReturnType(route.ReturnTypes, returnType)
