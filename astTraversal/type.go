@@ -276,7 +276,6 @@ func (t *TypeTraverser) Result() (Result, error) {
 
 func (t *TypeTraverser) Doc() (string, error) {
 	if named, ok := t.Node.(*types.Named); ok {
-
 		pkg := t.Traverser.Packages.AddPackage(named.Obj().Pkg().Path())
 
 		_, err := t.Traverser.Packages.Get(pkg)
@@ -327,7 +326,10 @@ func (t *TypeTraverser) Doc() (string, error) {
 				node = n.Type
 			case *ast.Ident:
 				if n.Obj != nil {
-					node = n.Obj.Decl.(ast.Node)
+					node, ok = n.Obj.Decl.(ast.Node)
+					if !ok {
+						node = nil
+					}
 				} else {
 					node = nil
 				}
@@ -335,7 +337,6 @@ func (t *TypeTraverser) Doc() (string, error) {
 				node = nil
 			}
 		}
-
 	}
 
 	return "", nil

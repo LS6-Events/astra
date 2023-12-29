@@ -2,21 +2,23 @@ package gin
 
 import (
 	"fmt"
-	"github.com/iancoleman/strcase"
-	"github.com/ls6-events/astra"
-	"github.com/ls6-events/astra/astTraversal"
-	"github.com/ls6-events/astra/utils"
 	"go/ast"
 	"path"
 	"strings"
+
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/astra/utils"
+
+	"github.com/iancoleman/strcase"
 )
 
-// parseRoute parses a route from a gin routes
-// It will populate the route with the handler function
-// createRoute must be called before this
-// It will open the file as an AST and find the handler function using the line number and function name
-// It can also find the path parameters from the handler function
-// It calls the parseFunction function to parse the handler function
+// parseRoute parses a route from a gin routes.
+// It will populate the route with the handler function.
+// createRoute must be called before this.
+// It will open the file as an AST and find the handler function using the line number and function name.
+// It can also find the path parameters from the handler function.
+// It calls the parseFunction function to parse the handler function.
 func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", baseRoute.File).Logger()
 

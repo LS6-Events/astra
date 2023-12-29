@@ -4,8 +4,9 @@ package testfiles
 
 import (
 	"fmt"
-	"github.com/ls6-events/astra/testfiles/otherpkg1"
 	"strings"
+
+	"github.com/ls6-events/astra/testfiles/otherpkg1"
 )
 
 func NoArgs() {

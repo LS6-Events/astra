@@ -1,7 +1,7 @@
 package astra
 
-// AddReturnType adds a return type to a slice of return types if it doesn't already exist
-// It uses the field type, package and status code to determine if the return type already exists
+// AddReturnType adds a return type to a slice of return types if it doesn't already exist.
+// It uses the field type, package and status code to determine if the return type already exists.
 func AddReturnType(prev []ReturnType, n ...ReturnType) []ReturnType {
 	for _, newReturn := range n {
 		if len(prev) == 0 {
@@ -19,8 +19,8 @@ func AddReturnType(prev []ReturnType, n ...ReturnType) []ReturnType {
 	return prev
 }
 
-// AddComponent adds a component to a slice of components if it doesn't already exist
-// It uses the field type and package to determine if the component already exists
+// AddComponent adds a component to a slice of components if it doesn't already exist.
+// It uses the field type and package to determine if the component already exists.
 func AddComponent(prev []Field, n ...Field) []Field {
 	for _, newComponent := range n {
 		if len(prev) == 0 {

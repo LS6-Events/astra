@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-// substituteTypes is a map of types that need to be replaced with other types
+// substituteTypes is a map of types that need to be replaced with other types.
 var substituteTypes = map[string]string{
-	"time.Duration": "int",    // We can assume that all time.Duration definitions will be serialized as int
-	"error":         "string", // We can assume that all errors will be serialized as strings
+	"time.Duration": "int",    // We can assume that all time.Duration definitions will be serialized as int.
+	"error":         "string", // We can assume that all errors will be serialized as strings.
 }
 
-// HandleSubstituteTypes handles substitute types
+// HandleSubstituteTypes handles substitute types.
 func (s *Service) HandleSubstituteTypes(component *Field) {
 	qualifiedName := fmt.Sprintf("%s.%s", component.Package, component.Name)
 

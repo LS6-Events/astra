@@ -2,28 +2,29 @@ package gin
 
 import (
 	"errors"
-	"github.com/ls6-events/astra"
-	"github.com/ls6-events/astra/astTraversal"
 	"go/ast"
 	"go/types"
 	"strings"
+
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
 )
 
 const (
-	// GinPackagePath is the import path of the gin package
+	// GinPackagePath is the import path of the gin package.
 	GinPackagePath = "github.com/gin-gonic/gin"
-	// GinContextType is the type of the context variable
+	// GinContextType is the type of the context variable.
 	GinContextType = "Context"
-	// GinContextIsPointer is whether the context variable is a pointer for the handler functions
+	// GinContextIsPointer is whether the context variable is a pointer for the handler functions.
 	GinContextIsPointer = true
 )
 
-// parseFunction parses a function and adds it to the service
-// It is designed to be called recursively should it be required
-// The level parameter is used to determine the depth of recursion
-// And the package name and path are used to determine the package of the currently analysed function
-// The currRoute reference is used to manipulate the current route being analysed
-// The imports are used to determine the package of the context variable
+// parseFunction parses a function and adds it to the service.
+// It is designed to be called recursively should it be required.
+// The level parameter is used to determine the depth of recursion.
+// And the package name and path are used to determine the package of the currently analysed function.
+// The currRoute reference is used to manipulate the current route being analysed.
+// The imports are used to determine the package of the context variable.
 func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *astra.Route, activeFile *astTraversal.FileNode, level int) error {
 	traverser := funcTraverser.Traverser
 
@@ -108,7 +109,11 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				return false
 			}
 
-			signature := funcType.Type().(*types.Signature)
+			signature, ok := funcType.Type().(*types.Signature)
+			if !ok {
+				traverser.Log.Error().Err(err).Msg("error getting function signature")
+				return false
+			}
 
 			signaturePath := GinPackagePath + "." + GinContextType
 			if GinContextIsPointer {
@@ -121,8 +126,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "application/json"
 
-						statusCode := params[0].(int)
-						result := params[1].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -140,8 +152,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "application/xml"
 
-						statusCode := params[0].(int)
-						result := params[1].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -159,8 +178,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "application/yaml"
 
-						statusCode := params[0].(int)
-						result := params[1].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -178,8 +204,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "application/protobuf"
 
-						statusCode := params[0].(int)
-						result := params[1].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -195,8 +228,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "Data":
 					currRoute, err = funcBuilder.StatusCode().Ignored().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						statusCode := params[0].(int)
-						result := params[2].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -214,7 +254,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						route.ContentType = "text/plain"
 
-						statusCode := params[0].(int)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -232,7 +275,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "Status": // c.Status
 					currRoute, err = funcBuilder.StatusCode().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						statusCode := params[0].(int)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -250,7 +296,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "Query":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -271,7 +320,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "QueryArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -293,7 +345,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "QueryMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -315,7 +370,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "BindQuery":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.QueryParams = append(route.QueryParams, astra.Param{
 							IsBound: true,
@@ -333,7 +393,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "Bind":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.BodyType = "form"
 
@@ -351,7 +416,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "BindJSON":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.BodyType = "application/json"
 
@@ -369,7 +439,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "BindXML":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.BodyType = "application/xml"
 
@@ -387,7 +462,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "BindYAML":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.BodyType = "application/yaml"
 
@@ -405,7 +485,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "PostForm":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -427,7 +510,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "PostFormArray":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -450,7 +536,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "PostFormMap":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -471,7 +560,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "GetHeader":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -491,7 +583,12 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					fallthrough
 				case "BindHeader":
 					currRoute, err = funcBuilder.ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						field := astra.ParseResultToField(params[0].(astTraversal.Result))
+						result, ok := params[0].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
+
+						field := astra.ParseResultToField(result)
 
 						route.RequestHeaders = append(route.RequestHeaders, astra.Param{
 							IsBound: true,
@@ -505,7 +602,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "Header":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						name := params[0].(string)
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
 
 						param := astra.Param{
 							Field: astra.Field{
@@ -520,7 +620,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					})
 				case "AbortWithError":
 					currRoute, err = funcBuilder.StatusCode().Ignored().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						statusCode := params[0].(int)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -538,7 +641,10 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "AbortWithStatus":
 					currRoute, err = funcBuilder.StatusCode().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						statusCode := params[0].(int)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,
@@ -556,8 +662,15 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					}
 				case "AbortWithStatusJSON":
 					currRoute, err = funcBuilder.StatusCode().ExpressionResult().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
-						statusCode := params[0].(int)
-						result := params[1].(astTraversal.Result)
+						statusCode, ok := params[0].(int)
+						if !ok {
+							return nil, errors.New("failed to parse status code")
+						}
+
+						result, ok := params[1].(astTraversal.Result)
+						if !ok {
+							return nil, errors.New("failed to parse result")
+						}
 
 						returnType := astra.ReturnType{
 							StatusCode: statusCode,

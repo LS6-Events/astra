@@ -1,6 +1,6 @@
 package astra
 
-// Input is the input for the generator
+// Input is the input for the generator.
 type Input struct {
 	Mode         InputMode       `json:"mode"`
 	CreateRoutes ServiceFunction `json:"-"`

@@ -1,7 +1,7 @@
 package astra
 
-// AcceptedTypes is a list of all accepted types for the astra package
-// Everything else is considered a type that has to be processed
+// AcceptedTypes is a list of all accepted types for the astra package.
+// Everything else is considered a type that has to be processed.
 var AcceptedTypes = []string{
 	"nil",
 	"string",

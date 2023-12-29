@@ -7,21 +7,21 @@ import (
 	"path"
 )
 
-// This creates a new directory in the current working directory called .astra
-// The idea is that this directory will be used to store the cache file and any other files that are needed for the generator
-// It will create a .gitignore file in the directory so that it is not committed to git
+// This creates a new directory in the current working directory called .astra.
+// The idea is that this directory will be used to store the cache file and any other files that are needed for the generator.
+// It will create a .gitignore file in the directory so that it is not committed to git.
 
 const astraDir = ".astra"
 
-// getAstraDirPath returns the path to the .astra directory
+// getAstraDirPath returns the path to the .astra directory.
 func (s *Service) getAstraDirPath() string {
 	return path.Join(s.WorkDir, astraDir)
 }
 
-// setupAstraDir creates the .astra directory and the .gitignore file
+// setupAstraDir creates the .astra directory and the .gitignore file.
 func (s *Service) setupAstraDir() error {
 	if err := os.MkdirAll(s.getAstraDirPath(), 0755); err != nil {
-		return err
+		return errors.Join(errors.New("failed to create .astra directory"), err)
 	}
 
 	if err := s.setupGitIgnore(); err != nil {
@@ -62,7 +62,7 @@ func (s *Service) MoveTempOutputDir(dirPath, outputDir string) error {
 	return nil
 }
 
-// setupGitIgnore creates the .gitignore file, by default it will ignore all files in the directory
+// setupGitIgnore creates the .gitignore file, by default it will ignore all files in the directory.
 func (s *Service) setupGitIgnore() error {
 	gitIgnorePath := path.Join(s.getAstraDirPath(), ".gitignore")
 	if _, err := os.Stat(gitIgnorePath); err == nil {
@@ -82,7 +82,7 @@ func (s *Service) setupGitIgnore() error {
 	return nil
 }
 
-// cleanupAstraDir removes the .astra directory
+// cleanupAstraDir removes the .astra directory.
 func (s *Service) cleanupAstraDir() error {
 	if err := os.RemoveAll(s.getAstraDirPath()); err != nil {
 		return err

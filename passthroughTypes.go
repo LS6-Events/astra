@@ -2,13 +2,13 @@ package astra
 
 import "fmt"
 
-// passthroughTypes is a list of types that need to be passed through
+// passthroughTypes is a list of types that need to be passed through.
 var passthroughTypes = []string{
 	"time.Time",
 	"github.com/google/uuid.UUID",
 }
 
-// HandlePassthroughTypes handles passthrough types
+// HandlePassthroughTypes handles passthrough types.
 func (s *Service) HandlePassthroughTypes(component *Field) {
 	qualifiedName := fmt.Sprintf("%s.%s", component.Package, component.Name)
 

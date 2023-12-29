@@ -3,14 +3,15 @@ package utils
 import (
 	"errors"
 	"go/types"
-	"golang.org/x/tools/go/packages"
 	"os"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/go/packages"
 )
 
-// ConvertStatusCodeTypeToInt converts a status code type to an integer
-// If it uses the net/http package to get the status code, it will return the integer value of the status code constant
+// ConvertStatusCodeTypeToInt converts a status code type to an integer.
+// If it uses the net/http package to get the status code, it will return the integer value of the status code constant.
 func ConvertStatusCodeTypeToInt(statusCode string) (int, error) {
 	if strings.HasPrefix(statusCode, "http.") {
 		statusCode = strings.Replace(statusCode, "http.", "", 1)
@@ -32,8 +33,14 @@ func ConvertStatusCodeTypeToInt(statusCode string) (int, error) {
 	for _, pkg := range pkgs {
 		for _, typ := range pkg.Types.Scope().Names() {
 			if typ == statusCode {
-				// Return the integer value of the status code constant
-				return strconv.Atoi(pkg.Types.Scope().Lookup(statusCode).(*types.Const).Val().ExactString())
+				// Return the integer value of the status code constant.
+
+				constNode, ok := pkg.Types.Scope().Lookup(statusCode).(*types.Const)
+				if !ok {
+					return 0, errors.New("node is not a constant")
+				}
+
+				return strconv.Atoi(constNode.Val().ExactString())
 			}
 		}
 	}

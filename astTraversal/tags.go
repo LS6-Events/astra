@@ -46,5 +46,5 @@ func ParseStructTag(tag string) (name string, isRequired bool, isShown bool) {
 		}
 	}
 
-	return
+	return name, isRequired, isShown
 }

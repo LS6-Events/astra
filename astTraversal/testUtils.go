@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/parser"
 	"go/token"
 	"os"
@@ -25,7 +26,7 @@ func createTraverserFromTestFile(testFilePath string) (*BaseTraverser, error) {
 
 	file, err := parser.ParseFile(fset, fullPath, nil, parser.ParseComments)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(errors.New("failed to parse file"), err)
 	}
 
 	traverser := New(wd)

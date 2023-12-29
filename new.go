@@ -1,15 +1,16 @@
 package astra
 
 import (
+	"os"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
-	"os"
 )
 
-// New creates a new generator service
-// It takes in a list of options that can be used to configure the generator
-// It will also setup the logger for the generator and setup the slices that are used to store the routes, inputs, outputs and components
+// New creates a new generator service.
+// It takes in a list of options that can be used to configure the generator.
+// It will also setup the logger for the generator and setup the slices that are used to store the routes, inputs, outputs and components.
 func New(opts ...Option) *Service {
 	s := &Service{}
 

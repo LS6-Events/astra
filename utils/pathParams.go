@@ -1,18 +1,19 @@
 package utils
 
 import (
-	"github.com/ls6-events/astra"
 	"regexp"
+
+	"github.com/ls6-events/astra"
 )
 
-// getPathParamRegex returns a regex to match path parameters
-// This regex matches both :param and *param (gin style)
-// It will need to be updated if other frameworks are supported that contain different syntax
+// getPathParamRegex returns a regex to match path parameters.
+// This regex matches both :param and *param (gin style).
+// It will need to be updated if other frameworks are supported that contain different syntax.
 func getPathParamRegex() *regexp.Regexp {
 	return regexp.MustCompile(`:[^\/]+|\*[^\/]+`)
 }
 
-// ExtractParamsFromPath extracts the parameters from a path
+// ExtractParamsFromPath extracts the parameters from a path.
 func ExtractParamsFromPath(path string) []astra.Param {
 	resultParams := make([]astra.Param, 0)
 
@@ -33,8 +34,8 @@ func ExtractParamsFromPath(path string) []astra.Param {
 	return resultParams
 }
 
-// MapPathParams maps the path parameters to a new path
-// Useful when converting a Gin path to an OpenAPI path
+// MapPathParams maps the path parameters to a new path.
+// Useful when converting a Gin path to an OpenAPI path.
 func MapPathParams(path string, repl func(string) string) string {
 	return getPathParamRegex().ReplaceAllStringFunc(path, repl)
 }

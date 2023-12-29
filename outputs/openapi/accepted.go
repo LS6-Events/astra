@@ -1,13 +1,13 @@
 package openapi
 
-// openAPIJSONType is the types of the standard go types that are accepted by OpenAPI
+// openAPIJSONType is the types of the standard go types that are accepted by OpenAPI.
 type openAPIJSONType struct {
 	Type   string
 	Format string
 }
 
-// acceptedTypeMap is the map of the standard go types that are accepted by OpenAPI
-// It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format
+// acceptedTypeMap is the map of the standard go types that are accepted by OpenAPI.
+// It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format.
 var acceptedTypeMap = map[string]openAPIJSONType{
 	"string": {
 		Type: "string",
@@ -102,9 +102,9 @@ var acceptedTypeMap = map[string]openAPIJSONType{
 	},
 }
 
-// mapAcceptedType maps the accepted type to the OpenAPI type
-// It returns a Schema with the type set to the OpenAPI type
-// If not found, it returns an empty Schema
+// mapAcceptedType maps the accepted type to the OpenAPI type.
+// It returns a Schema with the type set to the OpenAPI type.
+// If not found, it returns an empty Schema.
 func mapAcceptedType(acceptedType string) Schema {
 	if acceptedType, ok := acceptedTypeMap[acceptedType]; ok {
 		if acceptedType.Type == "" {
