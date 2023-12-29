@@ -33,7 +33,7 @@ func TestPaths(t *testing.T) {
 	require.True(t, paths.Exists("/pets/{id}", "get"))
 	require.Equal(t, "string", paths.Path("/pets/{id}.get.parameters.0.schema.type").Data().(string))
 	require.Equal(t, "id", paths.Path("/pets/{id}.get.parameters.0.name").Data().(string))
-	require.Equal(t, "path", paths.Path("/pets/{id}.get.parameters.in").Data().(string))
+	require.Equal(t, "path", paths.Path("/pets/{id}.get.parameters.0.in").Data().(string))
 	require.True(t, paths.Path("/pets/{id}.get.parameters.0.required").Data().(bool))
 	require.Equal(t, "string", paths.Path("/pets/{id}.get.parameters.0.schema.type").Data().(string))
 	require.Equal(t, "#/components/schemas/petstore.Pet", paths.Path("/pets/{id}.get.responses.200.content.application/json.schema.$ref").Data().(string))
@@ -43,7 +43,7 @@ func TestPaths(t *testing.T) {
 	// DELETE /pets/{id}
 	require.True(t, paths.Exists("/pets/{id}", "delete"))
 	require.Equal(t, "id", paths.Path("/pets/{id}.get.parameters.0.name").Data().(string))
-	require.Equal(t, "path", paths.Path("/pets/{id}.get.parameters.in").Data().(string))
+	require.Equal(t, "path", paths.Path("/pets/{id}.get.parameters.0.in").Data().(string))
 	require.True(t, paths.Path("/pets/{id}.get.parameters.0.required").Data().(bool))
 	require.Equal(t, "string", paths.Path("/pets/{id}.get.parameters.0.schema.type").Data().(string))
 	require.True(t, paths.Exists("/pets/{id}", "delete", "responses", "200"))

@@ -28,5 +28,5 @@ func TestOperationIDs(t *testing.T) {
 	require.Equal(t, "getPetById", paths.Path("/pets/{id}.get.operationId").Data().(string))
 
 	// DELETE /pets/{id}
-	require.Equal(t, "deletePetById", paths.Path("/pets/{id}.delete.operationId").Data().(string))
+	require.Equal(t, "deletePet", paths.Path("/pets/{id}.delete.operationId").Data().(string))
 }
