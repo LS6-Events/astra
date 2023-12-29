@@ -16,7 +16,8 @@ func setHeader(c *gin.Context) {
 }
 
 func abortWithError(c *gin.Context) {
-	c.AbortWithError(http.StatusBadRequest, nil)
+	// Ignoring error as it is not used in the test
+	_ = c.AbortWithError(http.StatusBadRequest, nil)
 }
 
 func abortWithStatus(c *gin.Context) {
