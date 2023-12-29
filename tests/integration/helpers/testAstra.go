@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func SetupTestAstraWithDefaultConfig(t *testing.T, r *gin.Engine) (*gabs.Container, error) {
+func SetupTestAstraWithDefaultConfig(t *testing.T, r *gin.Engine, options ...astra.Option) (*gabs.Container, error) {
 	t.Helper()
 
 	config := &astra.Config{
@@ -19,13 +19,15 @@ func SetupTestAstraWithDefaultConfig(t *testing.T, r *gin.Engine) (*gabs.Contain
 		Port: 8000,
 	}
 
-	return SetupTestAstra(t, r, config)
+	return SetupTestAstra(t, r, config, options...)
 }
 
-func SetupTestAstra(t *testing.T, r *gin.Engine, config *astra.Config) (*gabs.Container, error) {
+func SetupTestAstra(t *testing.T, r *gin.Engine, config *astra.Config, options ...astra.Option) (*gabs.Container, error) {
 	t.Helper()
 
-	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./output.json"))
+	options = append(options, inputs.WithGinInput(r), outputs.WithOpenAPIOutput("./output.json"))
+
+	gen := astra.New(options...)
 
 	gen.SetConfig(config)
 

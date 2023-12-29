@@ -8,7 +8,7 @@ type TypeFormat struct {
 	Format string
 }
 
-// predefinedTypeMap is the map of the standard go types that are accepted by OpenAPI
+// PredefinedTypeMap is the map of the standard go types that are accepted by OpenAPI
 // It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format
 var PredefinedTypeMap = map[string]TypeFormat{
 	"string": {
@@ -53,10 +53,6 @@ var PredefinedTypeMap = map[string]TypeFormat{
 	"uint64": {
 		Type:   "integer",
 		Format: "uint64",
-	},
-	"float": {
-		Type:   "number",
-		Format: "float",
 	},
 	"float32": {
 		Type:   "number",

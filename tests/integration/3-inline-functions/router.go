@@ -8,11 +8,6 @@ import (
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/pets", getAllPets)
-	r.GET("/pets/:id", getPetByID)
-	r.POST("/pets", createPet)
-	r.DELETE("/pets/:id", deletePet)
-
 	r.GET("/inline", func(c *gin.Context) {
 		c.JSON(200, petstore.Pet{
 			Name:      "inline",

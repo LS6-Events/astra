@@ -5,8 +5,8 @@ import "github.com/gin-gonic/gin"
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/cats/:id", getCatByID)
-	r.GET("/dogs/:id", getDogByID)
+	r.GET("/top-level", topLevelHandler)
+	r.GET("/nested", nestedHandler)
 
 	return r
 }
