@@ -21,7 +21,7 @@ func (s *Service) getAstraDirPath() string {
 // setupAstraDir creates the .astra directory and the .gitignore file.
 func (s *Service) setupAstraDir() error {
 	if err := os.MkdirAll(s.getAstraDirPath(), 0755); err != nil {
-		return errors.Join(errors.New("failed to create .astra directory"), err)
+		return err
 	}
 
 	if err := s.setupGitIgnore(); err != nil {

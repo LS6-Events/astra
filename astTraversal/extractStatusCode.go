@@ -1,7 +1,6 @@
 package astTraversal
 
 import (
-	"errors"
 	"go/ast"
 	"strconv"
 )
@@ -22,7 +21,7 @@ func (t *BaseTraverser) ExtractStatusCode(status ast.Node) (int, error) {
 
 	statusCode, err := strconv.Atoi(constant)
 	if err != nil {
-		return 0, errors.Join(errors.New("status code is not a number"), err)
+		return 0, err
 	}
 
 	return statusCode, nil

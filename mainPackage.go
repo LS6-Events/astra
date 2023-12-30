@@ -1,7 +1,6 @@
 package astra
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -86,7 +85,7 @@ func (s *Service) GetMainPackageName() (string, error) {
 	if s.tempMainPackageName == "" {
 		err := s.setupTempMainPackage()
 		if err != nil {
-			return "", errors.Join(errors.New("failed to setup temporary main package"), err)
+			return "", err
 		}
 	}
 	return s.tempMainPackageName, nil
