@@ -61,3 +61,8 @@ linters-settings:
     simple: true
     range-loops: true
     for-loops: true
+issues:
+  exclude-rules:
+    - path-except: 'test\.go'
+      linters:
+        - unused
