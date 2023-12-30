@@ -14,6 +14,7 @@ import (
 func New(opts ...Option) *Service {
 	s := &Service{}
 
+	//nolint:reassign // This is needed to set the stack trace marshaling function.
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	s.Log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).Level(zerolog.InfoLevel)
 

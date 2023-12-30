@@ -23,6 +23,7 @@ func (c *ContextFuncBuilder) getCurrentParamIndex() int {
 
 func (c *ContextFuncBuilder) Ignored() *ContextFuncBuilder {
 	c.paramOperations = append(c.paramOperations, func() (any, error) {
+		//nolint:nilnil // This is intentional
 		return nil, nil
 	})
 
