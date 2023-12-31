@@ -406,7 +406,7 @@ func TestService_LoadCacheFromCustomPath(t *testing.T) {
 }
 
 func TestService_ClearCache(t *testing.T) {
-	setupCache := func(t *testing.T) {
+	setupCache := func(t *testing.T, path string) {
 		t.Helper()
 
 		service := Service{}
@@ -414,7 +414,7 @@ func TestService_ClearCache(t *testing.T) {
 		buff, err := json.Marshal(service)
 		require.NoError(t, err)
 
-		err = os.WriteFile("./test-cache.json", buff, 0644)
+		err = os.WriteFile(path, buff, 0644)
 	}
 
 	t.Run("clears the specified cache file", func(t *testing.T) {
@@ -423,7 +423,7 @@ func TestService_ClearCache(t *testing.T) {
 			CachePath:    "./test-cache.json",
 		}
 
-		setupCache(t)
+		setupCache(t, "./test-cache.json")
 
 		err := service.ClearCache()
 		require.NoError(t, err)
@@ -440,7 +440,7 @@ func TestService_ClearCache(t *testing.T) {
 		err := service.setupAstraDir()
 		require.NoError(t, err)
 
-		setupCache(t)
+		setupCache(t, "./.astra/cache.json")
 
 		err = service.ClearCache()
 		require.NoError(t, err)

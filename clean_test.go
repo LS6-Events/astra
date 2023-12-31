@@ -172,10 +172,6 @@ func TestService_Clean(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			err = service.Clean()
 			require.NoError(t, err)

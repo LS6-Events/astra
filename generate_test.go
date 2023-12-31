@@ -63,10 +63,6 @@ func TestService_Generate(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			err = service.Generate()
 			require.NoError(t, err)

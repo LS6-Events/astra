@@ -121,10 +121,6 @@ func TestService_CompleteParse(t *testing.T) {
 
 		err := service.Setup()
 		require.NoError(t, err)
-		defer func() {
-			err = service.ClearCache()
-			require.NoError(t, err)
-		}()
 
 		err = service.CompleteParse()
 		require.NoError(t, err)
@@ -194,10 +190,6 @@ func TestService_Parse(t *testing.T) {
 
 		err := service.Setup()
 		require.NoError(t, err)
-		defer func() {
-			err = service.ClearCache()
-			require.NoError(t, err)
-		}()
 
 		err = service.Parse()
 		require.NoError(t, err)

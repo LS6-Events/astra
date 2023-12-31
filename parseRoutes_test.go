@@ -75,10 +75,6 @@ func TestService_ParseRoutes(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			err = service.ParseRoutes()
 			require.NoError(t, err)

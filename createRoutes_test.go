@@ -63,10 +63,6 @@ func TestService_CreateRoutes(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			err = service.CreateRoutes()
 			require.NoError(t, err)

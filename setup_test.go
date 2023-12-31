@@ -17,10 +17,6 @@ func TestService_Setup(t *testing.T) {
 
 		err = service.Setup()
 		require.NoError(t, err)
-		defer func() {
-			err = service.ClearCache()
-			require.NoError(t, err)
-		}()
 
 		stat, err = os.Stat(service.getAstraDirPath())
 		require.NoError(t, err)
@@ -35,10 +31,6 @@ func TestService_Setup(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			require.NotEmpty(t, service.WorkDir)
 
@@ -57,10 +49,6 @@ func TestService_Setup(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			require.NotEmpty(t, service.WorkDir)
 			require.Equal(t, "test", service.WorkDir)
@@ -95,10 +83,6 @@ func TestService_Setup(t *testing.T) {
 
 			err := service.Setup()
 			require.NoError(t, err)
-			defer func() {
-				err = service.ClearCache()
-				require.NoError(t, err)
-			}()
 
 			stat, err := os.Stat(path.Join(service.getAstraDirPath(), cacheFileName))
 			require.Error(t, err)
