@@ -129,7 +129,7 @@ func (e *ExpressionTraverser) Type() (types.Type, error) {
 	case *ast.UnaryExpr:
 		return e.Traverser.Expression(n.X).Type()
 	case *ast.Ident:
-		obj, err := e.File.Package.FindObjectForIdent(n)
+		obj, err := e.File.Package.FindObjectForIdentFuzzy(n)
 		if err != nil {
 			return nil, err
 		}

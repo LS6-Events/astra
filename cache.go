@@ -38,7 +38,12 @@ func (s *Service) Cache() error {
 		return err
 	}
 
-	cacheStr, err := json.Marshal(s)
+	var cacheStr []byte
+	if strings.HasSuffix(cachePath, ".yaml") || strings.HasSuffix(cachePath, ".yml") {
+		cacheStr, err = yaml.Marshal(s)
+	} else {
+		cacheStr, err = json.Marshal(s)
+	}
 	if err != nil {
 		return err
 	}
@@ -103,7 +108,6 @@ func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	s.Config = service.Config
 	s.Routes = service.Routes
 	s.Components = service.Components
-	s.ToBeProcessed = service.ToBeProcessed
 	return nil
 }
 

@@ -43,3 +43,48 @@ func callExpr() {
 func TestFunction(a int, b string) string {
 	return fmt.Sprintf("%d - %s", a, b)
 }
+
+// nolint:unused
+func contextFuncBuilderTest() error {
+	err := contextFuncBuilderIgnored(nil)
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderStatusCode(200)
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderExpressionResult(MyStruct{Name: "foo"})
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderValue("bar")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// nolint:unused
+func contextFuncBuilderIgnored(param any) error {
+	return nil
+}
+
+// nolint:unused
+func contextFuncBuilderStatusCode(statusCode int) error {
+	return nil
+}
+
+// nolint:unused
+func contextFuncBuilderExpressionResult(expression MyStruct) error {
+	return nil
+}
+
+// nolint:unused
+func contextFuncBuilderValue(value string) error {
+	return nil
+}

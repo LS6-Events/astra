@@ -27,8 +27,6 @@ type Service struct {
 
 	Routes []Route `json:"routes" yaml:"routes"`
 
-	ToBeProcessed []Processable `json:"-" yaml:"-"`
-
 	Components []Field `json:"components" yaml:"components"`
 
 	tempMainPackageName string
