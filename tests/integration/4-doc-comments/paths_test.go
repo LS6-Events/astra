@@ -23,14 +23,14 @@ func TestPathsDocs(t *testing.T) {
 	require.False(t, paths.Path("/no-docs.get").Exists("description"))
 
 	// GET /pets
-	require.Equal(t, "getAllPets returns all pets", paths.Path("/pets.get.description").Data().(string))
+	require.Equal(t, "getAllPets returns all pets.", paths.Path("/pets.get.description").Data().(string))
 
 	// POST /pets
-	require.Equal(t, "createPet creates a pet\nIt takes in a Pet without an ID in the request body", paths.Path("/pets.post.description").Data().(string))
+	require.Equal(t, "createPet creates a pet.\nIt takes in a Pet without an ID in the request body.", paths.Path("/pets.post.description").Data().(string))
 
 	// GET /pets/{id}
-	require.Equal(t, "getPetByID returns a pet by its ID\nIt takes in the ID as a path parameter", paths.Path("/pets/{id}.get.description").Data().(string))
+	require.Equal(t, "getPetByID returns a pet by its ID.\nIt takes in the ID as a path parameter.", paths.Path("/pets/{id}.get.description").Data().(string))
 
 	// DELETE /pets/{id}
-	require.Equal(t, "deletePet deletes a pet by its ID\nIt takes in the ID as a path parameter", paths.Path("/pets/{id}.delete.description").Data().(string))
+	require.Equal(t, "deletePet deletes a pet by its ID.\nIt takes in the ID as a path parameter.", paths.Path("/pets/{id}.delete.description").Data().(string))
 }
