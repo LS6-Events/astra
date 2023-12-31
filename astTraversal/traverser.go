@@ -127,7 +127,6 @@ func (t *BaseTraverser) FindDeclarationForNode(node ast.Node) (*DeclarationTrave
 
 			return t.Declaration(newNode, nodeType.Sel.Name)
 		} else { // Property of a struct - need to recursively.
-			// TODO: Implement struct property lookup and recursive traversal.
 			return nil, errors.New("not implemented yet")
 		}
 	}
