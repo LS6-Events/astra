@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+
 	"golang.org/x/tools/go/packages"
 )
 
@@ -197,7 +198,7 @@ func (p *PackageNode) ASTAtPos(pos token.Pos) (ast.Node, error) {
 	return nil, fmt.Errorf("node at %s not found in package %s", node, p.Path())
 }
 
-// FindDocForType finds the documentation for a type in the package
+// FindDocForType finds the documentation for a type in the package.
 func (p *PackageNode) FindDocForType(typeName string) (string, bool) {
 	p.populateTypeDocMap()
 
@@ -205,7 +206,7 @@ func (p *PackageNode) FindDocForType(typeName string) (string, bool) {
 	return doc, ok
 }
 
-// populateTypeDocMap populates the TypeDocMap for the package
+// populateTypeDocMap populates the TypeDocMap for the package.
 func (p *PackageNode) populateTypeDocMap() {
 	// If the map is already populated, we don't need to do anything
 	if p.TypeDocMap != nil {

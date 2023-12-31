@@ -1,9 +1,10 @@
 package astra
 
 import (
-	"github.com/ls6-events/astra/astTraversal"
 	"reflect"
 	"slices"
+
+	"github.com/ls6-events/astra/astTraversal"
 )
 
 func ExtractBindingTags(fields map[string]Field) (bindingTags []astTraversal.BindingTagType, uniqueBindings bool) {

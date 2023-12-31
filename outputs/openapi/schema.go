@@ -83,8 +83,8 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 	}
 }
 
-// mapTypeFormat maps the type with the list of types from the service
-// This should be primarily used for custom types in components that need to be mapped
+// mapTypeFormat maps the type with the list of types from the service.
+// This should be primarily used for custom types in components that need to be mapped.
 func mapTypeFormat(service *astra.Service, acceptedType string, pkg string) Schema {
 	if acceptedType, ok := service.GetTypeMapping(acceptedType, pkg); ok {
 		if acceptedType.Type == "" {
@@ -99,8 +99,8 @@ func mapTypeFormat(service *astra.Service, acceptedType string, pkg string) Sche
 	return Schema{}
 }
 
-// mapPredefinedTypeFormat maps the type with the list of types that are predefined
-// This should be primarily used for types that are not custom types, i.e. everywhere except top level components
+// mapPredefinedTypeFormat maps the type with the list of types that are predefined.
+// This should be primarily used for types that are not custom types, i.e. everywhere except top level components.
 func mapPredefinedTypeFormat(acceptedType string) Schema {
 	if acceptedType, ok := astra.PredefinedTypeMap[acceptedType]; ok {
 		if acceptedType.Type == "" {

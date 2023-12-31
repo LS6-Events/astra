@@ -26,15 +26,15 @@ func TestComponentsDocs(t *testing.T) {
 
 	// petstore.Pet
 	require.True(t, schemas.Exists("petstore.Pet", "description"))
-	require.Equal(t, "Pet the pet model", schemas.Search("petstore.Pet", "description").Data().(string))
+	require.Equal(t, "Pet the pet model.", schemas.Search("petstore.Pet", "description").Data().(string))
 
 	// petstore.PetDTO
 	require.True(t, schemas.Exists("petstore.PetDTO", "description"))
-	require.Equal(t, "PetDTO the pet dto", schemas.Search("petstore.PetDTO", "description").Data().(string))
+	require.Equal(t, "PetDTO the pet dto.", schemas.Search("petstore.PetDTO", "description").Data().(string))
 
 	// petstore.Tag
 	require.True(t, schemas.Exists("petstore.Tag", "description"))
-	require.Equal(t, "Tag the tag model", schemas.Search("petstore.Tag", "description").Data().(string))
+	require.Equal(t, "Tag the tag model.", schemas.Search("petstore.Tag", "description").Data().(string))
 
 	// 4-doc-comments.NoDescription
 	require.True(t, schemas.Exists("4-doc-comments.NoDescription"))

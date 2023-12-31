@@ -2,14 +2,14 @@ package astTraversal
 
 import (
 	"fmt"
+
 	"golang.org/x/tools/go/packages"
 )
 
 var cachedPackages = make(map[string]*packages.Package)
 
-// LoadPackage loads a package from a path
-// Because of the way the packages.Load function works, we cache the packages to avoid loading the same package multiple times
-// As we load these packages one at a time
+// LoadPackage loads a package from a path.
+// Because of the way the packages.Load function works, we cache the packages to avoid loading the same package multiple times.
 func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	if pkg, ok := cachedPackages[pkgPath]; ok {
 		return pkg, nil
@@ -25,8 +25,8 @@ func LoadPackage(pkgPath string, workDir string) (*packages.Package, error) {
 	return pkg, nil
 }
 
-// LoadPackageNoCache loads a package from a path
-// It will never use the cache
+// LoadPackageNoCache loads a package from a path.
+// This function will not use the cache when loading the package.
 func LoadPackageNoCache(pkgPath string, workDir string) (*packages.Package, error) {
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName |

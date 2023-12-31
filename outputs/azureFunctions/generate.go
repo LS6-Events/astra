@@ -2,10 +2,11 @@ package azureFunctions
 
 import (
 	"encoding/json"
-	"github.com/ls6-events/astra"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/ls6-events/astra"
 )
 
 const tempOutputDir = "azure"

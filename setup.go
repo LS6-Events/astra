@@ -4,8 +4,8 @@ import (
 	"os"
 )
 
-// Setup sets up the service by creating the temp dir and caching
-// Setup should be called before anything else in the service
+// Setup sets up the service by creating the temp dir and caching.
+// Setup should be called before anything else in the service.
 func (s *Service) Setup() error {
 	s.Log.Info().Msg("Setting up")
 

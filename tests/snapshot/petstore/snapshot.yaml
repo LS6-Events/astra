@@ -110,7 +110,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/petstore.Tag'
-            description: Pet the pet model
+            description: Pet the pet model.
         petstore.PetDTO:
             type: object
             properties:
@@ -126,7 +126,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/petstore.Tag'
-            description: PetDTO the pet dto
+            description: PetDTO the pet dto.
         petstore.Tag:
             type: object
             properties:
@@ -135,4 +135,4 @@ components:
                     format: int64
                 name:
                     type: string
-            description: Tag the tag model
+            description: Tag the tag model.
