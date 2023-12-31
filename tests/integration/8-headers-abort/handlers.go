@@ -1,8 +1,9 @@
 package petstore
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func getHeader(c *gin.Context) {

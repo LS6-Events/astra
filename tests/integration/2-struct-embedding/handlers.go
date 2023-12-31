@@ -1,10 +1,12 @@
 package petstore
 
 import (
-	"github.com/gin-gonic/gin"
-	petstore2 "github.com/ls6-events/astra/tests/petstore"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ls6-events/astra/tests/petstore"
 )
 
 func getCatByID(c *gin.Context) {
@@ -14,7 +16,7 @@ func getCatByID(c *gin.Context) {
 		return
 	}
 
-	pet, err := petstore2.PetByID(int64(id))
+	pet, err := petstore.PetByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -34,7 +36,7 @@ func getDogByID(c *gin.Context) {
 		return
 	}
 
-	pet, err := petstore2.PetByID(int64(id))
+	pet, err := petstore.PetByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

@@ -92,7 +92,10 @@ func (c *CallExpressionTraverser) ReturnType(returnNum int) (types.Type, error) 
 		return nil, err
 	}
 
-	signature := funcType.Type().(*types.Signature)
+	signature, ok := funcType.Type().(*types.Signature)
+	if !ok {
+		return nil, ErrInvalidNodeType
+	}
 
 	if signature.Results().Len() <= returnNum {
 		return nil, ErrInvalidIndex
@@ -107,7 +110,10 @@ func (c *CallExpressionTraverser) ArgType(argNum int) (types.Object, error) {
 		return nil, err
 	}
 
-	signature := funcType.Type().(*types.Signature)
+	signature, ok := funcType.Type().(*types.Signature)
+	if !ok {
+		return nil, ErrInvalidNodeType
+	}
 
 	if signature.Params().Len() <= argNum {
 		return nil, ErrInvalidIndex

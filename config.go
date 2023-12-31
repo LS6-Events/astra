@@ -1,7 +1,7 @@
 package astra
 
-// Config is the configuration for the generator
-// It matches very closely to the OpenAPI specification
+// Config is the configuration for the generator.
+// It matches very closely to the OpenAPI specification.
 type Config struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
@@ -26,10 +26,10 @@ type License struct {
 	URL  string `json:"url"`
 }
 
-// Validate validates the configuration
-// It will also set default values for some fields
+// Validate validates the configuration.
+// It will also set default values for some fields.
 func (c *Config) Validate() error {
-	// For now, only the port is required, the rest are set to default values
+	// For now, only the port is required, the rest are set to default values.
 	if c.Host == "" {
 		c.Host = "localhost"
 	}
@@ -43,13 +43,13 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// SetConfig sets the configuration for the generator
+// SetConfig sets the configuration for the generator.
 func (s *Service) SetConfig(config *Config) *Service {
 	s.Config = config
 	return s
 }
 
-// WithConfig sets the configuration for the generator in option pattern
+// WithConfig sets the configuration for the generator in option pattern.
 func WithConfig(config *Config) Option {
 	return func(s *Service) {
 		s.SetConfig(config)

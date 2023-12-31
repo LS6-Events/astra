@@ -5,9 +5,14 @@ import (
 	"strconv"
 )
 
-// ExtractStatusCode extracts the status code from a handler, assuming it's the first argument
+// ExtractStatusCode extracts the status code from a handler, assuming it's the first argument.
 func (t *BaseTraverser) ExtractStatusCode(status ast.Node) (int, error) {
-	expr := t.Expression(status)
+	exprNode, ok := status.(ast.Expr)
+	if !ok {
+		return 0, ErrInvalidNodeType
+	}
+
+	expr := t.Expression(exprNode)
 
 	constant, err := expr.Value()
 	if err != nil {

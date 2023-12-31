@@ -1,8 +1,9 @@
 package petstore
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type TestStructFormatter struct {

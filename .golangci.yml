@@ -1,0 +1,68 @@
+run:
+  tests: false
+output:
+  format: colored-tab
+linters:
+  disable-all: true
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - decorder
+    - dupword
+    - durationcheck
+    - errname
+    - exportloopref
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - goconst
+    - godot
+    - godox
+    - gofmt
+    - goimports
+    - gomoddirectives
+    - goprintffuncname
+    - gosmopolitan
+    - govet
+    - importas
+    - inamedparam
+    - ineffassign
+    - makezero
+    - mirror
+    - misspell
+    - nakedret
+    - nilerr
+    - nilnil
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - rowserrcheck
+    - sqlclosecheck
+    - tenv
+    - testifylint
+    - unconvert
+    - usestdlibvars
+    - unused
+    - wastedassign
+    - whitespace
+linters-settings:
+  linters-settings:
+  goimports:
+    local-prefixes: main
+  nakedret:
+    max-func-lines: 10
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
+issues:
+  exclude-rules:
+    - path-except: 'test\.go'
+      linters:
+        - unused

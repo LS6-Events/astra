@@ -3,21 +3,24 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ls6-events/astra"
-	"github.com/ls6-events/astra/astTraversal"
-	"github.com/ls6-events/astra/utils"
-	"gopkg.in/yaml.v3"
+	"net/http"
 	"os"
 	"path"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/ls6-events/astra"
+	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/astra/utils"
+
+	"gopkg.in/yaml.v3"
 )
 
-// Generate the OpenAPI output
-// It will marshal the OpenAPI struct and write it to a file
-// It will also generate the paths and their operations
-// It will also generate the components and their schemas
+// Generate the OpenAPI output.
+// It will marshal the OpenAPI struct and write it to a file.
+// It will also generate the paths and their operations.
+// It will also generate the components and their schemas.
 func Generate(filePath string) astra.ServiceFunction {
 	return func(s *astra.Service) error {
 		s.Log.Debug().Msg("Generating OpenAPI output")
@@ -185,19 +188,19 @@ func Generate(filePath string) astra.ServiceFunction {
 				endpointPath = paths[endpoint.Path]
 			}
 			switch endpoint.Method {
-			case "GET":
+			case http.MethodGet:
 				endpointPath.Get = &operation
-			case "POST":
+			case http.MethodPost:
 				endpointPath.Post = &operation
-			case "PUT":
+			case http.MethodPut:
 				endpointPath.Put = &operation
-			case "PATCH":
+			case http.MethodPatch:
 				endpointPath.Patch = &operation
-			case "DELETE":
+			case http.MethodDelete:
 				endpointPath.Delete = &operation
-			case "HEAD":
+			case http.MethodHead:
 				endpointPath.Head = &operation
-			case "OPTIONS":
+			case http.MethodOptions:
 				endpointPath.Options = &operation
 			}
 

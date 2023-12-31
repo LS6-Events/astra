@@ -2,9 +2,10 @@ package astTraversal
 
 import (
 	"go/ast"
-	"golang.org/x/tools/go/packages"
 	"strings"
 	"sync"
+
+	"golang.org/x/tools/go/packages"
 )
 
 type PackagePathLoader func(path string) (string, error)

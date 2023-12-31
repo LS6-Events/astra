@@ -1,15 +1,17 @@
 package gin
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/astra"
 	"os"
 	"path/filepath"
+
+	"github.com/ls6-events/astra"
+
+	"github.com/gin-gonic/gin"
 )
 
-// createRoute creates a route from a gin RouteInfo
-// It will only create the route and refer to the handler function by name, file and line number
-// The route will be populated later by parseRoute
+// createRoute creates a route from a gin RouteInfo.
+// It will only create the route and refer to the handler function by name, file and line number.
+// The route will be populated later by parseRoute.
 func createRoute(s *astra.Service, file string, line int, info gin.RouteInfo) error {
 	log := s.Log.With().Str("path", info.Path).Str("method", info.Method).Str("handler", info.Handler).Logger()
 

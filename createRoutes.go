@@ -1,6 +1,6 @@
 package astra
 
-// CreateRoutes creates routes from the inputs
+// CreateRoutes creates routes from the inputs.
 func (s *Service) CreateRoutes() error {
 	s.Log.Info().Msg("Creating routes from inputs")
 	for _, input := range s.Inputs {

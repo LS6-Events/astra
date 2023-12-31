@@ -1,10 +1,12 @@
 package petstore
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/ls6-events/astra/tests/integration/10-struct-name-collision-avoidance/nested/types"
 	topLevelTypes "github.com/ls6-events/astra/tests/integration/10-struct-name-collision-avoidance/types"
-	"net/http"
 )
 
 func topLevelHandler(c *gin.Context) {

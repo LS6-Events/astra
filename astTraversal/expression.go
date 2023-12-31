@@ -15,10 +15,10 @@ type ExpressionTraverser struct {
 	ReturnNum int
 }
 
-func (t *BaseTraverser) Expression(node ast.Node) *ExpressionTraverser {
+func (t *BaseTraverser) Expression(node ast.Expr) *ExpressionTraverser {
 	return &ExpressionTraverser{
 		Traverser: t,
-		Node:      node.(ast.Expr),
+		Node:      node,
 		File:      t.ActiveFile(),
 		ReturnNum: 0,
 	}
@@ -79,7 +79,12 @@ func (e *ExpressionTraverser) Value() (string, error) {
 			return "", err
 		}
 
-		return e.Traverser.Expression(astNode).Value()
+		exprNode, ok := astNode.(ast.Expr)
+		if !ok {
+			return "", errors.New("astNode is not of type ast.Expr")
+		}
+
+		return e.Traverser.Expression(exprNode).Value()
 	case *ast.SelectorExpr:
 		obj, err := e.File.Package.FindObjectForIdent(n.Sel)
 		if err != nil {
@@ -116,7 +121,12 @@ func (e *ExpressionTraverser) Value() (string, error) {
 			return "", err
 		}
 
-		return e.Traverser.Expression(astNode).Value()
+		exprNode, ok := astNode.(ast.Expr)
+		if !ok {
+			return "", errors.New("astNode is not of type ast.Expr")
+		}
+
+		return e.Traverser.Expression(exprNode).Value()
 	}
 
 	return "", errors.New("value not retrievable")

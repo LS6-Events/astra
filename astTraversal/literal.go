@@ -20,5 +20,10 @@ func (t *BaseTraverser) Literal(node ast.Node, returnNum int) (*LiteralTraverser
 }
 
 func (lt *LiteralTraverser) Type() (types.Type, error) {
-	return lt.Traverser.Expression(lt.Node).SetReturnNum(lt.ReturnNum).Type()
+	exprNode, ok := lt.Node.(ast.Expr)
+	if !ok {
+		return nil, ErrInvalidNodeType
+	}
+
+	return lt.Traverser.Expression(exprNode).SetReturnNum(lt.ReturnNum).Type()
 }

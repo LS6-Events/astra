@@ -1,8 +1,9 @@
 package azureFunctions
 
 import (
-	"github.com/ls6-events/astra"
 	"strings"
+
+	"github.com/ls6-events/astra"
 )
 
 // Adapted from https://learn.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints

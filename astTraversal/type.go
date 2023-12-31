@@ -230,8 +230,6 @@ func (t *TypeTraverser) Result() (Result, error) {
 
 				pos := f.Pos()
 
-				// TODO - this isn't working entirely well for external packages
-				// Needs investigation
 				node, err := structFieldResult.Package.ASTAtPos(pos)
 				if err == nil && node != nil {
 					if field, ok := node.(*ast.Field); ok {
@@ -273,7 +271,6 @@ func (t *TypeTraverser) Result() (Result, error) {
 
 func (t *TypeTraverser) Doc() (string, error) {
 	if named, ok := t.Node.(*types.Named); ok {
-
 		pkg := t.Traverser.Packages.AddPackage(named.Obj().Pkg().Path())
 
 		_, err := t.Traverser.Packages.Get(pkg)
