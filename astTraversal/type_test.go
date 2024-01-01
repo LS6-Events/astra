@@ -9,7 +9,7 @@ import (
 )
 
 func TestTypeTraverser_Result(t *testing.T) {
-	baseTraverser, err := createTraverserFromTestFile("usefulTypes.go")
+	baseTraverser, err := CreateTraverserFromTestFile("usefulTypes.go")
 	assert.NoError(t, err)
 
 	_, err = baseTraverser.Packages.Get(baseTraverser.ActiveFile().Package)
@@ -87,7 +87,7 @@ func TestTypeTraverser_Result(t *testing.T) {
 }
 
 func TestTypeTraverser_Doc(t *testing.T) {
-	baseTraverser, err := createTraverserFromTestFile("usefulTypes.go")
+	baseTraverser, err := CreateTraverserFromTestFile("usefulTypes.go")
 	assert.NoError(t, err)
 
 	_, err = baseTraverser.Packages.Get(baseTraverser.ActiveFile().Package)

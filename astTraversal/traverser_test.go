@@ -42,7 +42,7 @@ func TestTraverser_Reset(t *testing.T) {
 }
 
 func TestTraverser_ExtractVarName(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("usefulTypes.go")
+	traverser, err := CreateTraverserFromTestFile("usefulTypes.go")
 	assert.NoError(t, err)
 
 	assert.NotNil(t, traverser.ActiveFile().Package)

@@ -7,7 +7,7 @@ import (
 )
 
 func TestBaseTraverser_Function(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("declaration.go")
+	traverser, err := CreateTraverserFromTestFile("declaration.go")
 	assert.NoError(t, err)
 
 	t.Run("should return a function traverser for a function literal", func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestBaseTraverser_Function(t *testing.T) {
 }
 
 func TestFunctionTraverser_Arguments(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("declaration.go")
+	traverser, err := CreateTraverserFromTestFile("declaration.go")
 	assert.NoError(t, err)
 
 	t.Run("should return the arguments of a function", func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestFunctionTraverser_Arguments(t *testing.T) {
 }
 
 func TestFunctionTraverser_Results(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("declaration.go")
+	traverser, err := CreateTraverserFromTestFile("declaration.go")
 	assert.NoError(t, err)
 
 	t.Run("should return the results of a function", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestFunctionTraverser_Results(t *testing.T) {
 }
 
 func TestFunctionTraverser_FindArgumentNameByType(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("declaration.go")
+	traverser, err := CreateTraverserFromTestFile("declaration.go")
 	assert.NoError(t, err)
 	_, err = traverser.Packages.Get(traverser.ActiveFile().Package)
 	assert.NoError(t, err)

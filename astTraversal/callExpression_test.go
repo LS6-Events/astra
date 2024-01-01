@@ -7,7 +7,7 @@ import (
 )
 
 func setupTestCallExpressionTraverser() (*ast.FuncDecl, *BaseTraverser, error) {
-	traverser, err := createTraverserFromTestFile("callExpression.go")
+	traverser, err := CreateTraverserFromTestFile("callExpression.go")
 	if err != nil {
 		return nil, nil, err
 	}

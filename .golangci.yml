@@ -52,7 +52,6 @@ linters:
     - wastedassign
     - whitespace
 linters-settings:
-  linters-settings:
   goimports:
     local-prefixes: main
   nakedret:
@@ -63,6 +62,6 @@ linters-settings:
     for-loops: true
 issues:
   exclude-rules:
-    - path-except: 'test\.go'
+    - path-except: 'test\.go\\astTraversal/testfiles\.go'
       linters:
         - unused

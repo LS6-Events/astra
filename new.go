@@ -19,7 +19,6 @@ func New(opts ...Option) *Service {
 	s.Log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout}).Level(zerolog.InfoLevel)
 
 	s.Routes = make([]Route, 0)
-	s.ToBeProcessed = make([]Processable, 0)
 	s.Components = make([]Field, 0)
 	s.CustomTypeMapping = make(map[string]TypeFormat)
 
