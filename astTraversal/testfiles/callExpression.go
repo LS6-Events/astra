@@ -14,7 +14,6 @@ func NoArgs() {
 	fmt.Println("Function with no arguments.")
 }
 
-// nolint:unused
 func callExpr() {
 	// Direct function calls
 	fmt.Println("Hello, World!")
@@ -46,7 +45,6 @@ func TestFunction(a int, b string) string {
 	return fmt.Sprintf("%d - %s", a, b)
 }
 
-// nolint:unused
 func contextFuncBuilderTest() error {
 	err := contextFuncBuilderIgnored(nil)
 	if err != nil {
@@ -71,22 +69,18 @@ func contextFuncBuilderTest() error {
 	return nil
 }
 
-// nolint:unused
 func contextFuncBuilderIgnored(param any) error {
 	return nil
 }
 
-// nolint:unused
 func contextFuncBuilderStatusCode(statusCode int) error {
 	return nil
 }
 
-// nolint:unused
 func contextFuncBuilderExpressionResult(expression MyStruct) error {
 	return nil
 }
 
-// nolint:unused
 func contextFuncBuilderValue(value string) error {
 	return nil
 }
