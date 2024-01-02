@@ -1,10 +1,11 @@
 package comparison
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"gopkg.in/yaml.v3"
 	"os"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"gopkg.in/yaml.v3"
 )
 
 func readFile(t *testing.T, path string) []byte {

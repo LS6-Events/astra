@@ -1,8 +1,9 @@
 package astra
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAddReturnType(t *testing.T) {
@@ -64,7 +65,7 @@ func TestAddReturnType(t *testing.T) {
 
 func TestAddComponent(t *testing.T) {
 	t.Run("AddingToEmptySlice", func(t *testing.T) {
-		emptySlice := []Field{}
+		var emptySlice []Field
 		newComponent := Field{
 			Name:    "ComponentA",
 			Package: "test",

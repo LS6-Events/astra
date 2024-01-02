@@ -7,7 +7,7 @@ import (
 )
 
 func setupTestDeclarationTraverser() (*BaseTraverser, error) {
-	return createTraverserFromTestFile("declaration.go")
+	return CreateTraverserFromTestFile("declaration.go")
 }
 
 func TestTraverser_Declaration(t *testing.T) {

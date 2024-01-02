@@ -23,3 +23,8 @@ go.work
 
 # Astra generated files
 cli/astra/astra
+
+# Test generated files
+test-cache.json
+test-cache.yaml
+test-cache.txt

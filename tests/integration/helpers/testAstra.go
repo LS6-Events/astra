@@ -1,14 +1,15 @@
 package helpers
 
 import (
+	"os"
+	"testing"
+
 	"github.com/Jeffail/gabs/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/inputs"
 	"github.com/ls6-events/astra/outputs"
 	"github.com/stretchr/testify/require"
-	"os"
-	"testing"
 )
 
 func SetupTestAstraWithDefaultConfig(t *testing.T, r *gin.Engine, options ...astra.Option) (*gabs.Container, error) {

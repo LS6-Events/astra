@@ -2,21 +2,22 @@ package json
 
 import (
 	"encoding/json"
-	"github.com/ls6-events/astra"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/ls6-events/astra"
 )
 
-// JSONOutput is the output of the JSON output
-// It will in essence be a copy of the service's output (routes and components)
+// JSONOutput is the output of the JSON output.
+// It will in essence be a copy of the service's output (routes and components).
 type JSONOutput struct {
 	Routes     []astra.Route `json:"routes"`
 	Components []astra.Field `json:"components"`
 }
 
-// generate the JSON output
-// It will marshal the JSONOutput struct and write it to a file
+// Generate will create the JSON output.
+// It will marshal the JSONOutput struct and write it to a file.
 func Generate(filePath string) astra.ServiceFunction {
 	return func(s *astra.Service) error {
 		s.Log.Info().Msg("Generating JSON output")

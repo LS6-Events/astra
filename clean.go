@@ -1,9 +1,9 @@
 package astra
 
-// Clean cleans up the structs
-// At the moment it only changes the package name of the main package to "main"
-// It also handles the "special" types
-// It also caches the service after cleaning
+// Clean cleans up the structs.
+// At the moment it only changes the package name of the main package to "main".
+// It also handles the "special" types.
+// It also caches the service after cleaning.
 func (s *Service) Clean() error {
 	s.Log.Info().Msg("Cleaning up structs")
 

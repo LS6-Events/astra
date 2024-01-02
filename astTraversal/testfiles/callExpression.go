@@ -4,15 +4,16 @@ package testfiles
 
 import (
 	"fmt"
-	"github.com/ls6-events/astra/astTraversal/testfiles/otherpkg1"
+
 	"strings"
+
+	"github.com/ls6-events/astra/astTraversal/testfiles/otherpkg1"
 )
 
 func NoArgs() {
 	fmt.Println("Function with no arguments.")
 }
 
-// nolint:unused
 func callExpr() {
 	// Direct function calls
 	fmt.Println("Hello, World!")
@@ -42,4 +43,44 @@ func callExpr() {
 
 func TestFunction(a int, b string) string {
 	return fmt.Sprintf("%d - %s", a, b)
+}
+
+func contextFuncBuilderTest() error {
+	err := contextFuncBuilderIgnored(nil)
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderStatusCode(200)
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderExpressionResult(MyStruct{Name: "foo"})
+	if err != nil {
+		return err
+	}
+
+	err = contextFuncBuilderValue("bar")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func contextFuncBuilderIgnored(param any) error {
+	return nil
+}
+
+func contextFuncBuilderStatusCode(statusCode int) error {
+	return nil
+}
+
+func contextFuncBuilderExpressionResult(expression MyStruct) error {
+	return nil
+}
+
+func contextFuncBuilderValue(value string) error {
+	return nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func setupTestLiteralTraverser() (*BaseTraverser, error) {
-	return createTraverserFromTestFile("declaration.go")
+	return CreateTraverserFromTestFile("declaration.go")
 }
 
 func TestBaseTraverser_Literal(t *testing.T) {

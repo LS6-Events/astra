@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path"
+
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/cli"
 	"github.com/spf13/cobra"
-	"os"
-	"path"
 )
 
 var (
-	cacheFile string = ".astra/cache.json" // Location of the cache.json file
-	cwd       string = "."                 // Current working directory (where main.go is located)
+	cacheFile = ".astra/cache.json" // Location of the cache.json file
+	cwd       = "."                 // Current working directory (where main.go is located)
 )
 
 // generateCmd represents the generate command

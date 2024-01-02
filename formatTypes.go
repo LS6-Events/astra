@@ -2,14 +2,14 @@ package astra
 
 import "maps"
 
-// TypeFormat is the types of the standard go types that are accepted by OpenAPI
+// TypeFormat is the types of the standard go types that are accepted by OpenAPI.
 type TypeFormat struct {
 	Type   string
 	Format string
 }
 
-// PredefinedTypeMap is the map of the standard go types that are accepted by OpenAPI
-// It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format
+// PredefinedTypeMap is the map of the standard go types that are accepted by OpenAPI.
+// It contains the go type as a string and the corresponding OpenAPI type as the value - also including the format.
 var PredefinedTypeMap = map[string]TypeFormat{
 	"string": {
 		Type: "string",
@@ -100,17 +100,16 @@ var PredefinedTypeMap = map[string]TypeFormat{
 	},
 }
 
-// WithCustomTypeMapping adds a custom type mapping to the predefined type map
+// WithCustomTypeMapping adds a custom type mapping to the predefined type map.
 func WithCustomTypeMapping(customTypeMap map[string]TypeFormat) Option {
 	return func(service *Service) {
 		for k, v := range customTypeMap {
 			service.CustomTypeMapping[k] = v
 		}
 	}
-
 }
 
-// WithCustomTypeMappingSingle adds a custom type mapping to the predefined type map
+// WithCustomTypeMappingSingle adds a custom type mapping to the predefined type map.
 func WithCustomTypeMappingSingle(key string, valueType string, valueFormat string) Option {
 	return func(service *Service) {
 		service.CustomTypeMapping[key] = TypeFormat{
@@ -120,7 +119,7 @@ func WithCustomTypeMappingSingle(key string, valueType string, valueFormat strin
 	}
 }
 
-// GetTypeMapping returns the type mapping for the given key
+// GetTypeMapping returns the type mapping for the given key.
 func (s *Service) GetTypeMapping(key string, pkg string) (TypeFormat, bool) {
 	if s.fullTypeMapping == nil {
 		s.fullTypeMapping = make(map[string]TypeFormat)

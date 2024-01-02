@@ -96,7 +96,7 @@ func TestPackageNode_AddFile(t *testing.T) {
 }
 
 func TestPackageNode_FindASTForType(t *testing.T) {
-	traverser, err := createTraverserFromTestFile("usefulTypes.go")
+	traverser, err := CreateTraverserFromTestFile("usefulTypes.go")
 	assert.NoError(t, err)
 
 	assert.NotNil(t, traverser.ActiveFile().Package)

@@ -3,10 +3,11 @@ package astra
 import (
 	"encoding/json"
 	"errors"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 // The caching mechanism is used to cache the service in a file so that it can be loaded later on
@@ -15,7 +16,7 @@ import (
 
 const cacheFileName = "cache.json"
 
-// Cache the service in a file
+// Cache the service in a file.
 func (s *Service) Cache() error {
 	s.Log.Debug().Msg("Caching service")
 
@@ -38,7 +39,12 @@ func (s *Service) Cache() error {
 		return err
 	}
 
-	cacheStr, err := json.Marshal(s)
+	var cacheStr []byte
+	if strings.HasSuffix(cachePath, ".yaml") || strings.HasSuffix(cachePath, ".yml") {
+		cacheStr, err = yaml.Marshal(s)
+	} else {
+		cacheStr, err = json.Marshal(s)
+	}
 	if err != nil {
 		return err
 	}
@@ -52,8 +58,8 @@ func (s *Service) Cache() error {
 	return nil
 }
 
-// LoadCache Load the service from a file cache
-// If the file does not exist, it will not return an error
+// LoadCache Load the service from a file cache.
+// If the file does not exist, it will not return an error.
 func (s *Service) LoadCache() error {
 	s.Log.Debug().Msg("Loading cached service")
 
@@ -65,7 +71,7 @@ func (s *Service) LoadCache() error {
 	}
 
 	if _, err := os.Stat(cachePath); err != nil {
-		return nil
+		return err
 	}
 
 	if err := s.LoadCacheFromCustomPath(cachePath); err != nil {
@@ -76,9 +82,9 @@ func (s *Service) LoadCache() error {
 	return nil
 }
 
-// LoadCacheFromCustomPath Load the service from a file cache
-// If the file does not exist, it will return an error
-// Requires the path to the cache file
+// LoadCacheFromCustomPath Load the service from a file cache.
+// If the file does not exist, it will return an error.
+// Requires the path to the cache file.
 func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	f, err := os.Open(cachePath)
 	if err != nil {
@@ -103,11 +109,10 @@ func (s *Service) LoadCacheFromCustomPath(cachePath string) error {
 	s.Config = service.Config
 	s.Routes = service.Routes
 	s.Components = service.Components
-	s.ToBeProcessed = service.ToBeProcessed
 	return nil
 }
 
-// ClearCache Clear the cache file
+// ClearCache Clear the cache file.
 func (s *Service) ClearCache() error {
 	s.Log.Debug().Msg("Clearing cached service")
 
@@ -119,7 +124,7 @@ func (s *Service) ClearCache() error {
 	}
 
 	if _, err := os.Stat(cachePath); err != nil {
-		return nil
+		return err
 	}
 
 	if err := os.RemoveAll(cachePath); err != nil {
