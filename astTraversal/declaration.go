@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/ast"
 )
 
@@ -43,7 +44,7 @@ func (d *DeclarationTraverser) Value() (ast.Node, error) {
 
 		return n.Rhs[index], nil
 	default:
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *ast.ValueSpec or *ast.AssignStmt"))
 	}
 }
 

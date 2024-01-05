@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/ast"
 	"go/types"
 )
@@ -25,7 +26,7 @@ func (t *BaseTraverser) Function(node ast.Node) (*FunctionTraverser, error) {
 		}
 		funcDecl = n
 	default:
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *ast.FuncLit or *ast.FuncDecl"))
 	}
 
 	return &FunctionTraverser{

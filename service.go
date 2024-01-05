@@ -1,6 +1,7 @@
 package astra
 
 import (
+	"context"
 	"github.com/rs/zerolog"
 )
 
@@ -18,6 +19,8 @@ const (
 
 // Service is the main struct for the generator.
 type Service struct {
+	Context context.Context `json:"-" yaml:"-"`
+
 	Inputs  []Input  `json:"inputs" yaml:"inputs"`
 	Outputs []Output `json:"outputs" yaml:"outputs"`
 
@@ -44,4 +47,7 @@ type Service struct {
 	CustomTypeMapping map[string]TypeFormat `json:"custom_type_mapping" yaml:"custom_type_mapping"`
 	// fullTypeMapping is a full map of types to their OpenAPI type and format (to save merging the custom type mapping with the predefined type mapping every time)
 	fullTypeMapping map[string]TypeFormat
+
+	// UnstableEnableMiddleware is a flag to enable the middleware feature (this is unstable and may change in the future)
+	UnstableEnableMiddleware bool `json:"unstable_enable_middleware" yaml:"unstable_enable_middleware"`
 }

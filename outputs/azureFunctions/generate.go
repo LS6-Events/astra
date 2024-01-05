@@ -35,7 +35,7 @@ func Generate(directoryPath string) astra.ServiceFunction {
 		}
 
 		for _, route := range s.Routes {
-			splitHandler := strings.Split(route.Handler, ".")
+			splitHandler := strings.Split(route.Handlers[len(route.Handlers)-1].Name, ".")
 			funcName := splitHandler[len(splitHandler)-1]
 
 			functionDirectoryPath := path.Join(tempOutputDirectoryPath, funcName)

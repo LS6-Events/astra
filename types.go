@@ -4,11 +4,15 @@ import "github.com/ls6-events/astra/astTraversal"
 
 // These are types that are used throughout the astra package.
 
+type Handler struct {
+	Name   string `json:"name" yaml:"name"`
+	File   string `json:"file" yaml:"file"`
+	LineNo int    `json:"lineNo" yaml:"lineNo"`
+}
+
 // Route is a route in the service and all of its potential options.
 type Route struct {
-	Handler     string       `json:"handler" yaml:"handler"`
-	File        string       `json:"file" yaml:"file"`
-	LineNo      int          `json:"lineNo" yaml:"lineNo"`
+	Handlers    []Handler    `json:"handlers,omitempty" yaml:"handlers,omitempty"`
 	Method      string       `json:"method" yaml:"method"`
 	Path        string       `json:"path" yaml:"path"`
 	PathParams  []Param      `json:"params,omitempty" yaml:"params,omitempty"` // for now, we use :param in the path to denote a required path param, and *param to denote an optional path param.

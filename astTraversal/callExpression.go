@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/ast"
 	"go/types"
 )
@@ -14,7 +15,7 @@ type CallExpressionTraverser struct {
 func (t *BaseTraverser) CallExpression(node ast.Node) (*CallExpressionTraverser, error) {
 	callExpr, ok := node.(*ast.CallExpr)
 	if !ok {
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *ast.CallExpr"))
 	}
 
 	return &CallExpressionTraverser{
@@ -59,7 +60,7 @@ func (c *CallExpressionTraverser) Args() []ast.Expr {
 
 func (c *CallExpressionTraverser) Type() (*types.Func, error) {
 	if c.Node.Fun == nil {
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *ast.CallExpr.Fun to not be nil"))
 	}
 
 	var obj types.Object
@@ -70,7 +71,7 @@ func (c *CallExpressionTraverser) Type() (*types.Func, error) {
 	case *ast.SelectorExpr:
 		obj, err = c.File.Package.FindObjectForIdent(nodeFun.Sel)
 	default:
-		err = ErrInvalidNodeType
+		err = errors.Join(ErrInvalidNodeType, errors.New("expected *ast.CallExpr.Fun to be *ast.Ident or *ast.SelectorExpr"))
 	}
 	if err != nil {
 		return nil, err
@@ -83,7 +84,7 @@ func (c *CallExpressionTraverser) Type() (*types.Func, error) {
 		return nil, ErrBuiltInFunction
 	}
 
-	return nil, ErrInvalidNodeType
+	return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *types.Func"))
 }
 
 func (c *CallExpressionTraverser) ReturnType(returnNum int) (types.Type, error) {
@@ -94,11 +95,11 @@ func (c *CallExpressionTraverser) ReturnType(returnNum int) (types.Type, error) 
 
 	signature, ok := funcType.Type().(*types.Signature)
 	if !ok {
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *types.Signature"))
 	}
 
 	if signature.Results().Len() <= returnNum {
-		return nil, ErrInvalidIndex
+		return nil, errors.Join(ErrInvalidIndex, errors.New("expected returnNum to be less than signature.Results().Len()"))
 	}
 
 	return signature.Results().At(returnNum).Type(), nil
@@ -112,11 +113,11 @@ func (c *CallExpressionTraverser) ArgType(argNum int) (types.Object, error) {
 
 	signature, ok := funcType.Type().(*types.Signature)
 	if !ok {
-		return nil, ErrInvalidNodeType
+		return nil, errors.Join(ErrInvalidNodeType, errors.New("expected *types.Signature"))
 	}
 
 	if signature.Params().Len() <= argNum {
-		return nil, ErrInvalidIndex
+		return nil, errors.Join(ErrInvalidIndex, errors.New("expected argNum to be less than signature.Params().Len()"))
 	}
 
 	return signature.Params().At(argNum), nil
