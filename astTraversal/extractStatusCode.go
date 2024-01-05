@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/ast"
 	"strconv"
 )
@@ -9,7 +10,7 @@ import (
 func (t *BaseTraverser) ExtractStatusCode(status ast.Node) (int, error) {
 	exprNode, ok := status.(ast.Expr)
 	if !ok {
-		return 0, ErrInvalidNodeType
+		return 0, errors.Join(ErrInvalidNodeType, errors.New("expected ast.Expr"))
 	}
 
 	expr := t.Expression(exprNode)

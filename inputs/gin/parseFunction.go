@@ -25,7 +25,7 @@ const (
 // And the package name and path are used to determine the package of the currently analysed function.
 // The currRoute reference is used to manipulate the current route being analysed.
 // The imports are used to determine the package of the context variable.
-func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *astra.Route, activeFile *astTraversal.FileNode, level int) error {
+func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTraverser, currRoute *astra.Route, activeFile *astTraversal.FileNode, isLastHandler bool, level int) error {
 	traverser := funcTraverser.Traverser
 
 	traverser.SetActiveFile(activeFile)
@@ -95,7 +95,7 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 				return false
 			}
 
-			err = parseFunction(s, function, currRoute, function.Traverser.ActiveFile(), level+1)
+			err = parseFunction(s, function, currRoute, function.Traverser.ActiveFile(), isLastHandler, level+1)
 			if err != nil {
 				traverser.Log.Error().Err(err).Msg("error parsing function")
 				return false
@@ -674,11 +674,11 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 		return true
 	})
 
-	if err != nil {
+	if err != nil && !errors.Is(err, astTraversal.ErrInvalidNodeType) {
 		return err
 	}
 
-	if len(currRoute.ReturnTypes) == 0 && level == 0 {
+	if len(currRoute.ReturnTypes) == 0 && level == 0 && isLastHandler {
 		return errors.New("return type not found")
 	}
 

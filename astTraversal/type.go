@@ -1,6 +1,7 @@
 package astTraversal
 
 import (
+	"errors"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -265,7 +266,7 @@ func (t *TypeTraverser) Result() (Result, error) {
 	if result.Type != "" {
 		return result, nil
 	} else {
-		return Result{}, ErrInvalidNodeType
+		return Result{}, errors.Join(ErrInvalidNodeType, errors.New("expected *types.Basic, *types.Named, *types.Pointer, *types.Slice, *types.Array, *types.Map, *types.Struct, or *types.Interface"))
 	}
 }
 
