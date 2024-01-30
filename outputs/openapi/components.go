@@ -173,7 +173,11 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			if !fieldBinding.NotShown {
 				fieldSchema, fieldBound := componentToSchema(service, field, bindingType)
 				if fieldBound {
-					_ = mergo.Merge(&fieldSchema, field.StructFieldValidationTags[astTraversal.GinValidationTag])
+					err := mergo.Merge(&fieldSchema, field.StructFieldValidationTags[astTraversal.GinValidationTag])
+					if err != nil {
+						service.Log.Warn().Err(err).Msg("failed to merge component and validation schemas")
+						continue
+					}
 
 					schema.Properties[fieldBinding.Name] = fieldSchema
 
