@@ -50,6 +50,8 @@ type Result struct {
 
 	StructFieldValidationTags ValidationTagMap
 
+	StructFieldValidationRequired ValidationRequiredMap
+
 	// Doc is the documentation of the result
 	Doc string
 }

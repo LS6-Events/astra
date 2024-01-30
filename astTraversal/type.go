@@ -211,8 +211,9 @@ func (t *TypeTraverser) Result() (Result, error) {
 
 			var bindingTag BindingTagMap
 			var validationTags ValidationTagMap
+			var validationRequired ValidationRequiredMap
 			if isExported {
-				bindingTag, validationTags = ParseStructTag(name, n.Tag(i))
+				bindingTag, validationTags, validationRequired = ParseStructTag(name, n.Tag(i))
 			} else {
 				continue
 			}
@@ -242,6 +243,7 @@ func (t *TypeTraverser) Result() (Result, error) {
 			structFieldResult.IsEmbedded = isEmbedded
 			structFieldResult.StructFieldBindingTags = bindingTag
 			structFieldResult.StructFieldValidationTags = validationTags
+			structFieldResult.StructFieldValidationRequired = validationRequired
 
 			fields[name] = structFieldResult
 		}

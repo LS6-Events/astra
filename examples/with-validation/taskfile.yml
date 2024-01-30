@@ -5,5 +5,5 @@ tasks:
   run:
     cmds:
       - go mod tidy
-      - go run . generate
+      - . ../run-and-stop-server.sh
 

@@ -3,6 +3,8 @@ package astTraversal
 import (
 	"reflect"
 	"strings"
+
+	"github.com/ls6-events/validjsonator"
 )
 
 type BindingTagType string
@@ -37,13 +39,11 @@ const (
 
 var ValidationTags = []ValidationTagType{GinValidationTag, ValidatorValidationTag}
 
-type ValidationTag struct {
-	IsRequired bool `json:"is_required,omitempty" yaml:"is_required,omitempty"`
-}
+type ValidationTagMap map[ValidationTagType]validjsonator.Schema
 
-type ValidationTagMap map[ValidationTagType]ValidationTag
+type ValidationRequiredMap map[ValidationTagType]bool
 
-func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap) {
+func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap, ValidationRequiredMap) {
 	bindingTags := make(BindingTagMap)
 	for _, bindingTag := range BindingTags {
 		tagValue, tagOk := reflect.StructTag(tag).Lookup(string(bindingTag))
@@ -75,16 +75,15 @@ func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap) 
 	}
 
 	validationTags := make(ValidationTagMap)
+	validationRequired := make(ValidationRequiredMap)
 	for _, validationTag := range ValidationTags {
 		tagValue := reflect.StructTag(tag).Get(string(validationTag))
 		if tagValue == "" {
 			continue
 		}
 
-		validationTags[validationTag] = ValidationTag{
-			IsRequired: strings.Contains(tagValue, "required"),
-		}
+		validationTags[validationTag], validationRequired[validationTag] = validjsonator.ValidationTagsToSchema(tagValue)
 	}
 
-	return bindingTags, validationTags
+	return bindingTags, validationTags, validationRequired
 }

@@ -29,45 +29,22 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/types.json.Post'
-                        application/yaml:
-                            schema:
-                                type: array
-                                items:
-                                    $ref: '#/components/schemas/types.yaml.Post'
-                "415":
-                    description: ""
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
+                                    $ref: '#/components/schemas/types.Post'
         post:
             operationId: createPost
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/types.json.PostDTO'
-                    application/yaml:
-                        schema:
-                            $ref: '#/components/schemas/types.yaml.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.yaml.Operation'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
-                    description: ""
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                "415":
                     description: ""
                     content:
                         text/plain:
@@ -88,17 +65,8 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/types.json.Post'
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.yaml.Post'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
-                    description: ""
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                "415":
                     description: ""
                     content:
                         text/plain:
@@ -116,27 +84,15 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/types.json.PostDTO'
-                    application/yaml:
-                        schema:
-                            $ref: '#/components/schemas/types.yaml.PostDTO'
+                            $ref: '#/components/schemas/types.PostDTO'
             responses:
                 "200":
                     description: ""
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.yaml.Operation'
+                                $ref: '#/components/schemas/types.Post'
                 "400":
-                    description: ""
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                "415":
                     description: ""
                     content:
                         text/plain:
@@ -153,20 +109,7 @@ paths:
             responses:
                 "200":
                     description: ""
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/types.json.Operation'
-                        application/yaml:
-                            schema:
-                                $ref: '#/components/schemas/types.yaml.Operation'
                 "400":
-                    description: ""
-                    content:
-                        text/plain:
-                            schema:
-                                type: string
-                "415":
                     description: ""
                     content:
                         text/plain:
@@ -225,23 +168,11 @@ components:
                 to t == u, since t.Equal uses the most accurate comparison available and
                 correctly handles the case when only one of its arguments has a monotonic
                 clock reading.
-        types.Comment:
-            type: object
-            properties:
-                author:
-                    $ref: '#/components/schemas/types.yaml.Author'
-                body:
-                    type: string
-                id:
-                    type: integer
-                    format: int32
-        types.OperationType:
-            enum:
-                - create
-                - update
-                - delete
-            type: string
-        types.json.Author:
+        types.Author:
+            required:
+                - id
+                - first_name
+                - last_name
             type: object
             properties:
                 first_name:
@@ -251,34 +182,50 @@ components:
                     format: int32
                 last_name:
                     type: string
-        types.json.Operation:
+        types.Comment:
+            required:
+                - author
+                - id
+                - body
             type: object
             properties:
-                entity_id:
+                author:
+                    $ref: '#/components/schemas/types.Author'
+                body:
+                    type: string
+                id:
                     type: integer
                     format: int32
-                entity_type:
-                    type: string
-                operation:
-                    $ref: '#/components/schemas/types.OperationType'
-        types.json.Post:
+        types.Post:
+            required:
+                - published_at
+                - author
+                - comments
+                - id
+                - name
             type: object
-            allOf:
-                - $ref: '#/components/schemas/types.json.PostID'
-                - properties:
-                    author:
-                        $ref: '#/components/schemas/types.json.Author'
-                    body:
-                        type: string
-                    comments:
-                        type: array
-                        items:
-                            $ref: '#/components/schemas/types.Comment'
-                    name:
-                        type: string
-                    published_at:
-                        $ref: '#/components/schemas/time.Time'
-        types.json.PostDTO:
+            properties:
+                author:
+                    $ref: '#/components/schemas/types.Author'
+                body:
+                    type: string
+                comments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/types.Comment'
+                    uniqueItems: true
+                id:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                published_at:
+                    $ref: '#/components/schemas/time.Time'
+        types.PostDTO:
+            required:
+                - name
+                - body
+                - author_id
             type: object
             properties:
                 author_id:
@@ -288,74 +235,3 @@ components:
                     type: string
                 name:
                     type: string
-        types.json.PostID:
-            required:
-                - id
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int32
-        types.uri.PostID:
-            required:
-                - postID
-            type: object
-            properties:
-                postID:
-                    type: integer
-                    format: int32
-        types.yaml.Author:
-            type: object
-            properties:
-                firstName:
-                    type: string
-                id:
-                    type: integer
-                    format: int32
-                lastName:
-                    type: string
-        types.yaml.Operation:
-            type: object
-            properties:
-                entityID:
-                    type: integer
-                    format: int32
-                entityType:
-                    type: string
-                operation:
-                    $ref: '#/components/schemas/types.OperationType'
-        types.yaml.Post:
-            type: object
-            allOf:
-                - $ref: '#/components/schemas/types.yaml.PostID'
-                - properties:
-                    author:
-                        $ref: '#/components/schemas/types.yaml.Author'
-                    body:
-                        type: string
-                    comments:
-                        type: array
-                        items:
-                            $ref: '#/components/schemas/types.Comment'
-                    name:
-                        type: string
-                    publishedAt:
-                        $ref: '#/components/schemas/time.Time'
-        types.yaml.PostDTO:
-            type: object
-            properties:
-                authorID:
-                    type: integer
-                    format: int32
-                body:
-                    type: string
-                name:
-                    type: string
-        types.yaml.PostID:
-            required:
-                - id
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int32
