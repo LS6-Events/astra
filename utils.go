@@ -23,7 +23,7 @@ func ParseResultToField(result astTraversal.Result) Field {
 		StructFieldValidationRequired: result.StructFieldValidationRequired,
 	}
 
-	// If the godoc is populated, we need to parse the response.s
+	// If the godoc is populated, we need to parse the response.
 	if result.Doc != "" {
 		field.Doc = strings.TrimSpace(result.Doc)
 	}
