@@ -16,7 +16,17 @@ includes:
 
 tasks:
     run:
-      cmds:
-          - for: [basic, with-azure-functions, with-cache, with-cli, with-cobra, with-custom-functions, with-custom-type-mapping, with-gorm, with-multi-content-types, with-swagger-ui, with-validation]
-            cmd: cd {{ .ITEM }} && task run
-
+        cmds:
+        - for:
+            - basic
+            - with-azure-functions
+            - with-cache
+            - with-cli
+            - with-cobra
+            - with-custom-functions
+            - with-custom-type-mapping
+            - with-gorm
+            - with-multi-content-types
+            - with-swagger-ui
+            - with-validation
+          cmd: cd {{ .ITEM }} && task run
