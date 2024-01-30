@@ -181,8 +181,6 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 
 					schema.Properties[fieldBinding.Name] = fieldSchema
 
-					println(fieldSchema.UniqueItems)
-
 					if field.StructFieldValidationRequired[astTraversal.GinValidationTag] {
 						schema.Required = append(schema.Required, fieldBinding.Name)
 					}
