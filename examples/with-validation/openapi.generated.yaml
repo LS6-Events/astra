@@ -170,9 +170,9 @@ components:
                 clock reading.
         types.Author:
             required:
-                - id
                 - first_name
                 - last_name
+                - id
             type: object
             properties:
                 first_name:
@@ -198,11 +198,11 @@ components:
                     format: int32
         types.Post:
             required:
+                - id
+                - name
                 - published_at
                 - author
                 - comments
-                - id
-                - name
             type: object
             properties:
                 author:
@@ -211,9 +211,10 @@ components:
                     type: string
                 comments:
                     type: array
+                    allOf:
+                        - uniqueItems: true
                     items:
                         $ref: '#/components/schemas/types.Comment'
-                    uniqueItems: true
                 id:
                     type: integer
                     format: int32
