@@ -50,7 +50,7 @@ github.com/klauspost/cpuid/v2 v2.2.5/go.mod h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZY
 github.com/knz/go-libedit v1.10.1/go.mod h1:MZTVkCWyz0oBc7JOWP3wNAzd002ZbM/5hgShxwh4x8M=
 github.com/leodido/go-urn v1.2.4 h1:XlAE/cm/ms7TE/VMVoduSpNBoyc2dOxHs5MZSwAN63Q=
 github.com/leodido/go-urn v1.2.4/go.mod h1:7ZrI8mTSeBSHl/UaRyKQW1qZeMgak41ANeCNaVckg+4=
-github.com/ls6-events/validjsonator v1.0.1/go.mod h1:GjTuaM3Y/bymNDAJLkziXHbApT/xtoxixQWgggdNxsY=
+github.com/ls6-events/validjsonator v1.1.0 h1:sKRPoULrVnI5AP0HeDDOEQxGmtyI+4yANrScrM/PpW0=
 github.com/ls6-events/validjsonator v1.1.0/go.mod h1:GjTuaM3Y/bymNDAJLkziXHbApT/xtoxixQWgggdNxsY=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
