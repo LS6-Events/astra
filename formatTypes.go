@@ -98,6 +98,12 @@ var PredefinedTypeMap = map[string]TypeFormat{
 		Type:   "string",
 		Format: "uuid",
 	},
+
+	// Custom handlers
+	"file": {
+		Type:   "string",
+		Format: "binary",
+	},
 }
 
 // WithCustomTypeMapping adds a custom type mapping to the predefined type map.
