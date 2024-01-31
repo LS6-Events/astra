@@ -18,6 +18,6 @@ func TestPaths(t *testing.T) {
 
 	require.NotNil(t, testAstra)
 
-	require.Equal(t, "string", testAstra.Search("paths", "/upload", "post", "requestBody", "content", "multipart/form-data", "schema", "properties", "file", "type"))
-	require.Equal(t, "binary", testAstra.Search("paths", "/upload", "post", "requestBody", "content", "multipart/form-data", "schema", "properties", "file", "format"))
+	require.Equal(t, "string", testAstra.Search("paths", "/upload", "post", "requestBody", "content", "multipart/form-data", "schema", "properties", "file", "type").Data().(string))
+	require.Equal(t, "binary", testAstra.Search("paths", "/upload", "post", "requestBody", "content", "multipart/form-data", "schema", "properties", "file", "format").Data().(string))
 }
