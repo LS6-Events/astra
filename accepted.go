@@ -27,6 +27,7 @@ var AcceptedTypes = []string{
 	"map",
 	"slice",
 	"any",
+	"file", // not an official type, but we use it to replace for the binary format
 }
 
 func IsAcceptedType(t string) bool {
