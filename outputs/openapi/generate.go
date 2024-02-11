@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -93,16 +94,46 @@ func Generate(filePath string) astra.ServiceFunction {
 					continue
 				}
 
-				parameter := Parameter{
-					Name:     queryParam.Name,
-					In:       "query",
-					Required: queryParam.IsRequired,
-					Explode:  true,
-					Style:    "form",
-					Schema:   schema,
-				}
+				// OpenAPI spec requires the use of a name, so bound parameters must be spread
+				if queryParam.IsBound {
+					field, found := findComponentByPackageAndType(s.Components, queryParam.Field.Package, queryParam.Field.Type)
+					if !found {
+						continue
+					}
 
-				operation.Parameters = append(operation.Parameters, parameter)
+					component, bound := componentToSchema(s, field, astTraversal.FormBindingTag)
+					if !bound {
+						continue
+					}
+
+					for propertyName, propertySchema := range component.Properties {
+						style, explode := getQueryParamStyle(propertySchema)
+
+						parameter := Parameter{
+							Name:     propertyName,
+							In:       "query",
+							Required: queryParam.IsRequired,
+							Explode:  explode,
+							Style:    style,
+							Schema:   propertySchema,
+						}
+
+						operation.Parameters = append(operation.Parameters, parameter)
+					}
+				} else {
+					style, explode := getQueryParamStyle(schema)
+
+					parameter := Parameter{
+						Name:     queryParam.Name,
+						In:       "query",
+						Required: queryParam.IsRequired,
+						Explode:  explode,
+						Style:    style,
+						Schema:   schema,
+					}
+
+					operation.Parameters = append(operation.Parameters, parameter)
+				}
 			}
 
 			for _, bodyParam := range endpoint.Body {
@@ -180,6 +211,11 @@ func Generate(filePath string) astra.ServiceFunction {
 			if endpoint.OperationID != "" {
 				operation.OperationID = endpoint.OperationID
 			}
+
+			// Sort parameters by name
+			sort.Slice(operation.Parameters, func(i, j int) bool {
+				return operation.Parameters[i].Name < operation.Parameters[j].Name
+			})
 
 			var endpointPath Path
 			if _, ok := paths[endpoint.Path]; !ok {
