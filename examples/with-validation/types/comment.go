@@ -1,7 +1,7 @@
 package types
 
 type Comment struct {
-	ID     int    `json:"id" binding:"required"`
-	Body   string `json:"body" binding:"required"`
+	ID     string `json:"id" binding:"required,uuid4"`
+	Body   string `json:"body" binding:"required,max=256"`
 	Author Author `json:"author" binding:"required"`
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 	"withvalidation/types"
 )
 
@@ -21,14 +20,8 @@ func UpdatePost(c *gin.Context) {
 		return
 	}
 
-	postIdInt, err := strconv.Atoi(postId)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Invalid post id")
-		return
-	}
-
 	post := types.Post{
-		ID:   postIdInt,
+		ID:   postId,
 		Name: postDTO.Name,
 		Body: postDTO.Body,
 	}

@@ -178,8 +178,9 @@ components:
                 first_name:
                     type: string
                 id:
-                    type: integer
-                    format: int32
+                    type: string
+                    allOf:
+                        - format: uuid
                 last_name:
                     type: string
         types.Comment:
@@ -193,22 +194,29 @@ components:
                     $ref: '#/components/schemas/types.Author'
                 body:
                     type: string
+                    allOf:
+                        - maximum: 256
+                          exclusiveMaximum: true
                 id:
-                    type: integer
-                    format: int32
+                    type: string
+                    allOf:
+                        - format: uuid
         types.Post:
             required:
-                - published_at
-                - author
                 - comments
                 - id
                 - name
+                - published_at
+                - author
             type: object
             properties:
                 author:
                     $ref: '#/components/schemas/types.Author'
                 body:
                     type: string
+                    allOf:
+                        - maximum: 512
+                          exclusiveMaximum: true
                 comments:
                     type: array
                     allOf:
@@ -216,23 +224,27 @@ components:
                     items:
                         $ref: '#/components/schemas/types.Comment'
                 id:
-                    type: integer
-                    format: int32
+                    type: string
+                    allOf:
+                        - format: uuid
                 name:
                     type: string
                 published_at:
                     $ref: '#/components/schemas/time.Time'
         types.PostDTO:
             required:
-                - body
                 - author_id
                 - name
             type: object
             properties:
                 author_id:
-                    type: integer
-                    format: int32
+                    type: string
+                    allOf:
+                        - format: uuid
                 body:
                     type: string
+                    allOf:
+                        - maximum: 512
+                          exclusiveMaximum: true
                 name:
                     type: string

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 	"withvalidation/types"
@@ -16,7 +17,7 @@ func CreatePost(c *gin.Context) {
 	}
 
 	post := types.Post{
-		ID:          1,
+		ID:          uuid.New().String(),
 		Name:        postDTO.Name,
 		Body:        postDTO.Body,
 		PublishedAt: time.Now(),

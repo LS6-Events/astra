@@ -6,6 +6,7 @@ replace github.com/ls6-events/astra => ../../
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/google/uuid v1.6.0
 	github.com/ls6-events/astra v1.22.0
 )
 
