@@ -1,4 +1,4 @@
-package petstore
+package integration
 
 import (
 	"time"
