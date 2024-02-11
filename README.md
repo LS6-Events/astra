@@ -13,6 +13,7 @@ For example, if you had a Go backend that used the [Gin](https://www.github.com/
 *The key features of Astra are:*
 * Extract types from web services
 * Read types from files
+* Extracts [Go Validator V10](https://github.com/go-playground/validator) struct level validation 
 * Follow through different functions to extract types
 * Extract types from any packages from the dependency tree
 * Adapt to different coding styles
