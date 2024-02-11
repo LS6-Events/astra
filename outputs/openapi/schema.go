@@ -115,3 +115,25 @@ func mapPredefinedTypeFormat(acceptedType string) validjsonator.Schema {
 
 	return validjsonator.Schema{}
 }
+
+// getQueryParamStyle returns the style of the query parameter, based on the schema.
+func getQueryParamStyle(schema validjsonator.Schema) (style string, explode bool) {
+	if schema.Type == "object" {
+		return "deepObject", true
+	}
+
+	// The default behavior is to use the form style.
+	// For arrays, we want comma separated values.
+	return "form", false
+}
+
+// findComponentByPackageAndType finds the schema by the package and type.
+func findComponentByPackageAndType(fields []astra.Field, pkg string, typeName string) (astra.Field, bool) {
+	for _, field := range fields {
+		if field.Package == pkg && field.Name == typeName {
+			return field, true
+		}
+	}
+
+	return astra.Field{}, false
+}

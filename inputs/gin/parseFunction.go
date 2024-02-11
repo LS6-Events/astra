@@ -542,6 +542,28 @@ func parseFunction(s *astra.Service, funcTraverser *astTraversal.FunctionTravers
 					if err != nil {
 						return false
 					}
+				case "FormFile":
+					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
+						name, ok := params[0].(string)
+						if !ok {
+							return nil, errors.New("failed to parse name")
+						}
+
+						param := astra.BodyParam{
+							ContentType: "multipart/form-data",
+							Field: astra.Field{
+								Type: "file",
+							},
+							Name: name,
+						}
+
+						route.Body = append(route.Body, param)
+
+						return route, nil
+					})
+					if err != nil {
+						return false
+					}
 				case "GetHeader":
 					currRoute, err = funcBuilder.Value().Build(func(route *astra.Route, params []any) (*astra.Route, error) {
 						name, ok := params[0].(string)

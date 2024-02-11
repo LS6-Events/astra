@@ -1,7 +1,6 @@
 package astra
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -43,7 +42,7 @@ func (s *Service) setupTempMainPackage() error {
 				return err
 			}
 
-			fileData = []byte(strings.ReplaceAll(string(fileData), "package main", fmt.Sprintf("package %s", mainPackageReplacement)))
+			fileData = []byte(strings.ReplaceAll(string(fileData), "package main", "package "+mainPackageReplacement))
 
 			newFilePath := path.Join(newMainPkgPath, file.Name())
 			err = os.WriteFile(newFilePath, fileData, 0644)

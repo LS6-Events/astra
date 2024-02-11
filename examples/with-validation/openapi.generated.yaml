@@ -184,9 +184,9 @@ components:
                     type: string
         types.Comment:
             required:
-                - author
                 - id
                 - body
+                - author
             type: object
             properties:
                 author:
@@ -198,11 +198,11 @@ components:
                     format: int32
         types.Post:
             required:
-                - id
-                - name
                 - published_at
                 - author
                 - comments
+                - id
+                - name
             type: object
             properties:
                 author:
@@ -224,9 +224,9 @@ components:
                     $ref: '#/components/schemas/time.Time'
         types.PostDTO:
             required:
-                - name
                 - body
                 - author_id
+                - name
             type: object
             properties:
                 author_id:
