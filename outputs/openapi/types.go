@@ -1,5 +1,7 @@
 package openapi
 
+import "github.com/ls6-events/validjsonator"
+
 // OpenAPISchema is the OpenAPI schema.
 type OpenAPISchema struct {
 	OpenAPI           string        `json:"openapi" yaml:"openapi"`
@@ -81,16 +83,16 @@ type Operation struct {
 
 // Parameter is the OpenAPI parameter.
 type Parameter struct {
-	Ref         string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
-	Name        string `json:"name,omitempty" yaml:"name,omitempty"`
-	In          string `json:"in,omitempty" yaml:"in,omitempty"`
-	Description string `json:"description,omitempty" yaml:"description,omitempty"`
-	Required    bool   `json:"required,omitempty" yaml:"required,omitempty"`
-	Deprecated  bool   `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
-	AllowEmpty  bool   `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
-	Style       string `json:"style,omitempty" yaml:"style,omitempty"`
-	Explode     bool   `json:"explode,omitempty" yaml:"explode,omitempty"`
-	Schema      Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	Ref         string               `json:"$ref,omitempty" yaml:"$ref,omitempty"`
+	Name        string               `json:"name,omitempty" yaml:"name,omitempty"`
+	In          string               `json:"in,omitempty" yaml:"in,omitempty"`
+	Description string               `json:"description,omitempty" yaml:"description,omitempty"`
+	Required    bool                 `json:"required,omitempty" yaml:"required,omitempty"`
+	Deprecated  bool                 `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
+	AllowEmpty  bool                 `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
+	Style       string               `json:"style,omitempty" yaml:"style,omitempty"`
+	Explode     bool                 `json:"explode,omitempty" yaml:"explode,omitempty"`
+	Schema      validjsonator.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
 }
 
 // RequestBody is the OpenAPI request body.
@@ -103,8 +105,8 @@ type RequestBody struct {
 
 // MediaType is the OpenAPI media type.
 type MediaType struct {
-	Schema   Schema              `json:"schema,omitempty" yaml:"schema,omitempty"`
-	Encoding map[string]Encoding `json:"encoding,omitempty" yaml:"encoding,omitempty"`
+	Schema   validjsonator.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	Encoding map[string]Encoding  `json:"encoding,omitempty" yaml:"encoding,omitempty"`
 }
 
 // Encoding is the OpenAPI encoding.
@@ -115,12 +117,12 @@ type Encoding struct {
 
 // Header is the OpenAPI header.
 type Header struct {
-	Ref         string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
-	Description string `json:"description,omitempty" yaml:"description,omitempty"`
-	Required    bool   `json:"required,omitempty" yaml:"required,omitempty"`
-	Deprecated  bool   `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
-	AllowEmpty  bool   `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
-	Schema      Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	Ref         string               `json:"$ref,omitempty" yaml:"$ref,omitempty"`
+	Description string               `json:"description,omitempty" yaml:"description,omitempty"`
+	Required    bool                 `json:"required,omitempty" yaml:"required,omitempty"`
+	Deprecated  bool                 `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
+	AllowEmpty  bool                 `json:"allowEmptyValue,omitempty" yaml:"allowEmptyValue,omitempty"`
+	Schema      validjsonator.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
 }
 
 // Responses is the OpenAPI responses.
@@ -152,47 +154,15 @@ type Callback map[string]Path
 
 // Components is the OpenAPI components.
 type Components struct {
-	Schemas         map[string]Schema         `json:"schemas,omitempty" yaml:"schemas,omitempty"`
-	Responses       map[string]Response       `json:"responses,omitempty" yaml:"responses,omitempty"`
-	Parameters      map[string]Parameter      `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	RequestBodies   map[string]RequestBody    `json:"requestBodies,omitempty" yaml:"requestBodies,omitempty"`
-	Headers         map[string]Header         `json:"headers,omitempty" yaml:"headers,omitempty"`
-	SecuritySchemes map[string]SecurityScheme `json:"securitySchemes,omitempty" yaml:"securitySchemes,omitempty"`
-	Links           map[string]Link           `json:"links,omitempty" yaml:"links,omitempty"`
-	Callbacks       map[string]Callback       `json:"callbacks,omitempty" yaml:"callbacks,omitempty"`
-	PathItems       map[string]Path           `json:"pathItems,omitempty" yaml:"pathItems,omitempty"`
-}
-
-// Schema is JSON Schema utilised by OpenAPI.
-type Schema struct {
-	Ref                  string            `json:"$ref,omitempty" yaml:"$ref,omitempty"`
-	Title                string            `json:"title,omitempty" yaml:"title,omitempty"`
-	MultipleOf           float64           `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
-	Maximum              float64           `json:"maximum,omitempty" yaml:"maximum,omitempty"`
-	ExclusiveMaximum     bool              `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"`
-	Minimum              float64           `json:"minimum,omitempty" yaml:"minimum,omitempty"`
-	ExclusiveMinimum     bool              `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"`
-	MaxLength            int               `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
-	MinLength            int               `json:"minLength,omitempty" yaml:"minLength,omitempty"`
-	Pattern              string            `json:"pattern,omitempty" yaml:"pattern,omitempty"`
-	MaxItems             int               `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
-	MinItems             int               `json:"minItems,omitempty" yaml:"minItems,omitempty"`
-	UniqueItems          bool              `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
-	MaxProperties        int               `json:"maxProperties,omitempty" yaml:"maxProperties,omitempty"`
-	MinProperties        int               `json:"minProperties,omitempty" yaml:"minProperties,omitempty"`
-	Required             []string          `json:"required,omitempty" yaml:"required,omitempty"`
-	Enum                 []interface{}     `json:"enum,omitempty" yaml:"enum,omitempty"`
-	Type                 string            `json:"type,omitempty" yaml:"type,omitempty"`
-	Format               string            `json:"format,omitempty" yaml:"format,omitempty"`
-	AllOf                []Schema          `json:"allOf,omitempty" yaml:"allOf,omitempty"`
-	OneOf                []Schema          `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
-	AnyOf                []Schema          `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
-	Not                  *Schema           `json:"not,omitempty" yaml:"not,omitempty"`
-	Items                *Schema           `json:"items,omitempty" yaml:"items,omitempty"`
-	Properties           map[string]Schema `json:"properties,omitempty" yaml:"properties,omitempty"`
-	PatternProperties    map[string]Schema `json:"patternProperties,omitempty" yaml:"patternProperties,omitempty"`
-	AdditionalProperties *Schema           `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`
-	Description          string            `json:"description,omitempty" yaml:"description,omitempty"`
+	Schemas         map[string]validjsonator.Schema `json:"schemas,omitempty" yaml:"schemas,omitempty"`
+	Responses       map[string]Response             `json:"responses,omitempty" yaml:"responses,omitempty"`
+	Parameters      map[string]Parameter            `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	RequestBodies   map[string]RequestBody          `json:"requestBodies,omitempty" yaml:"requestBodies,omitempty"`
+	Headers         map[string]Header               `json:"headers,omitempty" yaml:"headers,omitempty"`
+	SecuritySchemes map[string]SecurityScheme       `json:"securitySchemes,omitempty" yaml:"securitySchemes,omitempty"`
+	Links           map[string]Link                 `json:"links,omitempty" yaml:"links,omitempty"`
+	Callbacks       map[string]Callback             `json:"callbacks,omitempty" yaml:"callbacks,omitempty"`
+	PathItems       map[string]Path                 `json:"pathItems,omitempty" yaml:"pathItems,omitempty"`
 }
 
 // SecurityScheme is the OpenAPI security scheme.

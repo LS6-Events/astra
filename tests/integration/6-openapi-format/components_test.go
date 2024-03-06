@@ -1,4 +1,4 @@
-package petstore
+package integration
 
 import (
 	"github.com/ls6-events/astra/tests/integration/helpers"

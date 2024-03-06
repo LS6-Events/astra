@@ -289,12 +289,16 @@ components:
                 name:
                     type: string
         types.json.PostID:
+            required:
+                - id
             type: object
             properties:
                 id:
                     type: integer
                     format: int32
         types.uri.PostID:
+            required:
+                - postID
             type: object
             properties:
                 postID:
@@ -348,6 +352,8 @@ components:
                 name:
                     type: string
         types.yaml.PostID:
+            required:
+                - id
             type: object
             properties:
                 id:

@@ -7,10 +7,9 @@ import (
 
 func TestParseStructTag(t *testing.T) {
 	testCases := []struct {
-		field                  string
-		tag                    string
-		expectedBindingTags    BindingTagMap
-		expectedValidationTags ValidationTagMap
+		field               string
+		tag                 string
+		expectedBindingTags BindingTagMap
 	}{
 		{
 			field: "Field1",
@@ -22,7 +21,6 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field2",
@@ -34,7 +32,6 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: true,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field3",
@@ -46,7 +43,6 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field4",
@@ -58,7 +54,6 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: true,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field5",
@@ -68,23 +63,6 @@ func TestParseStructTag(t *testing.T) {
 					Name:           "",
 					NotShown:       true,
 					ReturnOptional: false,
-				},
-			},
-			expectedValidationTags: ValidationTagMap{},
-		},
-		{
-			field: "Field6",
-			tag:   `validate:"required"`,
-			expectedBindingTags: BindingTagMap{
-				NoBindingTag: {
-					Name:           "Field6",
-					NotShown:       false,
-					ReturnOptional: false,
-				},
-			},
-			expectedValidationTags: ValidationTagMap{
-				ValidatorValidationTag: {
-					IsRequired: true,
 				},
 			},
 		},
@@ -98,20 +76,15 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run("field="+testCase.field, func(t *testing.T) {
-			bindingTags, validationTags := ParseStructTag(testCase.field, testCase.tag)
+			bindingTags, _, _ := ParseStructTag(testCase.field, testCase.tag)
 
 			if !reflect.DeepEqual(bindingTags, testCase.expectedBindingTags) {
 				t.Errorf("Expected BindingTags: %v, but got: %v", testCase.expectedBindingTags, bindingTags)
-			}
-
-			if !reflect.DeepEqual(validationTags, testCase.expectedValidationTags) {
-				t.Errorf("Expected ValidationTags: %v, but got: %v", testCase.expectedValidationTags, validationTags)
 			}
 		})
 	}

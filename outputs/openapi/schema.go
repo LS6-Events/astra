@@ -3,9 +3,10 @@ package openapi
 import (
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/validjsonator"
 )
 
-func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param) (Schema, bool) {
+func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param) (validjsonator.Schema, bool) {
 	if param.IsBound {
 		return mapFieldToSchema(bindingType, param.Field)
 	} else if param.IsArray {
@@ -13,17 +14,17 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 		if !astra.IsAcceptedType(param.Field.Type) {
 			componentRef, bound := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
 			if bound {
-				itemSchema = Schema{
+				itemSchema = validjsonator.Schema{
 					Ref: componentRef,
 				}
 			}
 		}
-		return Schema{
+		return validjsonator.Schema{
 			Type:  "array",
 			Items: &itemSchema,
 		}, true
 	} else if param.IsMap {
-		var additionalProperties Schema
+		var additionalProperties validjsonator.Schema
 		if !astra.IsAcceptedType(param.Field.Type) {
 			componentRef, bound := makeComponentRef(bindingType, param.Field.Type, param.Field.Package)
 			if bound {
@@ -32,7 +33,7 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 		} else {
 			additionalProperties = mapPredefinedTypeFormat(param.Field.Type)
 		}
-		return Schema{
+		return validjsonator.Schema{
 			Type:                 "object",
 			AdditionalProperties: &additionalProperties,
 		}, true
@@ -41,33 +42,33 @@ func mapParamToSchema(bindingType astTraversal.BindingTagType, param astra.Param
 	}
 }
 
-func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field) (Schema, bool) {
+func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field) (validjsonator.Schema, bool) {
 	if !astra.IsAcceptedType(field.Type) {
 		componentRef, bound := makeComponentRef(bindingType, field.Type, field.Package)
 		if bound {
-			return Schema{
+			return validjsonator.Schema{
 				Ref: componentRef,
 			}, true
 		}
 
-		return Schema{}, false
+		return validjsonator.Schema{}, false
 	} else {
 		schema := mapPredefinedTypeFormat(field.Type)
 		if field.Type == "slice" {
-			itemSchema := Schema{
+			itemSchema := validjsonator.Schema{
 				Type: mapPredefinedTypeFormat(field.SliceType).Type,
 			}
 			if !astra.IsAcceptedType(field.SliceType) {
 				componentRef, bound := makeComponentRef(bindingType, field.SliceType, field.Package)
 				if bound {
-					itemSchema = Schema{
+					itemSchema = validjsonator.Schema{
 						Ref: componentRef,
 					}
 				}
 			}
 			schema.Items = &itemSchema
 		} else if field.Type == "map" {
-			var additionalProperties Schema
+			var additionalProperties validjsonator.Schema
 			if !astra.IsAcceptedType(field.MapValueType) {
 				componentRef, bound := makeComponentRef(bindingType, field.MapValueType, field.Package)
 				if bound {
@@ -85,38 +86,38 @@ func mapFieldToSchema(bindingType astTraversal.BindingTagType, field astra.Field
 
 // mapTypeFormat maps the type with the list of types from the service.
 // This should be primarily used for custom types in components that need to be mapped.
-func mapTypeFormat(service *astra.Service, acceptedType string, pkg string) Schema {
+func mapTypeFormat(service *astra.Service, acceptedType string, pkg string) validjsonator.Schema {
 	if acceptedType, ok := service.GetTypeMapping(acceptedType, pkg); ok {
 		if acceptedType.Type == "" {
-			return Schema{}
+			return validjsonator.Schema{}
 		}
-		return Schema{
+		return validjsonator.Schema{
 			Type:   acceptedType.Type,
 			Format: acceptedType.Format,
 		}
 	}
 
-	return Schema{}
+	return validjsonator.Schema{}
 }
 
 // mapPredefinedTypeFormat maps the type with the list of types that are predefined.
 // This should be primarily used for types that are not custom types, i.e. everywhere except top level components.
-func mapPredefinedTypeFormat(acceptedType string) Schema {
+func mapPredefinedTypeFormat(acceptedType string) validjsonator.Schema {
 	if acceptedType, ok := astra.PredefinedTypeMap[acceptedType]; ok {
 		if acceptedType.Type == "" {
-			return Schema{}
+			return validjsonator.Schema{}
 		}
-		return Schema{
+		return validjsonator.Schema{
 			Type:   acceptedType.Type,
 			Format: acceptedType.Format,
 		}
 	}
 
-	return Schema{}
+	return validjsonator.Schema{}
 }
 
 // getQueryParamStyle returns the style of the query parameter, based on the schema.
-func getQueryParamStyle(schema Schema) (style string, explode bool) {
+func getQueryParamStyle(schema validjsonator.Schema) (style string, explode bool) {
 	if schema.Type == "object" {
 		return "deepObject", true
 	}

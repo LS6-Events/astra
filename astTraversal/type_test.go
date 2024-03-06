@@ -82,7 +82,7 @@ func TestTypeTraverser_Result(t *testing.T) {
 		ageField, ok := res.StructFields["Age"]
 		assert.True(t, ok)
 		assert.Equal(t, "int", ageField.Type)
-		assert.True(t, ageField.StructFieldValidationTags[GinValidationTag].IsRequired)
+		assert.True(t, ageField.StructFieldValidationRequired[GinValidationTag])
 	})
 }
 
