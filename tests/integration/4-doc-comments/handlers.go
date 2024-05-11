@@ -2,7 +2,6 @@ package integration
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -19,13 +18,13 @@ func getAllPets(c *gin.Context) {
 // getPetByID returns a pet by its ID.
 // It takes in the ID as a path parameter.
 func getPetByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
 		return
 	}
 
-	pet, err := petstore.PetByID(int64(id))
+	pet, err := petstore.PetByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -57,13 +56,13 @@ func createPet(c *gin.Context) {
 // deletePet deletes a pet by its ID.
 // It takes in the ID as a path parameter.
 func deletePet(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
 		return
 	}
 
-	petstore.RemovePet(int64(id))
+	petstore.RemovePet(id)
 
 	c.Status(http.StatusOK)
 }

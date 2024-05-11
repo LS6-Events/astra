@@ -3,19 +3,19 @@ package petstore
 import (
 	"fmt"
 	"sync"
-	"sync/atomic"
+
+	"github.com/google/uuid"
 )
 
 var Pets = []Pet{
-	{ID: 1, Name: "Dog", PhotoURLs: []string{}, Status: "available", Tags: nil},
-	{ID: 2, Name: "Cat", PhotoURLs: []string{}, Status: "pending", Tags: nil},
+	{ID: "a0652c3a-142f-438a-a553-381a7c135d9b", Name: "Dog", PhotoURLs: []string{}, Status: "available", Tags: nil},
+	{ID: "95188ede-b9ab-44ba-95b1-71b5d5c31f7f", Name: "Cat", PhotoURLs: []string{}, Status: "pending", Tags: nil},
 }
 
 var petsLock = &sync.Mutex{}
-var lastPetID int64 = 2
 
-func newPetID() int64 {
-	return atomic.AddInt64(&lastPetID, 1)
+func newPetID() string {
+	return uuid.New().String()
 }
 
 func AddPet(pet Pet) {
@@ -25,7 +25,7 @@ func AddPet(pet Pet) {
 	Pets = append(Pets, pet)
 }
 
-func RemovePet(id int64) {
+func RemovePet(id string) {
 	petsLock.Lock()
 	defer petsLock.Unlock()
 	var newPets []Pet
@@ -37,11 +37,11 @@ func RemovePet(id int64) {
 	Pets = newPets
 }
 
-func PetByID(id int64) (*Pet, error) {
+func PetByID(id string) (*Pet, error) {
 	for _, pet := range Pets {
 		if pet.ID == id {
 			return &pet, nil
 		}
 	}
-	return nil, fmt.Errorf("not found: pet %d", id)
+	return nil, fmt.Errorf("not found: pet %s", id)
 }

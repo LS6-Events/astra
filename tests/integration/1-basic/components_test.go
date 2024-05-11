@@ -27,7 +27,7 @@ func TestSchemas(t *testing.T) {
 	// petstore.Pet
 	require.True(t, schemas.Exists("petstore.Pet"))
 	require.Equal(t, "object", schemas.Search("petstore.Pet", "type").Data().(string))
-	require.Equal(t, "integer", schemas.Search("petstore.Pet", "properties", "id", "type").Data().(string))
+	require.Equal(t, "string", schemas.Search("petstore.Pet", "properties", "id", "type").Data().(string))
 	require.Equal(t, "string", schemas.Search("petstore.Pet", "properties", "name", "type").Data().(string))
 	require.Equal(t, "array", schemas.Search("petstore.Pet", "properties", "photoUrls", "type").Data().(string))
 	require.Equal(t, "string", schemas.Search("petstore.Pet", "properties", "photoUrls", "items", "type").Data().(string))
@@ -48,6 +48,6 @@ func TestSchemas(t *testing.T) {
 	// petstore.Tag
 	require.True(t, schemas.Exists("petstore.Tag"))
 	require.Equal(t, "object", schemas.Search("petstore.Tag", "type").Data().(string))
-	require.Equal(t, "integer", schemas.Search("petstore.Tag", "properties", "id", "type").Data().(string))
+	require.Equal(t, "string", schemas.Search("petstore.Tag", "properties", "id", "type").Data().(string))
 	require.Equal(t, "string", schemas.Search("petstore.Tag", "properties", "name", "type").Data().(string))
 }
