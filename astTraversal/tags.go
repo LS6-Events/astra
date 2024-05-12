@@ -1,7 +1,9 @@
 package astTraversal
 
 import (
+	"go/types"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/ls6-events/validjsonator"
@@ -43,7 +45,7 @@ type ValidationTagMap map[ValidationTagType]validjsonator.Schema
 
 type ValidationRequiredMap map[ValidationTagType]bool
 
-func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap, ValidationRequiredMap) {
+func ParseStructTag(field string, node types.Type, tag string) (BindingTagMap, ValidationTagMap, ValidationRequiredMap) {
 	bindingTags := make(BindingTagMap)
 	for _, bindingTag := range BindingTags {
 		tagValue, tagOk := reflect.StructTag(tag).Lookup(string(bindingTag))
@@ -82,7 +84,21 @@ func ParseStructTag(field string, tag string) (BindingTagMap, ValidationTagMap, 
 			continue
 		}
 
-		validationTags[validationTag], validationRequired[validationTag] = validjsonator.ValidationTagsToSchema(tagValue)
+		splitValues := regexp.MustCompile(`\s*,?\s*dive\s*,?\s*`).Split(tagValue, 2)
+		baseSchema, required := validjsonator.ValidationTagsToSchema(splitValues[0])
+
+		if len(splitValues) == 2 {
+			diveSchema, _ := validjsonator.ValidationTagsToSchema(splitValues[1])
+
+			switch node.(type) {
+			case *types.Slice:
+				baseSchema.Items = &diveSchema
+			case *types.Map:
+				baseSchema.AdditionalProperties = &diveSchema
+			}
+		}
+
+		validationTags[validationTag], validationRequired[validationTag] = baseSchema, required
 	}
 
 	return bindingTags, validationTags, validationRequired
