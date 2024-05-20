@@ -18,7 +18,7 @@
 
 ### Checklist
 
-- [ ] I have read and followed the project's [contribution guidelines](../../CONTRIBUTING.md).
+- [ ] I have read and followed the project's [contribution guidelines](../CONTRIBUTING.md).
 - [ ] My code follows the project's coding standards.
 - [ ] I have added relevant documentation or updated existing documentation.
 - [ ] I have tested my changes and ensured they do not introduce new issues.
