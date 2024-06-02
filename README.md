@@ -74,7 +74,7 @@ func main() {
 	gen := astra.New(inputs.WithGinInput(r), outputs.WithOpenAPIOutput("openapi.generated.yaml"))
 
 	// For OpenAPI to work, we need to define a configuration, which contains the title, version and description amongst other important information
-	config := astra.Config{
+	config := &astra.Config{
 		Title:   "Example API",
 		Version: "1.0.0",
 		Host:    "localhost",
@@ -82,7 +82,7 @@ func main() {
 	}
 	
 	// Or you can use our config builder, which will set the host to "localhost" by default, and will validate the configuration to test if it is valid.
-	config, err := astra.NewConfigBuilder().SetTitle("Example API").SetVersion("1.0.0").SetPort(8000).SetSecure(false).Build()
+	config, err := &astra.NewConfigBuilder().SetTitle("Example API").SetVersion("1.0.0").SetPort(8000).SetSecure(false).Build()
 	if err != nil {
 		panic(err)
 	}
