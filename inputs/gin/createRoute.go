@@ -1,7 +1,6 @@
 package gin
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -19,7 +18,7 @@ var deniedHandlers = []string{
 // createRoute creates a route from a gin RouteInfo.
 // It will only create the route and refer to the handler function by name, file and line number.
 // The route will be populated later by parseHandler.
-func createRoute(s *astra.Service, ctx context.Context, handlers []uintptr, info gin.RouteInfo) error {
+func createRoute(s *astra.Service, handlers []uintptr, info gin.RouteInfo) error {
 	log := s.Log.With().Str("path", info.Path).Str("method", info.Method).Str("handler", info.Handler).Logger()
 
 	cwd, err := os.Getwd()

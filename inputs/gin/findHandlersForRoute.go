@@ -1,14 +1,14 @@
 package gin
 
 import (
-	"github.com/gin-gonic/gin"
 	"reflect"
+
+	"github.com/gin-gonic/gin"
 )
 
-// findHandlersForRoute finds all handlers for a given route
-// It uses reflection to access the private properties of the gin.Engine
-// Specifically it's method tree
-// It returns the handler pointers and a boolean indicating if the route was found
+// findHandlersForRoute finds all handlers for a given route.
+// It uses reflection to access the private properties of the gin.Engine,specifically it's method tree.
+// It returns the handler pointers and a boolean indicating if the route was found.
 func findHandlersForRoute(tree reflect.Value, route gin.RouteInfo) ([]uintptr, bool) {
 	for i := 0; i < tree.Len(); i++ {
 		method := tree.Index(i)
@@ -35,9 +35,9 @@ func findHandlersForRoute(tree reflect.Value, route gin.RouteInfo) ([]uintptr, b
 	return nil, false
 }
 
-// searchNode searches a gin.Engine node for a given path
-// It uses recursion to search all children nodes
-// It returns the node and a boolean indicating if the path was found
+// searchNode searches a gin.Engine node for a given path.
+// It uses recursion to search all children nodes.
+// It returns the node and a boolean indicating if the path was found.
 func searchNode(node reflect.Value, path string) (reflect.Value, bool) {
 	if node.FieldByName("fullPath").String() == path && node.FieldByName("handlers").Len() > 0 {
 		return node, true

@@ -1,7 +1,6 @@
 package astra
 
 import (
-	"context"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -22,8 +21,6 @@ func New(opts ...Option) *Service {
 	s.Routes = make([]Route, 0)
 	s.Components = make([]Field, 0)
 	s.CustomTypeMapping = make(map[string]TypeFormat)
-
-	s.Context = context.Background()
 
 	for _, opt := range opts {
 		opt(s)

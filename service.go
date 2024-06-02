@@ -1,7 +1,6 @@
 package astra
 
 import (
-	"context"
 	"github.com/rs/zerolog"
 )
 
@@ -19,8 +18,6 @@ const (
 
 // Service is the main struct for the generator.
 type Service struct {
-	Context context.Context `json:"-" yaml:"-"`
-
 	Inputs  []Input  `json:"inputs" yaml:"inputs"`
 	Outputs []Output `json:"outputs" yaml:"outputs"`
 

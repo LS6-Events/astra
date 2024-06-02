@@ -2,9 +2,11 @@ package gin
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/ls6-events/astra"
 	"reflect"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ls6-events/astra"
 )
 
 var (
@@ -55,7 +57,7 @@ func CreateRoutes(router *gin.Engine) astra.ServiceFunction {
 				handlers = []uintptr{reflect.ValueOf(route.HandlerFunc).Pointer()}
 			}
 
-			err := createRoute(s, s.Context, handlers, route)
+			err := createRoute(s, handlers, route)
 			if err != nil {
 				s.Log.Error().Str("path", route.Path).Err(err).Msg("Failed to parse route")
 				return err
