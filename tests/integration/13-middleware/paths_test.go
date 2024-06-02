@@ -26,9 +26,9 @@ func TestMiddleware(t *testing.T) {
 	require.Equal(t, "query", paths.Search("/pets", "get", "parameters", "0", "in").Data().(string))
 
 	// GET /pets/{id}
-	require.Equal(t, "string", paths.Search("/pets/{id}", "get", "parameters", "1", "schema", "type").Data().(string))
-	require.Equal(t, "api_key", paths.Search("/pets/{id}", "get", "parameters", "1", "name").Data().(string))
-	require.Equal(t, "query", paths.Search("/pets/{id}", "get", "parameters", "1", "in").Data().(string))
+	require.Equal(t, "string", paths.Search("/pets/{id}", "get", "parameters", "0", "schema", "type").Data().(string))
+	require.Equal(t, "api_key", paths.Search("/pets/{id}", "get", "parameters", "0", "name").Data().(string))
+	require.Equal(t, "query", paths.Search("/pets/{id}", "get", "parameters", "0", "in").Data().(string))
 
 	// POST /pets
 	require.Equal(t, "string", paths.Search("/pets", "post", "parameters", "0", "schema", "type").Data().(string))
@@ -36,9 +36,9 @@ func TestMiddleware(t *testing.T) {
 	require.Equal(t, "query", paths.Search("/pets", "post", "parameters", "0", "in").Data().(string))
 
 	// DELETE /pets/{id}
-	require.Equal(t, "string", paths.Search("/pets/{id}", "delete", "parameters", "1", "schema", "type").Data().(string))
-	require.Equal(t, "api_key", paths.Search("/pets/{id}", "delete", "parameters", "1", "name").Data().(string))
-	require.Equal(t, "query", paths.Search("/pets/{id}", "delete", "parameters", "1", "in").Data().(string))
+	require.Equal(t, "string", paths.Search("/pets/{id}", "delete", "parameters", "0", "schema", "type").Data().(string))
+	require.Equal(t, "api_key", paths.Search("/pets/{id}", "delete", "parameters", "0", "name").Data().(string))
+	require.Equal(t, "query", paths.Search("/pets/{id}", "delete", "parameters", "0", "in").Data().(string))
 
 	// /no-middleware
 	require.True(t, paths.Exists("/no-middleware", "get"))
