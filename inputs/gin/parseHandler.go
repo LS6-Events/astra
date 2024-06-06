@@ -12,14 +12,17 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-// parseRoute parses a route from a gin routes.
+// parseHandler parses a route from a gin routes.
 // It will populate the route with the handler function.
 // createRoute must be called before this.
 // It will open the file as an AST and find the handler function using the line number and function name.
 // It can also find the path parameters from the handler function.
 // It calls the parseFunction function to parse the handler function.
-func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
-	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", baseRoute.File).Logger()
+func parseHandler(s *astra.Service, baseRoute *astra.Route, handlerIndex int) error {
+	handler := baseRoute.Handlers[handlerIndex]
+	isLastHandler := handlerIndex == len(baseRoute.Handlers)-1
+
+	log := s.Log.With().Str("path", baseRoute.Path).Str("method", baseRoute.Method).Str("file", handler.File).Logger()
 
 	traverser := astTraversal.New(s.WorkDir).SetLog(&log)
 
@@ -30,18 +33,18 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 		return path, nil
 	})
 
-	handler := utils.SplitHandlerPath(baseRoute.Handler)
+	splitHandler := utils.SplitHandlerPath(handler.Name)
 
-	pkgPath := handler.PackagePath()
-	pkgName := handler.PackageName()
+	pkgPath := splitHandler.PackagePath()
+	pkgName := splitHandler.PackageName()
 
-	if len(handler.HandlerParts) < 1 {
-		err := fmt.Errorf("invalid handler name for file: %s", baseRoute.Handler)
+	if len(splitHandler.HandlerParts) < 1 {
+		err := fmt.Errorf("invalid handler name for file: %s", handler.Name)
 		log.Error().Err(err).Msg("Failed to parse handler name")
 		return err
 	}
 
-	funcName := handler.FuncName()
+	funcName := splitHandler.FuncName()
 
 	pkgNode := traverser.Packages.AddPackage(pkgPath)
 
@@ -56,7 +59,7 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 	}
 
 	for _, file := range pkgNode.Files {
-		if path.Base(file.FileName) == path.Base(baseRoute.File) {
+		if path.Base(file.FileName) == path.Base(handler.File) {
 			log.Debug().Str("fileName", file.FileName).Msg("Found file")
 			traverser.SetActiveFile(file)
 			break
@@ -64,7 +67,7 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 	}
 
 	if traverser.ActiveFile() == nil {
-		err := fmt.Errorf("could not find file: %s", baseRoute.File)
+		err := fmt.Errorf("could not find file: %s", handler.File)
 		log.Error().Err(err).Msg("Failed to find file")
 		return err
 	}
@@ -88,11 +91,11 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 
 			startPos := traverser.ActiveFile().Package.Package.Fset.Position(funcDecl.Pos())
 
-			if baseRoute.LineNo != startPos.Line {
+			if handler.LineNo != startPos.Line {
 				// This means that the function is set inline in the route definition
 				log.Debug().Str("funcName", funcName).Msg("Function is inline")
 
-				ast.Inspect(funcDecl, func(n ast.Node) bool {
+				ast.Inspect(funcDecl.Body, func(n ast.Node) bool {
 					if n == nil {
 						return true
 					}
@@ -102,7 +105,7 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 					if ok {
 						inlineStartPos := traverser.ActiveFile().Package.Package.Fset.Position(funcLit.Pos())
 
-						if baseRoute.LineNo == inlineStartPos.Line {
+						if handler.LineNo == inlineStartPos.Line {
 							log.Debug().Str("funcName", funcName).Msg("Found inline handler function")
 
 							function, err := traverser.Function(funcLit)
@@ -111,7 +114,7 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 								return false
 							}
 
-							err = parseFunction(s, function, baseRoute, traverser.ActiveFile(), 0)
+							err = parseFunction(s, function, baseRoute, traverser.ActiveFile(), isLastHandler, 0)
 							if err != nil {
 								log.Error().Err(err).Msg("Failed to parse inline function")
 								return false
@@ -139,7 +142,7 @@ func parseRoute(s *astra.Service, baseRoute *astra.Route) error {
 			// And define the function name as the operation ID
 			baseRoute.OperationID = strcase.ToLowerCamel(funcName)
 
-			err = parseFunction(s, function, baseRoute, traverser.ActiveFile(), 0)
+			err = parseFunction(s, function, baseRoute, traverser.ActiveFile(), isLastHandler, 0)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to parse function")
 				return false
