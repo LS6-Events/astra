@@ -12,10 +12,21 @@ includes:
     with-gorm: ./with-gorm/taskfile.yml
     with-multi-content-types: ./with-multi-content-types/taskfile.yml
     with-swagger-ui: ./with-swagger-ui/taskfile.yml
+    with-validation: ./with-validation/taskfile.yml
 
 tasks:
     run:
-      cmds:
-          - for: [basic, with-azure-functions, with-cache, with-cli, with-cobra, with-custom-functions, with-custom-type-mapping, with-gorm, with-multi-content-types, with-swagger-ui]
-            cmd: cd {{ .ITEM }} && task run
-
+        cmds:
+        - for:
+            - basic
+            - with-azure-functions
+            - with-cache
+            - with-cli
+            - with-cobra
+            - with-custom-functions
+            - with-custom-type-mapping
+            - with-gorm
+            - with-multi-content-types
+            - with-swagger-ui
+            - with-validation
+          cmd: cd {{ .ITEM }} && task run

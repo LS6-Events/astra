@@ -9,17 +9,18 @@ import (
 // ParseResultToField changes a result from the AST traversal to a local field.
 func ParseResultToField(result astTraversal.Result) Field {
 	field := Field{
-		Type:                      result.Type,
-		Name:                      result.Name,
-		EnumValues:                result.EnumValues,
-		IsEmbedded:                result.IsEmbedded,
-		SliceType:                 result.SliceType,
-		ArrayType:                 result.ArrayType,
-		ArrayLength:               result.ArrayLength,
-		MapKeyType:                result.MapKeyType,
-		MapValueType:              result.MapValueType,
-		StructFieldBindingTags:    result.StructFieldBindingTags,
-		StructFieldValidationTags: result.StructFieldValidationTags,
+		Type:                          result.Type,
+		Name:                          result.Name,
+		EnumValues:                    result.EnumValues,
+		IsEmbedded:                    result.IsEmbedded,
+		SliceType:                     result.SliceType,
+		ArrayType:                     result.ArrayType,
+		ArrayLength:                   result.ArrayLength,
+		MapKeyType:                    result.MapKeyType,
+		MapValueType:                  result.MapValueType,
+		StructFieldBindingTags:        result.StructFieldBindingTags,
+		StructFieldValidationTags:     result.StructFieldValidationTags,
+		StructFieldValidationRequired: result.StructFieldValidationRequired,
 	}
 
 	// If the godoc is populated, we need to parse the response.

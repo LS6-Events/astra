@@ -4,8 +4,11 @@ import (
 	"slices"
 	"strings"
 
+	"dario.cat/mergo"
+
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
+	"github.com/ls6-events/validjsonator"
 )
 
 // collisionSafeNames is a map of a full name package path to a collision safe name.
@@ -133,16 +136,16 @@ func makeComponentRefName(bindingType astTraversal.BindingTagType, name, pkg str
 }
 
 // componentToSchema converts a component to a schema.
-func componentToSchema(service *astra.Service, component astra.Field, bindingType astTraversal.BindingTagType) (schema Schema, bound bool) {
+func componentToSchema(service *astra.Service, component astra.Field, bindingType astTraversal.BindingTagType) (schema validjsonator.Schema, bound bool) {
 	if _, ok := service.GetTypeMapping(component.Name, component.Package); ok {
 		return mapTypeFormat(service, component.Name, component.Package), true
 	}
 
 	if component.Type == "struct" {
-		embeddedProperties := make([]Schema, 0)
-		schema = Schema{
+		embeddedProperties := make([]validjsonator.Schema, 0)
+		schema = validjsonator.Schema{
 			Type:       "object",
-			Properties: make(map[string]Schema),
+			Properties: make(map[string]validjsonator.Schema),
 		}
 		for _, field := range component.StructFields {
 			// We should aim to use doc comments in the future.
@@ -150,7 +153,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			if field.IsEmbedded {
 				componentRef, componentBound := makeComponentRef(bindingType, field.Type, field.Package)
 				if componentBound {
-					embeddedProperties = append(embeddedProperties, Schema{
+					embeddedProperties = append(embeddedProperties, validjsonator.Schema{
 						Ref: componentRef,
 					})
 				}
@@ -161,7 +164,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			fieldBinding := field.StructFieldBindingTags[bindingType]
 			fieldNoBinding := field.StructFieldBindingTags[astTraversal.NoBindingTag]
 			if fieldBinding == (astTraversal.BindingTag{}) && fieldNoBinding == (astTraversal.BindingTag{}) {
-				return Schema{}, false
+				return validjsonator.Schema{}, false
 			}
 			if fieldBinding == (astTraversal.BindingTag{}) {
 				fieldBinding = fieldNoBinding
@@ -170,7 +173,17 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			if !fieldBinding.NotShown {
 				fieldSchema, fieldBound := componentToSchema(service, field, bindingType)
 				if fieldBound {
+					err := mergo.Merge(&fieldSchema, field.StructFieldValidationTags[astTraversal.GinValidationTag])
+					if err != nil {
+						service.Log.Warn().Err(err).Msg("failed to merge component and validation schemas")
+						continue
+					}
+
 					schema.Properties[fieldBinding.Name] = fieldSchema
+
+					if field.StructFieldValidationRequired[astTraversal.GinValidationTag] {
+						schema.Required = append(schema.Required, fieldBinding.Name)
+					}
 				}
 			}
 		}
@@ -179,7 +192,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			if len(schema.Properties) == 0 {
 				schema.AllOf = embeddedProperties
 			} else {
-				schema.AllOf = append(embeddedProperties, Schema{
+				schema.AllOf = append(embeddedProperties, validjsonator.Schema{
 					Properties: schema.Properties,
 				})
 
@@ -192,13 +205,13 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.SliceType) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.SliceType, component.Package)
 			if componentBound {
-				itemSchema = Schema{
+				itemSchema = validjsonator.Schema{
 					Ref: componentRef,
 				}
 			}
 		}
 
-		schema = Schema{
+		schema = validjsonator.Schema{
 			Type:  "array",
 			Items: &itemSchema,
 		}
@@ -208,13 +221,13 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 		if itemSchema.Type == "" && !astra.IsAcceptedType(component.ArrayType) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.ArrayType, component.Package)
 			if componentBound {
-				itemSchema = Schema{
+				itemSchema = validjsonator.Schema{
 					Ref: componentRef,
 				}
 			}
 		}
 
-		schema = Schema{
+		schema = validjsonator.Schema{
 			Type:      "array",
 			Items:     &itemSchema,
 			MaxLength: int(component.ArrayLength),
@@ -229,7 +242,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 			}
 		}
 
-		schema = Schema{
+		schema = validjsonator.Schema{
 			Type:                 "object",
 			AdditionalProperties: &additionalProperties,
 		}
@@ -238,7 +251,7 @@ func componentToSchema(service *astra.Service, component astra.Field, bindingTyp
 		if schema.Type == "" && !astra.IsAcceptedType(component.Type) {
 			componentRef, componentBound := makeComponentRef(bindingType, component.Type, component.Package)
 			if componentBound {
-				schema = Schema{
+				schema = validjsonator.Schema{
 					Ref: componentRef,
 				}
 			}

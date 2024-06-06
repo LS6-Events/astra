@@ -1,13 +1,15 @@
-package petstore
+package integration
 
 import (
+	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/ls6-events/astra/tests/petstore"
 )
+
+var ErrIDRequired = errors.New("ID is required")
 
 // getAllPets returns all pets.
 func getAllPets(c *gin.Context) {
@@ -19,13 +21,13 @@ func getAllPets(c *gin.Context) {
 // getPetByID returns a pet by its ID.
 // It takes in the ID as a path parameter.
 func getPetByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		handleError(c, http.StatusBadRequest, err)
+	id := c.Param("id")
+	if id == "" {
+		handleError(c, http.StatusBadRequest, ErrIDRequired)
 		return
 	}
 
-	pet, err := petstore.PetByID(int64(id))
+	pet, err := petstore.PetByID(id)
 	if err != nil {
 		handleError(c, http.StatusNotFound, err)
 		return
@@ -57,13 +59,13 @@ func createPet(c *gin.Context) {
 // deletePet deletes a pet by its ID.
 // It takes in the ID as a path parameter.
 func deletePet(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		handleError(c, http.StatusBadRequest, err)
+	id := c.Param("id")
+	if id == "" {
+		handleError(c, http.StatusBadRequest, ErrIDRequired)
 		return
 	}
 
-	petstore.RemovePet(int64(id))
+	petstore.RemovePet(id)
 
 	c.Status(http.StatusOK)
 }

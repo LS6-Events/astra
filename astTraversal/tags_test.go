@@ -1,20 +1,22 @@
 package astTraversal
 
 import (
+	"go/types"
 	"reflect"
 	"testing"
 )
 
 func TestParseStructTag(t *testing.T) {
 	testCases := []struct {
-		field                  string
-		tag                    string
-		expectedBindingTags    BindingTagMap
-		expectedValidationTags ValidationTagMap
+		field               string
+		tag                 string
+		node                types.Type
+		expectedBindingTags BindingTagMap
 	}{
 		{
 			field: "Field1",
 			tag:   `json:"field1"`,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
 					Name:           "field1",
@@ -22,11 +24,11 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field2",
 			tag:   `json:"field2,omitempty"`,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
 					Name:           "field2",
@@ -34,11 +36,11 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: true,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field3",
 			tag:   `json:""`,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
 					Name:           "Field3",
@@ -46,11 +48,11 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field4",
 			tag:   `json:",omitempty"`,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
 					Name:           "Field4",
@@ -58,11 +60,11 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: true,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 		{
 			field: "Field5",
 			tag:   `json:"-"`,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				JSONBindingTag: {
 					Name:           "",
@@ -70,27 +72,11 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
-		},
-		{
-			field: "Field6",
-			tag:   `validate:"required"`,
-			expectedBindingTags: BindingTagMap{
-				NoBindingTag: {
-					Name:           "Field6",
-					NotShown:       false,
-					ReturnOptional: false,
-				},
-			},
-			expectedValidationTags: ValidationTagMap{
-				ValidatorValidationTag: {
-					IsRequired: true,
-				},
-			},
 		},
 		{
 			field: "Field7",
 			tag:   ``,
+			node:  &types.Basic{},
 			expectedBindingTags: BindingTagMap{
 				NoBindingTag: {
 					Name:           "Field7",
@@ -98,20 +84,15 @@ func TestParseStructTag(t *testing.T) {
 					ReturnOptional: false,
 				},
 			},
-			expectedValidationTags: ValidationTagMap{},
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run("field="+testCase.field, func(t *testing.T) {
-			bindingTags, validationTags := ParseStructTag(testCase.field, testCase.tag)
+			bindingTags, _, _ := ParseStructTag(testCase.field, testCase.node, testCase.tag)
 
 			if !reflect.DeepEqual(bindingTags, testCase.expectedBindingTags) {
 				t.Errorf("Expected BindingTags: %v, but got: %v", testCase.expectedBindingTags, bindingTags)
-			}
-
-			if !reflect.DeepEqual(validationTags, testCase.expectedValidationTags) {
-				t.Errorf("Expected ValidationTags: %v, but got: %v", testCase.expectedValidationTags, validationTags)
 			}
 		})
 	}

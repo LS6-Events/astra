@@ -46,9 +46,14 @@ type Result struct {
 	// StructFields is a map of struct fields (e.g. for a struct { Foo string })
 	StructFields map[string]Result
 
+	// StructFieldBindingTags is a map of struct field binding tags (e.g. for a struct { Foo string `binding:"foo"` })
 	StructFieldBindingTags BindingTagMap
 
+	// StructFieldValidationTags is a map of struct field validation tags (e.g. for a struct { Foo string `validate:"unique"` })
 	StructFieldValidationTags ValidationTagMap
+
+	// StructFieldValidationRequired is a map of struct field validation required tags (e.g. for a struct { Foo string `validate:"required"` })
+	StructFieldValidationRequired ValidationRequiredMap
 
 	// Doc is the documentation of the result
 	Doc string

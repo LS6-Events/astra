@@ -204,20 +204,23 @@ func (t *TypeTraverser) Result() (Result, error) {
 	case *types.Struct:
 		fields := make(map[string]Result)
 		for i := 0; i < n.NumFields(); i++ {
-			f := n.Field(i)
-			name := f.Id()
-			isExported := f.Exported()
-			isEmbedded := f.Embedded()
+			tag := n.Tag(i)
+			field := n.Field(i)
+			name := field.Id()
+			node := field.Type()
+			isExported := field.Exported()
+			isEmbedded := field.Embedded()
 
-			var bindingTag BindingTagMap
-			var validationTags ValidationTagMap
-			if isExported {
-				bindingTag, validationTags = ParseStructTag(name, n.Tag(i))
-			} else {
+			if !isExported {
 				continue
 			}
 
-			structFieldResult, err := t.Traverser.Type(f.Type(), t.Package).Result()
+			var bindingTag BindingTagMap
+			var validationTags ValidationTagMap
+			var validationRequired ValidationRequiredMap
+			bindingTag, validationTags, validationRequired = ParseStructTag(name, node, tag)
+
+			structFieldResult, err := t.Traverser.Type(node, t.Package).Result()
 			if err != nil {
 				return Result{}, err
 			}
@@ -228,7 +231,7 @@ func (t *TypeTraverser) Result() (Result, error) {
 					return Result{}, err
 				}
 
-				pos := f.Pos()
+				pos := field.Pos()
 
 				node, err := structFieldResult.Package.ASTAtPos(pos)
 				if err == nil && node != nil {
@@ -242,6 +245,7 @@ func (t *TypeTraverser) Result() (Result, error) {
 			structFieldResult.IsEmbedded = isEmbedded
 			structFieldResult.StructFieldBindingTags = bindingTag
 			structFieldResult.StructFieldValidationTags = validationTags
+			structFieldResult.StructFieldValidationRequired = validationRequired
 
 			fields[name] = structFieldResult
 		}

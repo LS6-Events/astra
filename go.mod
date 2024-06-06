@@ -3,11 +3,13 @@ module github.com/ls6-events/astra
 go 1.21
 
 require (
+	dario.cat/mergo v1.0.0
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/iancoleman/strcase v0.3.0
+	github.com/ls6-events/validjsonator v1.1.0
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/tools v0.22.0

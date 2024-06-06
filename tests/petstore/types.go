@@ -2,23 +2,23 @@ package petstore
 
 // Tag the tag model.
 type Tag struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID   string `json:"id" binding:"required,uuid4"`
+	Name string `json:"name" binding:"required"`
 }
 
 // Pet the pet model.
 type Pet struct {
-	ID        int64    `json:"id"`
-	Name      string   `json:"name"`
-	PhotoURLs []string `json:"photoUrls,omitempty"`
+	ID        string   `json:"id" binding:"required,uuid4"`
+	Name      string   `json:"name" binding:"required"`
+	PhotoURLs []string `json:"photoUrls,omitempty" binding:"dive,url"`
 	Status    string   `json:"status,omitempty"`
 	Tags      []Tag    `json:"tags,omitempty"`
 }
 
 // PetDTO the pet dto.
 type PetDTO struct {
-	Name      string   `json:"name"`
-	PhotoURLs []string `json:"photoUrls,omitempty"`
+	Name      string   `json:"name"  binding:"required"`
+	PhotoURLs []string `json:"photoUrls,omitempty" binding:"dive,url"`
 	Status    string   `json:"status,omitempty"`
 	Tags      []Tag    `json:"tags,omitempty"`
 }

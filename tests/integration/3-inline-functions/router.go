@@ -1,4 +1,4 @@
-package petstore
+package integration
 
 import (
 	"github.com/gin-gonic/gin"

@@ -14,6 +14,7 @@ import (
 	"github.com/ls6-events/astra"
 	"github.com/ls6-events/astra/astTraversal"
 	"github.com/ls6-events/astra/utils"
+	"github.com/ls6-events/validjsonator"
 
 	"gopkg.in/yaml.v3"
 )
@@ -152,9 +153,9 @@ func Generate(filePath string) astra.ServiceFunction {
 
 				var mediaType MediaType
 				if bodyParam.Name != "" {
-					mediaType.Schema = Schema{
+					mediaType.Schema = validjsonator.Schema{
 						Type: "object",
-						Properties: map[string]Schema{
+						Properties: map[string]validjsonator.Schema{
 							bodyParam.Name: schema,
 						},
 					}
@@ -246,7 +247,7 @@ func Generate(filePath string) astra.ServiceFunction {
 		s.Log.Debug().Msg("Added paths")
 
 		components := Components{
-			Schemas: make(map[string]Schema),
+			Schemas: make(map[string]validjsonator.Schema),
 		}
 
 		s.Log.Debug().Msg("Adding components")
